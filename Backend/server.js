@@ -132,7 +132,7 @@ app.post('/addstoreinfo', async (req, res) => {
             const storecollection = db.collection("Store_Info");
             const UniqID = `id_${Date.now()}`;
             storeInfo["id"] = UniqID;
-            storeInfo["referal_id"] = ["id_1742404536258","id_1742504568227"];
+            storeInfo["referal_id"] = ["id_1742404536258", "id_1742504568227"];
             const result = await storecollection.insertOne(storeInfo);
             res.status(200).json("Successfully Added.");
             await client.close();
@@ -140,6 +140,86 @@ app.post('/addstoreinfo', async (req, res) => {
     } catch (error) {
         res.status(500).json(`Error is : ${error}`);
     }
+});
+
+
+//For edit store info
+app.post('/editstoreinfo', async (req, res) => {
+    try {
+        const { id } = req.body;
+        let updatedetails = {
+            "city": "Chennai",
+            "storeType": "Hotel"
+        }
+        if (!id) {
+            res.status(200).json("Invalid ID");
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+            const editdetail = await storecollection.updateOne(
+                { id: id },
+                { $set: updatedetails }
+            );
+            const result = await storecollection.find({ id: id }).toArray();
+            res.status(200).json(result);
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
+});
+
+
+//For agent created store and display => MyStore
+app.get('/mystores', async (req, res) => {
+    try {
+        const targetId = "id_1742404536258";  // make sure change req.body and POST method.
+        if (!targetId) {
+            res.status(200).json("Invaid Input.")
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+            const result = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
+            res.status(200).json(result)
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
+});
+
+
+// For Incompleted store information 
+app.post('/incompletestoreinfo', async (req, res) => {
+    try {
+        const { targetId } = req.body;
+        if (!targetId) {
+            res.status(200).json("Invaid Input.")
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+            const agentstore = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
+            const incomplete = [];
+            agentstore.map(doc => {
+                console.log(doc.email);
+                const nullfields = Object.keys(doc).filter(key => doc[key] === null);
+                if ( nullfields.length > 0 ){
+                    incomplete.push({id : doc.id});
+                }
+            })
+            res.status(200).json(incomplete);
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
+    const targetId = req.body;
 });
 
 
