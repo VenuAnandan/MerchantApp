@@ -13,19 +13,30 @@ function connect() {
     return client;
 }
 
-app.use(cors());
+app.use(cors(
+    // {
+    //     origin: 'http://192.168.7.7:4000',  // Replace with your LAN IP
+    //     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    //     allowedHeaders: ['Content-Type', 'Authorization']
+    // }
+));
 app.use(express.json());
 
+
+app.get('/summa',(req,res)=>{
+    res,json('api is worked');
+})
 
 //for Agent Registration Page
 app.post('/agentregistration', async (req, res) => {
     try {
-        const { firstName, lastName, email, employee_Id, phone, bloodGroup, dob, password, address } = req.body
+        const { refname, relname, reemail, reemployee, rephone, bloodGroup, dob, address } = req.body
+        console.log("hello")
 
-        if (!firstName || !lastName || !email || !employee_Id || !phone || !password) {
+        if (!refname || !relname || !reemail || !reemployee || !rephone) {
             res.status(200).json(`Enter to all feild!.`);
         } else {
-            let agentInfo = { firstName, lastName, email, employee_Id, phone, bloodGroup, dob, password, address };
+            let agentInfo = { firstname: refname, lastname: relname, email: reemail, emplyoyeeID: reemployee, phone: rephone, bloodGroup: bloodGroup, dob: dob, address: address };
             const client = connect();
             await client.connect();
             const UniqID = `id_${Date.now()}`;
@@ -33,12 +44,20 @@ app.post('/agentregistration', async (req, res) => {
             agentInfo["scoreCount"] = 0;
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
-            const result = await agentcollection.insertOne(agentInfo);
-            await client.close();
-            res.status(200).json("Agent Info Added");
+            if (reemail) {
+                const mailverify = await agentcollection.find({ email: reemail }).toArray();
+                if (mailverify == '' || mailverify == null) {
+                    const result = await agentcollection.insertOne(agentInfo);
+                    res.status(200).json("Agent Info Added");
+                    await client.close();
+                } else {
+                    res.status(200).json('Email Already Exist');
+                    await client.close();
+                }
+            }
         }
     } catch (error) {
-        res.status(500).json(`Error is : ${error}`);
+        res.status(500).json(`EError is : ${error}`);
     }
 });
 
@@ -56,9 +75,16 @@ app.post('/login', async (req, res) => {
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
             const result = await agentcollection.find({ email: email, password: password }).toArray();
-            console.log(result[0].firstName); // for send a agent data without unwanted data
-            res.status(200).json(result);
-            await client.close();
+            if (result == '') {
+                res.status(200).json("Not matched");
+                await client.close();
+            } else {
+                res.status(200).json(result);
+                await client.close();
+            }
+            // console.log(result[0].firstName); // for send a agent data without unwanted data
+            // res.status(200).json('Succesfully added');
+            // await client.close();
         }
     } catch (error) {
         res.status(500).json(`Error is : ${error}`);
@@ -209,8 +235,8 @@ app.post('/incompletestoreinfo', async (req, res) => {
             agentstore.map(doc => {
                 console.log(doc.email);
                 const nullfields = Object.keys(doc).filter(key => doc[key] === null);
-                if ( nullfields.length > 0 ){
-                    incomplete.push({id : doc.id});
+                if (nullfields.length > 0) {
+                    incomplete.push({ id: doc.id });
                 }
             })
             res.status(200).json(incomplete);

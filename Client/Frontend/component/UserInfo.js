@@ -2,11 +2,17 @@ import React, { useEffect } from "react";
 import { View, Text, Button, StatusBar, Platform, Image, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const UserInfo = ({ navigation }) => {
 
 
-    const agent = 'female';
+    const agent = 'male';
+
+    const goLogout=async()=>{
+        await AsyncStorage.removeItem("login");
+        navigation.navigate('Login')
+    }
 
     return (
         <View style={styles.conatiner}>
@@ -107,6 +113,7 @@ const UserInfo = ({ navigation }) => {
                     </View>
                 </View>
             )}
+            <Button title="Logout" onPress={goLogout}></Button>
         </View>
     );
 }
