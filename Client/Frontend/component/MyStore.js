@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
@@ -11,11 +12,13 @@ const MyStore = ({ navigation }) => {
 
     useEffect(() => {
         const getmystore = async () => {
-            const id = "id_1742404536258";
+            const token = await AsyncStorage.getItem("token");
+            // console.log(token);
             try {
-                const response = await axios.post('http://192.168.1.37:4000/mystores', {
-                    id
+                const response = await axios.get('http://192.168.7.2:4000/mystores', {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
+                // console.log(response.data);
                 setMystores(response.data);
             } catch (error) {
                 console.log(`EError is : ${error}`)
@@ -28,23 +31,22 @@ const MyStore = ({ navigation }) => {
     return (
         <View style={styles.conatiner} >
             <View>
-                <Text style={{ fontSize: 40, paddingTop: 20, paddingBottom:20}}>My Stores</Text>
+                <Text style={{ fontSize: 40, paddingTop: 20, paddingBottom: 20 }}>My Stores</Text>
             </View>
             <FlatList
                 data={mystores}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <Pressable style={styles.storess}>
+                    <Pressable style={styles.storess} onPress={() => navigation.navigate('Add', { screen: 'StoreInfo' })}>
                         <View>
-                            <Image style={{ width: 100, height: 100, borderRadius:15}} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
+                            <Image style={{ width: 100, height: 100, borderRadius: 15 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
                         </View>
                         <View>
-                            <Text style={{fontSize:25, fontWeight:'bold'}}>{item.storeName}</Text>
+                            <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{item.storeName}</Text>
                             <Text >Owner : {item.ownerName}</Text>
-                            <Text >City : {item.city}</Text>
                             <Text >Phone : {item.phone}</Text>
+                            <Text >Status : {item.status}</Text>
                         </View>
-
                     </Pressable>
                 )}
             />
@@ -58,14 +60,14 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         padding: 30,
     },
-    storess : {
-        borderWidth:1,
-        display:'flex',
-        gap:15,
-        flexWrap:'wrap',
-        flexDirection:'row',
-        padding:10,
-        borderRadius:15
+    storess: {
+        borderWidth: 0.5,
+        display: 'flex',
+        gap: 15,
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        padding: 10,
+        borderRadius: 15
     }
 }
 );

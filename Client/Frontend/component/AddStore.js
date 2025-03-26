@@ -6,7 +6,6 @@ const AddStore = ({navigation}) => {
     return (
         <View style={styles.conatiner} >
             <Text>AddStore Screen</Text>
-            <Button title="Home" onPress={()=>{navigation.navigate('home')}}></Button>
         </View>
     );
 }

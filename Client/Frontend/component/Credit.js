@@ -2,10 +2,10 @@ import React from "react";
 import { View, Text, Button } from "react-native";
 import { StyleSheet } from "react-native";
 
-const Incomplete = ({navigation}) => {
+const Credit = ({navigation}) => {
     return (
         <View style={styles.conatiner} >
-            <Text>Incompleted Screen</Text>
+            <Text>Credite Score Informations Screen</Text>
         </View>
     );
 }
@@ -19,4 +19,4 @@ const styles = StyleSheet.create({
 }
 );
 
-export default Incomplete;
+export default Credit;

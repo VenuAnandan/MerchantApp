@@ -1,23 +1,50 @@
-import React, { useState } from "react";
-import { View, Text, Button, StatusBar, Platform, Image, TextInput } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, StatusBar, Platform, Image, TextInput, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
+import { FlatList } from "react-native";
 
 const Home = ({ navigation }) => {
 
 
     const data = "";
+    const [agentname, setAgentname] = useState("Name");
+    const [agentemail, setAgentemail] = useState("Email");
+
+    // console.log(agentname,"---");
+
+    const [allstores, setAllstores] = useState();
+
+    useEffect(() => {
+        const getmystore = async () => {
+            try {
+                const response = await axios.get('http://192.168.7.2:4000/allstores', {
+                });
+                // setAgentname(await AsyncStorage.getItem("agentname"));
+
+                // setAgentemail(await AsyncStorage.getItem("agentemail"));
+                setAllstores(response.data);
+            } catch (error) {
+                console.log(`EError is : ${error}`)
+            }
+        }
+        getmystore();
+    }, []);
+
+
 
     return (
         <View style={{ flex: 1 }}>
             <View style={styles.conatiner}>
                 <View style={styles.head1}>
                     <View style={styles.head12}>
-                        <View>
+                        <Pressable onPress={() => navigation.navigate('User', { screen: 'AgentInfo' })}>
                             <Image style={styles.image} source={{ uri: 'https://img.icons8.com/?size=100&id=13042&format=png&color=000000' }} />
-                        </View>
+                        </Pressable>
                         <View>
-                            <Text style={{ fontSize: 25 }}>Name</Text>
-                            <Text>Email</Text>
+                            <Text style={{ fontSize: 25 }}>{agentname}</Text>
+                            <Text>{agentemail}</Text>
                         </View>
                     </View>
                     <View>
@@ -29,7 +56,7 @@ const Home = ({ navigation }) => {
                     {/* {!isvalid && <Text style={{ color: 'red' }}>Invalid input. Only alphabetic characters are allowed.</Text>} */}
                 </View>
                 <View style={styles.head3}>
-                    <View style={styles.head31}>
+                    <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Credit' })}>
                         <View>
                             <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
                         </View>
@@ -37,16 +64,18 @@ const Home = ({ navigation }) => {
                             <Text>Credite Score</Text>
                             <Text>18/<Text style={{ fontWeight: 'bold' }}>50</Text></Text>
                         </View>
-                    </View>
-                    <View style={styles.head31}>
-                        <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
+                    </Pressable>
+                    <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Achivmentsinfo' })}>
+                        <View>
+                            <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
+                        </View>
                         <View>
                             <Text>Achivements</Text>
                             <View>
                                 <Text>Silver</Text>
                             </View>
                         </View>
-                    </View>
+                    </Pressable>
                 </View>
                 {data ? (
                     <View style={styles.head4}>
@@ -77,25 +106,30 @@ const Home = ({ navigation }) => {
                     <View style={styles.head4}>
                         <View style={styles.recent}>
                             <View>
-                                <Text style={{fontSize:20, fontWeight:'bold'}}>Recent Stores</Text>
+                                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Recent Stores</Text>
                             </View>
                             <View>
                                 <Text>View All</Text>
                             </View>
                         </View>
                         <View>
-                            <View style={styles.store}>
-                                <View style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                                    <View>
-                                        <Image style={{ width: 90, height: 70, borderRadius: 20 }} source={{ uri: 'https://picsum.photos/200/300' }} />
-                                    </View>
-                                    <View>
-                                        <Text style={{fontWeight:'bold'}}>Sri Rajalakshmi Saaman</Text>
-                                        <Text>Chennai</Text>
-                                        <Text>Contact : </Text>
-                                    </View>
-                                </View>
-                            </View>
+                            <FlatList
+                                data={allstores}
+                                keyExtractor={(item) => item.id}
+                                renderItem={({ item }) => (
+                                    <Pressable style={styles.storess} onPress={() => navigation.navigate('Add', { screen: 'StoreInfo' })}>
+                                        <View>
+                                            <Image style={{ width: 100, height: 100, borderRadius: 15 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
+                                        </View>
+                                        <View>
+                                            <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{item.storeName}</Text>
+                                            <Text >Owner : {item.ownerName}</Text>
+                                            <Text >Phone : {item.phone}</Text>
+                                            <Text >Status : {item.status}</Text>
+                                        </View>
+                                    </Pressable>
+                                )}
+                            />
                         </View>
                     </View>
                 )}
@@ -182,7 +216,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        paddingBottom: 20
     },
     store: {
         marginTop: 15,
@@ -193,7 +228,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         borderRadius: 20
+    },
+    storess: {
+        borderWidth: 0.5,
+        display: 'flex',
+        gap: 15,
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        padding: 10,
+        borderRadius: 15
     }
+
 }
 );
 

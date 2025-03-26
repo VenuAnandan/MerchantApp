@@ -52,16 +52,16 @@ const Login = ({ navigation }) => {
     //for login api
     const gologin = async () => {
         try {
-            const response = await axios.post('http://192.168.7.7:4000/login', {
+            const response = await axios.post('http://192.168.7.2:4000/login', {
                 email, password
             });
-            // console.log(response.data)
-            if (response.data == "Not matched" || response.data == "Enter email or password") {
-                console.log("Flase");
-            } else {
-                console.log("True");
+            if(response.data.data === "Successfully"){
                 await AsyncStorage.setItem("login", "True");
-                navigation.navigate('Home')
+                await AsyncStorage.setItem("token",response.data.token);
+                await AsyncStorage.setItem("agentname",response.data.agentname);
+                await AsyncStorage.setItem("agentemail",response.data.agentemail);
+                console.log(response.data.token);
+                // navigation.navigate('Home');
             }
         } catch (error) {
             console.log("error is Fetching : ", error);
@@ -71,7 +71,7 @@ const Login = ({ navigation }) => {
     //for registration api
     const goregistration = async () => {
         try {
-            const response = await axios.post('http://192.168.7.7:4000/agentregistration',
+            const response = await axios.post('http://192.168.7.2:4000/agentregistration',
                 {
                     refname, relname, reemail, repassword, reemployee, rephone
                 }

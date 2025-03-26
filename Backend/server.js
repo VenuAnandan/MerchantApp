@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient } = require("mongodb");
 const { json } = require("body-parser");
+const jwt = require("jsonwebtoken");
+const secretkey = 'abcde12345';
 
 const app = express();
 const port = 4000;
@@ -22,9 +24,23 @@ app.use(cors(
 ));
 app.use(express.json());
 
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        return res.json({ data: "token required" });
+    }
+    try {
+        const decoded = jwt.verify(token, secretkey);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.json({ data: "Invalid Token" });
+    }
+};
 
-app.get('/summa',(req,res)=>{
-    res,json('api is worked');
+
+app.get('/summa', (req, res) => {
+    res, json('api is worked');
 })
 
 //for Agent Registration Page
@@ -36,7 +52,7 @@ app.post('/agentregistration', async (req, res) => {
         if (!refname || !relname || !reemail || !reemployee || !rephone) {
             res.status(200).json(`Enter to all feild!.`);
         } else {
-            let agentInfo = { firstname: refname, lastname: relname, email: reemail, emplyoyeeID: reemployee, phone: rephone, bloodGroup: bloodGroup, dob: dob, address: address };
+            let agentInfo = { firstname: refname, lastname: relname, email: reemail, emplyoyeeID: reemployee, phone: rephone, bloodGroup: bloodGroup, dob: dob, address: address, gender };
             const client = connect();
             await client.connect();
             const UniqID = `id_${Date.now()}`;
@@ -67,7 +83,7 @@ app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            res.status(200).json(`Enter email or password`);
+            res.status(200).json({ data: "Enter email or password" });
         }
         else {
             const client = connect();
@@ -75,11 +91,19 @@ app.post('/login', async (req, res) => {
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
             const result = await agentcollection.find({ email: email, password: password }).toArray();
-            if (result == '') {
-                res.status(200).json("Not matched");
+            if (result == '' || result == null) {
+                res.status(200).json({ data: "Not matched" });
                 await client.close();
             } else {
-                res.status(200).json(result);
+                const agent = result[0];
+
+                const token = jwt.sign({
+                    email: agent.email,
+                    employee_Id: agent.emplyoyeeID,
+                    id: agent.id,
+                    phone: agent.phone
+                }, secretkey, { expiresIn: "168h" });
+                res.status(200).json({ data: "Successfully", token: token, agentname : result.firstname, agentemail : result.email });
                 await client.close();
             }
             // console.log(result[0].firstName); // for send a agent data without unwanted data
@@ -158,6 +182,7 @@ app.post('/addstoreinfo', async (req, res) => {
             const storecollection = db.collection("Store_Info");
             const UniqID = `id_${Date.now()}`;
             storeInfo["id"] = UniqID;
+            storedInfo["status"] = null;
             storeInfo["referal_id"] = ["id_1742404536258", "id_1742504568227"];
             const result = await storecollection.insertOne(storeInfo);
             res.status(200).json("Successfully Added.");
@@ -199,11 +224,12 @@ app.post('/editstoreinfo', async (req, res) => {
 
 
 //For agent created store and display => MyStore
-app.post('/mystores', async (req, res) => {
+app.get('/mystores', verifyToken, async (req, res) => {
     try {
-        const targetId =  req.body.id  //"id_1742404536258"; make sure change req.body and POST method.
+        const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
+        console.log(targetId);
         if (!targetId) {
-            res.status(200).json("Invaid Input.")
+            res.status(200).json("Invaid Input.");
         } else {
             const client = connect();
             await client.connect();
@@ -211,9 +237,26 @@ app.post('/mystores', async (req, res) => {
             const storecollection = db.collection("Store_Info");
             const result = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
             res.status(200).json(result)
+            // console.log(result);
             await client.close();
         }
     } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
+});
+
+
+app.get('/allstores', async (req, res) => {
+    try {
+        const client = connect();
+        await client.connect();
+        const db = client.db("Merchant_App");
+        const storecollection = db.collection("Store_Info");
+        const result = await storecollection.find({}).toArray();
+        res.status(200).json(result);
+        await client.close();
+    } catch (error) {
+        ``
         res.status(500).json(`Error is : ${error}`);
     }
 });

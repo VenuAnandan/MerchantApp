@@ -9,111 +9,78 @@ const UserInfo = ({ navigation }) => {
 
     const agent = 'male';
 
-    const goLogout=async()=>{
+    const goLogout = async () => {
         await AsyncStorage.removeItem("login");
         navigation.navigate('Login')
     }
 
     return (
         <View style={styles.conatiner}>
+            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <Pressable style={styles.edit} onPress={() => navigation.navigate('User', { screen: 'EditProfile' })}>
+                    <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
+                </Pressable>
+            </View>
             {(agent === 'male') ? (
                 <View>
-                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                        <Pressable style={styles.edit} onPress={()=>{navigation.navigate('AddStore')}}>
-                            <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
-                        </Pressable>
-                    </View>
-                    <View style={styles.user2}>
+                    <Pressable style={styles.user2} onPress={() => navigation.navigate('User', { screen: 'AgentInfo' })}>
                         <Image style={{ width: 150, height: 150 }} source={{ uri: 'https://img.icons8.com/?size=100&id=Chgb7mhcx0Yj&format=png&color=000000' }}></Image>
                         <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Men</Text>
                         <Text>men345@gmail.com</Text>
-                    </View>
-                    <View style={styles.user3}>
-                        <View style={styles.user31}>
-                            <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Company</Text></View>
-                            <View><Text> @ </Text></View>
-                        </View>
-                        <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'MyStore' })}>
-                            <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Store</Text></View>
-                            <View><Text> @ </Text></View>
-                        </Pressable>
-                        <View style={styles.user31}>
-                            <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>Incomplete Stores</Text></View>
-                            <View><Text> @ </Text></View>
-                        </View>
-                    </View>
-                    <View style={styles.head3}>
-                        <View style={styles.head31}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text>Credite Score</Text>
-                                <Text>18/<Text style={{ fontWeight: 'bold' }}>50</Text></Text>
-                            </View>
-                        </View>
-                        <View style={styles.head31}>
-                            <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
-                            <View>
-                                <Text>Credite Score</Text>
-                                <View>
-                                    <Text>Silver</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                    {/* <Text>UserInfo Screen</Text>
+                    </Pressable>
+                    {/* <Text>UserInfo Screen</Text>s
                     <Button title="Home" onPress={() => { navigation.navigate('Home') }}></Button> */}
                 </View>
             ) : (
                 <View>
-                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                        <Pressable style={styles.edit}>
-                            <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
-                        </Pressable>
-                    </View>
                     <View style={styles.user2}>
                         <Image style={{ width: 150, height: 150 }} source={{ uri: 'https://img.icons8.com/?size=100&id=0yCd8ocCXRy1&format=png&color=000000' }}></Image>
                         <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Women</Text>
                         <Text>women345@gmail.com</Text>
                     </View>
-                    <View style={styles.user3}>
-                        <View style={styles.user31}>
-                            <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Company</Text></View>
-                            <View><Text> @ </Text></View>
-                        </View>
-                        <View style={styles.user31}>
-                            <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Store</Text></View>
-                            <View><Text> @ </Text></View>
-                        </View>
-                        <View style={styles.user31}>
-                            <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>Incomplete Stores</Text></View>
-                            <View><Text> @ </Text></View>
-                        </View>
-                    </View>
-                    <View style={styles.head3}>
-                        <View style={styles.head31}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text>Credite Score</Text>
-                                <Text>18/<Text style={{ fontWeight: 'bold' }}>50</Text></Text>
-                            </View>
-                        </View>
-                        <View style={styles.head31}>
-                            <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
-                            <View>
-                                <Text>Credite Score</Text>
-                                <View>
-                                    <Text>Silver</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
                 </View>
             )}
-            <Button title="Logout" onPress={goLogout}></Button>
+            <View style={styles.user3}>
+                <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'CompanyInfo' })}>
+                    <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Company</Text></View>
+                    <View><Text> @ </Text></View>
+                </Pressable>
+                <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'MyStore' })}>
+                    <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Store</Text></View>
+                    <View><Text> @ </Text></View>
+                </Pressable>
+                <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'Incomplete' })}>
+                    <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>Incomplete Stores</Text></View>
+                    <View><Text> @ </Text></View>
+                </Pressable>
+            </View>
+            <View style={styles.head3}>
+                <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Credit' })}>
+                    <View>
+                        <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
+                    </View>
+                    <View>
+                        <Text>Credite Score</Text>
+                        <Text>18/<Text style={{ fontWeight: 'bold' }}>50</Text></Text>
+                    </View>
+                </Pressable>
+                <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Achivmentsinfo' })}>
+                    <View>
+                        <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
+                    </View>
+                    <View>
+                        <Text>Credite Score</Text>
+                        <View>
+                            <Text>Silver</Text>
+                        </View>
+                    </View>
+                </Pressable>
+            </View>
+            <View>
+                <Pressable style={styles.edit} onPress={goLogout}>
+                    <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Logout</Text>
+                </Pressable>
+            </View>
         </View>
     );
 }
