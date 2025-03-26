@@ -19,7 +19,7 @@ const UserInfo = ({ navigation }) => {
             {(agent === 'male') ? (
                 <View>
                     <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                        <Pressable style={styles.edit}>
+                        <Pressable style={styles.edit} onPress={()=>{navigation.navigate('AddStore')}}>
                             <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
                         </Pressable>
                     </View>
@@ -33,10 +33,10 @@ const UserInfo = ({ navigation }) => {
                             <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Company</Text></View>
                             <View><Text> @ </Text></View>
                         </View>
-                        <View style={styles.user31}>
+                        <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'MyStore' })}>
                             <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Store</Text></View>
                             <View><Text> @ </Text></View>
-                        </View>
+                        </Pressable>
                         <View style={styles.user31}>
                             <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>Incomplete Stores</Text></View>
                             <View><Text> @ </Text></View>

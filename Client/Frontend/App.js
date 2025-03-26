@@ -41,24 +41,47 @@ export default function App() {
   }, [])
 
 
-  function StackNavigator() {
+  // function StackNavigator() {
+  //   return (
+  //     <Stack.Navigator initialRouteName={routetab}>
+  //       <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+  //       <Stack.Screen name="UserInfo" component={UserInfo} options={{ headerShown: false }} />
+  //       <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+  //       <Stack.Screen name='Mystore' component={MyStore} options={{ headerShown: false }} />
+  //     </Stack.Navigator>
+  //   );
+  // }
+  function AuthNavigator() {
     return (
-      <Stack.Navigator initialRouteName={routetab}>
-        <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-        <Stack.Screen name="UserInfo" component={UserInfo} options={{ headerShown: false }} />
-        <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+      <Stack.Navigator>
+        <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
       </Stack.Navigator>
     );
   }
 
+  function UserInfoTab() {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="UserInfo" component={UserInfo} />
+        <Stack.Screen name="Incomplete" component={Incomplete} />
+        <Stack.Screen name="MyStore" component={MyStore} />
+      </Stack.Navigator>
+    );
+  }
+
+  function TabNavigator() {
+    return (
+      <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="User" component={UserInfoTab} />
+      </Tab.Navigator>
+    );
+  }
+
+
   return (
     <NavigationContainer>
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen name="Home" component={StackNavigator} />
-        <Tab.Screen name="User" component={UserInfo} />
-        <Tab.Screen name='Login' component={Login} />
-      </Tab.Navigator>
+      {routetab==="Home" ? <TabNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
-

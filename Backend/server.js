@@ -189,7 +189,7 @@ app.post('/editstoreinfo', async (req, res) => {
                 { $set: updatedetails }
             );
             const result = await storecollection.find({ id: id }).toArray();
-            res.status(200).json(result);
+            res.status(200).json("Successfully Edited");
             await client.close();
         }
     } catch (error) {
@@ -199,9 +199,9 @@ app.post('/editstoreinfo', async (req, res) => {
 
 
 //For agent created store and display => MyStore
-app.get('/mystores', async (req, res) => {
+app.post('/mystores', async (req, res) => {
     try {
-        const targetId = "id_1742404536258";  // make sure change req.body and POST method.
+        const targetId =  req.body.id  //"id_1742404536258"; make sure change req.body and POST method.
         if (!targetId) {
             res.status(200).json("Invaid Input.")
         } else {

@@ -41,7 +41,7 @@ const Home = ({ navigation }) => {
                     <View style={styles.head31}>
                         <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                         <View>
-                            <Text>Credite Score</Text>
+                            <Text>Achivements</Text>
                             <View>
                                 <Text>Silver</Text>
                             </View>

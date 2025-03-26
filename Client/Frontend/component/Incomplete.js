@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Button } from "react-native-web";
+import { View, Text, Button } from "react-native";
 import { StyleSheet } from "react-native";
 
 const Incomplete = ({navigation}) => {
