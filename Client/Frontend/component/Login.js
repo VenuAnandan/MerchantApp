@@ -49,19 +49,24 @@ const Login = ({ navigation }) => {
         return regex.test(email) ? "true" : "false";
     };
 
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+    // console.log(apiUrl);
+
     //for login api
     const gologin = async () => {
+
         try {
-            const response = await axios.post('http://192.168.7.2:4000/login', {
+            const response = await axios.post(apiUrl + '/login', {
                 email, password
             });
-            if(response.data.data === "Successfully"){
-                await AsyncStorage.setItem("login", "True");
-                await AsyncStorage.setItem("token",response.data.token);
-                await AsyncStorage.setItem("agentname",response.data.agentname);
-                await AsyncStorage.setItem("agentemail",response.data.agentemail);
-                console.log(response.data.token);
-                // navigation.navigate('Home');
+            // console.log("login verify");
+            // console.log(response.data ,"----");
+            if (response.data.data === "Successfully") {
+                // await AsyncStorage.setItem("login", "True"); // unlock if is not working
+                await AsyncStorage.setItem("token", response.data.token);
+                navigation.reset({ index: 0, routes: [{ name: 'BottomTabs' }] });
+                // await AsyncStorage.setItem("agentname",response.data.agentname);
+                await AsyncStorage.setItem("agentemail", response.data.agentemail);
             }
         } catch (error) {
             console.log("error is Fetching : ", error);

@@ -12,14 +12,14 @@ const Home = ({ navigation }) => {
     const [agentname, setAgentname] = useState("Name");
     const [agentemail, setAgentemail] = useState("Email");
 
-    // console.log(agentname,"---");
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
     const [allstores, setAllstores] = useState();
 
     useEffect(() => {
         const getmystore = async () => {
             try {
-                const response = await axios.get('http://192.168.7.2:4000/allstores', {
+                const response = await axios.get(apiUrl+'/allstores', {
                 });
                 // setAgentname(await AsyncStorage.getItem("agentname"));
 
@@ -51,6 +51,7 @@ const Home = ({ navigation }) => {
                         <Image style={styles.icon} source={{ uri: 'https://img.icons8.com/?size=100&id=17317&format=png&color=000000' }} />
                     </View>
                 </View>
+                {/* <Text style={{fontSize:30, paddingTop:10}}>Welcome Budy</Text> */}
                 <View>
                     <TextInput style={styles.searchbar} placeholder="Search Store Name"></TextInput>
                     {/* {!isvalid && <Text style={{ color: 'red' }}>Invalid input. Only alphabetic characters are allowed.</Text>} */}
@@ -117,7 +118,7 @@ const Home = ({ navigation }) => {
                                 data={allstores}
                                 keyExtractor={(item) => item.id}
                                 renderItem={({ item }) => (
-                                    <Pressable style={styles.storess} onPress={() => navigation.navigate('Add', { screen: 'StoreInfo' })}>
+                                    <Pressable style={styles.storess} onPress={() => navigation.navigate('Add', { screen: 'StoreInfo', id: '12233' })}>
                                         <View>
                                             <Image style={{ width: 100, height: 100, borderRadius: 15 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
                                         </View>
@@ -230,6 +231,7 @@ const styles = StyleSheet.create({
         borderRadius: 20
     },
     storess: {
+        marginTop:10,
         borderWidth: 0.5,
         display: 'flex',
         gap: 15,

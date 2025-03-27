@@ -3,16 +3,30 @@ import { View, Text, Button, StatusBar, Platform, Image, Pressable } from "react
 import { StyleSheet } from "react-native";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { navigationRef } from "../App";
 
-const UserInfo = ({ navigation }) => {
-
+const UserInfo = ({navigation}) => {
 
     const agent = 'male';
 
     const goLogout = async () => {
-        await AsyncStorage.removeItem("login");
-        navigation.navigate('Login')
+        try {
+            await AsyncStorage.removeItem('token');
+
+            if (navigationRef.isReady()) {
+                navigationRef.resetRoot({
+                    index: 0,
+                    routes: [{ name: 'Login' }]
+                });
+            }
+            // navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        } catch (error) {
+            console.error("Logout Error:", error);
+        }
+    
     }
+
+
 
     return (
         <View style={styles.conatiner}>

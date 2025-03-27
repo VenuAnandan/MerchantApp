@@ -103,7 +103,7 @@ app.post('/login', async (req, res) => {
                     id: agent.id,
                     phone: agent.phone
                 }, secretkey, { expiresIn: "168h" });
-                res.status(200).json({ data: "Successfully", token: token, agentname : result.firstname, agentemail : result.email });
+                res.status(200).json({ data: "Successfully", token: token, agentname: agent.firstname, agentemail: agent.email });
                 await client.close();
             }
             // console.log(result[0].firstName); // for send a agent data without unwanted data
@@ -169,25 +169,35 @@ app.post('/editagentinfo', async (req, res) => {
 
 
 //For add store info
-app.post('/addstoreinfo', async (req, res) => {
+app.post('/addstoreinfo', verifyToken, async (req, res) => {
     try {
         const { storeName, ownerName, email, address, address2, city, postalcode, phone, GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode } = req.body;
-        if (!storeName || !ownerName || !email || !address || !phone || !pancardNo || !aadharcardNo || !bankName || !accountNo || !IFSCCode) {
-            res.status(200).json("Invalid Inputs.");
-        } else {
-            let storeInfo = { storeName, ownerName, email, address, address2, city, postalcode, phone, GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode };
-            const client = connect();
-            await client.connect();
-            const db = client.db("Merchant_App");
-            const storecollection = db.collection("Store_Info");
-            const UniqID = `id_${Date.now()}`;
-            storeInfo["id"] = UniqID;
-            storedInfo["status"] = null;
-            storeInfo["referal_id"] = ["id_1742404536258", "id_1742504568227"];
-            const result = await storecollection.insertOne(storeInfo);
-            res.status(200).json("Successfully Added.");
-            await client.close();
+
+        const token = req.user.id
+
+        let storeInfo = { storeName, ownerName, email, address, address2, city, postalcode, phone, GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode };
+        const client = connect();
+        await client.connect();
+        const db = client.db("Merchant_App");
+        const storecollection = db.collection("Store_Info");
+        const UniqID = `id_${Date.now()}`;
+        const now = new Date();
+        storeInfo["date"] = now.toISOString().split('T')[0];
+        storeInfo["id"] = UniqID;
+        storeInfo["status"] = '';
+        storeInfo["referal_id"] = [token, "id_1742504568227"];
+        const result = await storecollection.insertOne(storeInfo);
+        const agentcollection = db.collection("Agent_Info");
+
+        if(token){
+            const update = await agentcollection.updateOne(
+                { id: token },
+                { $inc: { scoreCount: 1 } }
+            );
         }
+        res.status(200).json("Successfully Added.");
+        await client.close();
+
     } catch (error) {
         res.status(500).json(`Error is : ${error}`);
     }
@@ -263,9 +273,10 @@ app.get('/allstores', async (req, res) => {
 
 
 // For Incompleted store information 
-app.post('/incompletestoreinfo', async (req, res) => {
+app.get('/numberofincompletestoreinfo', verifyToken, async (req, res) => {
     try {
-        const { targetId } = req.body;
+        const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
+        // console.log(targetId);
         if (!targetId) {
             res.status(200).json("Invaid Input.")
         } else {
@@ -280,6 +291,37 @@ app.post('/incompletestoreinfo', async (req, res) => {
                 const nullfields = Object.keys(doc).filter(key => doc[key] === null);
                 if (nullfields.length > 0) {
                     incomplete.push({ id: doc.id });
+                }
+            })
+            res.status(200).json(incomplete);
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
+    const targetId = req.body;
+});
+
+
+app.get('/incompletestoreinfo', verifyToken, async (req, res) => {
+    try {
+        const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
+        // console.log(targetId);
+        if (!targetId) {
+            res.status(200).json("Invaid Input.")
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+            const agentstore = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
+            const incomplete = [];
+            agentstore.map(doc => {
+                // console.log(doc.email);
+                const nullfields = Object.keys(doc).filter(key => doc[key] === null || doc[key]=='');
+                if (nullfields.length > 0) {
+                    incomplete.push(doc);
+                    // console.log(incomplete);
                 }
             })
             res.status(200).json(incomplete);

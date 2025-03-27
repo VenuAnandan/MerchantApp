@@ -10,12 +10,14 @@ const MyStore = ({ navigation }) => {
 
     const [mystores, setMystores] = useState();
 
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
     useEffect(() => {
         const getmystore = async () => {
             const token = await AsyncStorage.getItem("token");
-            // console.log(token);
+            console.log(token,"-------------");
             try {
-                const response = await axios.get('http://192.168.7.2:4000/mystores', {
+                const response = await axios.get(apiUrl+'/mystores', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 // console.log(response.data);
@@ -31,7 +33,7 @@ const MyStore = ({ navigation }) => {
     return (
         <View style={styles.conatiner} >
             <View>
-                <Text style={{ fontSize: 40, paddingTop: 20, paddingBottom: 20 }}>My Stores</Text>
+                <Text style={{ fontSize: 30, paddingTop: 20, paddingBottom: 20 }}>My Stores</Text>
             </View>
             <FlatList
                 data={mystores}
@@ -61,6 +63,7 @@ const styles = StyleSheet.create({
         padding: 30,
     },
     storess: {
+        marginTop:10,
         borderWidth: 0.5,
         display: 'flex',
         gap: 15,
