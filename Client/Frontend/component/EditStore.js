@@ -1,20 +1,22 @@
+import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { View, Text, Button, Platform, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView, Image } from "react-native";
 
-const StoreInfo = ({ route }) => {
+const EditStore = ({ route }) => {
 
     const { item } = route.params;
+    // console.log(item);
 
     return (
         <View style={styles.conatiner} >
 
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ display: 'flex', gap: 30, paddingTop: 60, padding: 30 }}>
-                    <Image style={{ width: 300, height: 200 }} source={{ uri: 'https://picsum.photos/200/300' }} />
-                    <View style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',flexDirection:'row'}}>
-                        <View style={{display:'flex',flexWrap:'wrap',alignItems:'flex-start',justifyContent:'flex-start',flexDirection:'column'}}>
+                    <Image style={{ width: 330, height: 200 }} source={{ uri: 'https://picsum.photos/200/300' }} />
+                    <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', flexDirection: 'row' }}>
+                        <View style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start', flexDirection: 'column' }}>
                             <Text>Store Name : </Text>
                             <Text>Owner Name : </Text>
                             <Text>City : </Text>
@@ -23,7 +25,7 @@ const StoreInfo = ({ route }) => {
                             <Text>Phone : </Text>
                             <Text>Status : </Text>
                         </View>
-                        <View style={{display:'flex',flexWrap:'wrap',alignItems:'flex-end',justifyContent:'flex-end',flexDirection:'column'}}>
+                        <View style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'flex-end', flexDirection: 'column' }}>
                             <Text>{item.storeName}</Text>
                             <Text>{item.ownerName}</Text>
                             <Text>{item.city}</Text>
@@ -35,6 +37,11 @@ const StoreInfo = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
+            <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
+                <Pressable style={styles.sign}>
+                    <Text style={{ color: 'white', fontSize: 17 }}>Edit</Text>
+                </Pressable>
+            </View>
             {/* <Text>StoreInfo Screen </Text> */}
         </View>
     );
@@ -43,10 +50,17 @@ const StoreInfo = ({ route }) => {
 const styles = StyleSheet.create({
     conatiner: {
         flex: 1,
-        justifyContent: 'center',
+        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+        paddingTop: 30,
+    }, sign: {
+        backgroundColor: 'black',
+        borderRadius: 20,
+        width: 200,
+        height: 50,
         alignItems: 'center',
+        justifyContent: 'center'
     }
 }
 );
 
-export default StoreInfo;
+export default EditStore;

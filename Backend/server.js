@@ -4,6 +4,8 @@ const { MongoClient } = require("mongodb");
 const { json } = require("body-parser");
 const jwt = require("jsonwebtoken");
 const secretkey = 'abcde12345';
+const QRCode = require('qrcode');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const port = 4000;
@@ -186,16 +188,42 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
         storeInfo["id"] = UniqID;
         storeInfo["status"] = '';
         storeInfo["referal_id"] = [token, "id_1742504568227"];
+        storeInfo['pa'] = phone + '@bank';
+        storeInfo['pn'] = storeName
+
+        // qr
+        const qrid = uuidv4();
+        const qrData = {
+            id: storeInfo.id,
+            storeName: storeInfo.storeName,
+            ownerName: storeInfo.ownerName,
+            email: storeInfo.email,
+            phone: storeInfo.phone,
+            date: storeInfo.date,
+            qrId: qrid
+        };
+        const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
+        storeInfo.qrCodeImage = qrCodeImage;
+        storeInfo.qrId = qrid;
+        // 
+
+
         const result = await storecollection.insertOne(storeInfo);
         const agentcollection = db.collection("Agent_Info");
 
-        if(token){
+        if (token) {
             const update = await agentcollection.updateOne(
                 { id: token },
                 { $inc: { scoreCount: 1 } }
             );
         }
-        res.status(200).json("Successfully Added.");
+        // res.status(200).json("Successfully Added.");
+        res.status(200).json({
+            message: "Store added successfully",
+            storeId: storeInfo.id,
+            qrCodeImage,
+        });
+        // 
         await client.close();
 
     } catch (error) {
@@ -318,7 +346,7 @@ app.get('/incompletestoreinfo', verifyToken, async (req, res) => {
             const incomplete = [];
             agentstore.map(doc => {
                 // console.log(doc.email);
-                const nullfields = Object.keys(doc).filter(key => doc[key] === null || doc[key]=='');
+                const nullfields = Object.keys(doc).filter(key => doc[key] === null || doc[key] == '');
                 if (nullfields.length > 0) {
                     incomplete.push(doc);
                     // console.log(incomplete);
@@ -331,6 +359,62 @@ app.get('/incompletestoreinfo', verifyToken, async (req, res) => {
         res.status(500).json(`Error is : ${error}`);
     }
     const targetId = req.body;
+});
+
+
+app.post('/searchstore', async (req, res) => {
+    const { storename } = req.body;
+    try {
+        if (!storename) {
+            res.status(200).json(`Empty store name`);
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+
+            // console.log(storename,"   storename");
+            const result = await storecollection.find({
+                storeName: { $regex: `^${storename}$`, $options: "i" }
+            }).toArray();
+
+            // console.log(result,"    result");
+            if (result.length === 0) {
+                res.status(200).json("Store not found");
+            } else {
+                res.status(200).json(result);
+            }
+
+            await client.close();
+        }
+    } catch (error) {
+        console.log(`Error is : ${error}`);
+    }
+});
+
+
+app.get('/getagentid', verifyToken, async (req, res) => {
+    try {
+        const id = req.user.id;
+        if (id === null || id === '') {
+            res.json('Id is empty...');
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection("Agent_Info");
+            const result = await agentcollection.find({ id: id }).toArray();
+            console.log(result);
+            if (result.length === 0) {
+                res.json("Match Not Found!");
+            } else {
+                res.status(200).json(result[0].scoreCount);
+            }
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
 });
 
 

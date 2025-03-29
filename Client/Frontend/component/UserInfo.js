@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, Button, StatusBar, Platform, Image, Pressable } from "react-native";
+import { View, Text, Button, StatusBar, Platform, Image, Pressable, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -31,17 +31,17 @@ const UserInfo = ({navigation}) => {
     return (
         <View style={styles.conatiner}>
             <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <Pressable style={styles.edit} onPress={() => navigation.navigate('User', { screen: 'EditProfile' })}>
+                <TouchableOpacity style={styles.edit} onPress={() => navigation.navigate('User', { screen: 'EditProfile' })}>
                     <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
-                </Pressable>
+                </TouchableOpacity>
             </View>
             {(agent === 'male') ? (
                 <View>
-                    <Pressable style={styles.user2} onPress={() => navigation.navigate('User', { screen: 'AgentInfo' })}>
+                    <TouchableOpacity style={styles.user2} onPress={() => navigation.navigate('User', { screen: 'AgentInfo' })}>
                         <Image style={{ width: 150, height: 150 }} source={{ uri: 'https://img.icons8.com/?size=100&id=Chgb7mhcx0Yj&format=png&color=000000' }}></Image>
                         <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Men</Text>
                         <Text>men345@gmail.com</Text>
-                    </Pressable>
+                    </TouchableOpacity>
                     {/* <Text>UserInfo Screen</Text>s
                     <Button title="Home" onPress={() => { navigation.navigate('Home') }}></Button> */}
                 </View>
@@ -55,21 +55,21 @@ const UserInfo = ({navigation}) => {
                 </View>
             )}
             <View style={styles.user3}>
-                <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'CompanyInfo' })}>
+                <TouchableOpacity style={styles.user31}>
                     <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Company</Text></View>
                     <View><Text> @ </Text></View>
-                </Pressable>
-                <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'MyStore' })}>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'MyStore' })}>
                     <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>My Store</Text></View>
                     <View><Text> @ </Text></View>
-                </Pressable>
-                <Pressable style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'Incomplete' })}>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.user31} onPress={() => navigation.navigate('User', { screen: 'Incomplete' })}>
                     <View><Text style={{ fontWeight: 'bold', fontSize: 20 }}>Incomplete Stores</Text></View>
                     <View><Text> @ </Text></View>
-                </Pressable>
+                </TouchableOpacity>
             </View>
             <View style={styles.head3}>
-                <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Credit' })}>
+                <TouchableOpacity style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Credit' })}>
                     <View>
                         <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
                     </View>
@@ -77,8 +77,8 @@ const UserInfo = ({navigation}) => {
                         <Text>Credite Score</Text>
                         <Text>18/<Text style={{ fontWeight: 'bold' }}>50</Text></Text>
                     </View>
-                </Pressable>
-                <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Achivmentsinfo' })}>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Achivmentsinfo' })}>
                     <View>
                         <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                     </View>
@@ -88,12 +88,12 @@ const UserInfo = ({navigation}) => {
                             <Text>Silver</Text>
                         </View>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
             </View>
             <View>
-                <Pressable style={styles.edit} onPress={goLogout}>
+                <TouchableOpacity style={styles.edit} onPress={goLogout}>
                     <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Logout</Text>
-                </Pressable>
+                </TouchableOpacity>
             </View>
         </View>
     );

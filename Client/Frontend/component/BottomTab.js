@@ -14,6 +14,11 @@ import Incomplete from "./Incomplete";
 import MyStore from "./MyStore";
 import EditProfile from "./EditProfile";
 import AgentInfo from "./AgentInfo";
+import { MaterialIcons } from "@expo/vector-icons";
+import EditStore from "./EditStore";
+import AlertMess from "./AlertMess";
+import { SearchBar } from "react-native-screens";
+import SearchStore from "./SearchStore";
 
 
 
@@ -29,6 +34,9 @@ const CompanyInfo = () => {
                 <Stack.Screen name='Home' component={Home} />
                 <Stack.Screen name='Credit' component={Credit} />
                 <Stack.Screen name='Achivmentsinfo' component={Achivmentsinfo} />
+                <Stack.Screen name='StoreInfo' component={StoreInfo} />
+                <Stack.Screen name='AlertMess' component={AlertMess}/>
+                <Stack.Screen name="SearchStore" component={SearchStore}/>
             </Stack.Navigator>
         )
     }
@@ -37,7 +45,6 @@ const CompanyInfo = () => {
         return (
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name='AddStore' component={AddStore} />
-                <Stack.Screen name='StoreInfo' component={StoreInfo} />
             </Stack.Navigator>
         )
     }
@@ -49,9 +56,10 @@ const CompanyInfo = () => {
                 <Stack.Screen name="UserInfo" component={UserInfo} />
                 <Stack.Screen name="Incomplete" component={Incomplete} />
                 <Stack.Screen name="MyStore" component={MyStore} />
-                <Stack.Screen name='CompanyInfo' component={CompanyInfo} />
+                <Stack.Screen name="CompanyInfo" component={CompanyInfo}/>
                 <Stack.Screen name='EditProfile' component={EditProfile} />
                 <Stack.Screen name='AgentInfo' component={AgentInfo} />
+                <Stack.Screen name='EditStore' component={EditStore} />
             </Stack.Navigator>
         );
     }
@@ -59,11 +67,32 @@ const CompanyInfo = () => {
 
 
     return (
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
-            <Tab.Screen name="Home" component={HomePage} />
-            <Tab.Screen name='Add' component={StorePage} />
-            <Tab.Screen name="User" component={UserInfoTab} />
-        </Tab.Navigator>
+        <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => {
+            let iconName;
+
+            // Assign icons for each tab
+            if (route.name === 'Home') {
+              iconName = 'home';
+            } else if (route.name === 'Add') {
+              iconName = 'add-circle-outline';
+            } else if (route.name === 'User') {
+              iconName = 'person';
+            }
+
+            return <MaterialIcons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: 'blue',   // Active tab color
+          tabBarInactiveTintColor: 'gray', // Inactive tab color
+          tabBarShowLabel: true,           // Show labels
+        })}
+      >
+        <Tab.Screen name="Home" component={HomePage} />
+        <Tab.Screen name="Add" component={StorePage} />
+        <Tab.Screen name="User" component={UserInfoTab} />
+      </Tab.Navigator>
     );
 }
 

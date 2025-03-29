@@ -6,6 +6,7 @@ import { View, Text, Button, Platform, Image, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { FlatList } from "react-native";
 
+
 const MyStore = ({ navigation }) => {
 
     const [mystores, setMystores] = useState();
@@ -15,7 +16,7 @@ const MyStore = ({ navigation }) => {
     useEffect(() => {
         const getmystore = async () => {
             const token = await AsyncStorage.getItem("token");
-            console.log(token,"-------------");
+            // console.log(token,"-----");
             try {
                 const response = await axios.get(apiUrl+'/mystores', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -39,7 +40,7 @@ const MyStore = ({ navigation }) => {
                 data={mystores}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <Pressable style={styles.storess} onPress={() => navigation.navigate('Add', { screen: 'StoreInfo' })}>
+                    <Pressable style={styles.storess} onPress={() => navigation.navigate('EditStore', { item : item })}>
                         <View>
                             <Image style={{ width: 100, height: 100, borderRadius: 15 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
                         </View>

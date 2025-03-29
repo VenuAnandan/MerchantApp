@@ -1,9 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, StatusBar, Platform, Image, TextInput, Pressable } from "react-native";
+import { View, Text, Button, StatusBar, Platform, Image, TextInput, Pressable, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { FlatList } from "react-native";
+import { ScrollView } from "react-native";
+import Toast from "react-native-toast-message";
 
 const Home = ({ navigation }) => {
 
@@ -11,6 +13,19 @@ const Home = ({ navigation }) => {
     const data = "";
     const [agentname, setAgentname] = useState("Name");
     const [agentemail, setAgentemail] = useState("Email");
+    const [search, setSearch] = useState('');
+
+    const [message, setMessage] = useState();
+
+    const gosearch = () => {
+        if (search === '' || search === null) {
+            setMessage('error');
+            showToast("Empty Search!");
+        } else {
+            setSearch('');
+            navigation.navigate('SearchStore', { text: search });
+        }
+    }
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -19,11 +34,8 @@ const Home = ({ navigation }) => {
     useEffect(() => {
         const getmystore = async () => {
             try {
-                const response = await axios.get(apiUrl+'/allstores', {
+                const response = await axios.get(apiUrl + '/allstores', {
                 });
-                // setAgentname(await AsyncStorage.getItem("agentname"));
-
-                // setAgentemail(await AsyncStorage.getItem("agentemail"));
                 setAllstores(response.data);
             } catch (error) {
                 console.log(`EError is : ${error}`)
@@ -34,30 +46,43 @@ const Home = ({ navigation }) => {
 
 
 
+    const showToast = (data) => {
+        if(message === 'error'){
+            Toast.show({
+                type: 'error',
+                text1: 'Error!',
+                text2: data
+            });
+        }
+    };
+
     return (
         <View style={{ flex: 1 }}>
             <View style={styles.conatiner}>
                 <View style={styles.head1}>
                     <View style={styles.head12}>
-                        <Pressable onPress={() => navigation.navigate('User', { screen: 'AgentInfo' })}>
+                        <TouchableOpacity>
                             <Image style={styles.image} source={{ uri: 'https://img.icons8.com/?size=100&id=13042&format=png&color=000000' }} />
-                        </Pressable>
+                        </TouchableOpacity>
                         <View>
                             <Text style={{ fontSize: 25 }}>{agentname}</Text>
                             <Text>{agentemail}</Text>
                         </View>
                     </View>
-                    <View>
+                    <TouchableOpacity onPress={() => navigation.navigate('AlertMess')}>
                         <Image style={styles.icon} source={{ uri: 'https://img.icons8.com/?size=100&id=17317&format=png&color=000000' }} />
-                    </View>
+                    </TouchableOpacity>
                 </View>
                 {/* <Text style={{fontSize:30, paddingTop:10}}>Welcome Budy</Text> */}
                 <View>
-                    <TextInput style={styles.searchbar} placeholder="Search Store Name"></TextInput>
+                    <TextInput style={styles.searchbar} value={search} onChangeText={setSearch} placeholder="Search Store Name"></TextInput>
                     {/* {!isvalid && <Text style={{ color: 'red' }}>Invalid input. Only alphabetic characters are allowed.</Text>} */}
                 </View>
+                <TouchableOpacity style={styles.edit} onPress={gosearch}>
+                    <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Search</Text>
+                </TouchableOpacity>
                 <View style={styles.head3}>
-                    <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Credit' })}>
+                    <TouchableOpacity style={styles.head31} onPress={() => navigation.navigate('Credit')}>
                         <View>
                             <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
                         </View>
@@ -65,8 +90,8 @@ const Home = ({ navigation }) => {
                             <Text>Credite Score</Text>
                             <Text>18/<Text style={{ fontWeight: 'bold' }}>50</Text></Text>
                         </View>
-                    </Pressable>
-                    <Pressable style={styles.head31} onPress={() => navigation.navigate('Home', { screen: 'Achivmentsinfo' })}>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.head31} onPress={() => navigation.navigate('Achivmentsinfo')}>
                         <View>
                             <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                         </View>
@@ -76,7 +101,7 @@ const Home = ({ navigation }) => {
                                 <Text>Silver</Text>
                             </View>
                         </View>
-                    </Pressable>
+                    </TouchableOpacity>
                 </View>
                 {data ? (
                     <View style={styles.head4}>
@@ -114,11 +139,12 @@ const Home = ({ navigation }) => {
                             </View>
                         </View>
                         <View>
-                            <FlatList
-                                data={allstores}
+                            <FlatList style={{ marginBottom: 60 }}
+                                data={allstores}  //data={allstores.slice(0, 3)}
                                 keyExtractor={(item) => item.id}
                                 renderItem={({ item }) => (
-                                    <Pressable style={styles.storess} onPress={() => navigation.navigate('Add', { screen: 'StoreInfo', id: '12233' })}>
+                                    <TouchableOpacity style={styles.storess} onPress={() => navigation.navigate('StoreInfo', { item: item })}>
+                                        {/* onPress={() => navigation.navigate('User', { screen: 'AgentInfo' })} */}
                                         <View>
                                             <Image style={{ width: 100, height: 100, borderRadius: 15 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
                                         </View>
@@ -128,21 +154,15 @@ const Home = ({ navigation }) => {
                                             <Text >Phone : {item.phone}</Text>
                                             <Text >Status : {item.status}</Text>
                                         </View>
-                                    </Pressable>
+                                    </TouchableOpacity>
                                 )}
                             />
+                            {/* <Text style={{marginTop:0}}>See All</Text> */}
+                            <Button title="toast" onPress={showToast}></Button>
+                            <Toast ref={(ref) => Toast.setRef(ref)} />
                         </View>
                     </View>
-                )}
-                <View style={styles.head4}>
-
-                    <View>
-
-                    </View>
-                    <View></View>
-                </View>
-                {/* <Text>Home screns Screen</Text>
-                <Button title="UserInfo" onPress={() => { navigation.navigate('UserInfo') }}></Button> */}
+                )};
             </View>
         </View>
     );
@@ -153,6 +173,13 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         padding: 30,
+    },
+    edit: {
+        backgroundColor: 'black',
+        borderRadius: 7,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 10
     },
     head1: {
         display: 'flex',
@@ -231,14 +258,14 @@ const styles = StyleSheet.create({
         borderRadius: 20
     },
     storess: {
-        marginTop:10,
+        marginTop: 10,
         borderWidth: 0.5,
         display: 'flex',
         gap: 15,
         flexWrap: 'wrap',
         flexDirection: 'row',
         padding: 10,
-        borderRadius: 15
+        borderRadius: 15,
     }
 
 }
