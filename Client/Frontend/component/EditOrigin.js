@@ -6,8 +6,43 @@ import { View, Text, Button, Platform, Pressable, Image } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native";
 import { TextInput } from "react-native";
+import Toast from "react-native-toast-message";
 
-const AddStore = ({ navigation }) => {
+
+const EditOrigin = ({ navigation, route }) => {
+
+    const { item } = route.params;
+    const api = process.env.EXPO_PUBLIC_API_URL;
+
+    const [si, setSi] = useState();
+    // const [message, setMessage] = useState();
+
+    const showToast = (type, data) => {
+        Toast.show({
+            type: type,   // 'success', 'error', 'info'
+            text1: type === 'error' ? 'Error!' : 'Success!',
+            text2: data
+        });
+    };
+
+
+    useEffect(() => {
+        const editstoreaccount = async () => {
+            const token = await AsyncStorage.getItem("token");
+            try {
+                const response = await axios.post(api + '/getstoreinfo', {
+                    id: item,
+                }, {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                });
+                console.log(response.data.storeinfo[0].city);
+                setSi(response.data.storeinfo[0]);
+            } catch (error) {
+                console.log(`Error is : ${error}`);
+            }
+        }
+        editstoreaccount();
+    }, []);
 
     const [storeName, setStoreName] = useState('');
     const [ownerName, setOwnerName] = useState('');
@@ -25,35 +60,48 @@ const AddStore = ({ navigation }) => {
     const [accountNo, setAccountNo] = useState('');
     const [IFSCCode, setIFSCCode] = useState('');
 
-    const [flag, setFlag] = useState('1');
-    const [subFlag, setSubFlag] = useState('1');
 
-    const [qrImage, setQrImage] = useState(null);
+    useEffect(() => {
+        if (si) {
+            setStoreName(si.storeName || '');
+            setOwnerName(si.ownerName || '');
+            setEmail(si.email || '');
+            setAddress(si.address || '');
+            setAddress2(si.address2 || '');
+            setCity(si.city || '');
+            setPostalcode(si.postalcode || '');
+            setPhone(si.phone || '');
+            setGSTno(si.GSTno || '');
+            setStoreType(si.storeType || '');
+            setPancardNo(si.pancardNo || '');
+            setAadharcardNo(si.aadharcardNo || '');
+            setBankName(si.bankName || '');
+            setAccountNo(si.accountNo || '');
+            setIFSCCode(si.IFSCCode || '');
+        }
+    }, [si]);
+
+
+    const [flag, setFlag] = useState('1');
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 
-    const addstoreinfo = async() => {
+    const editstoreinfo = async () => {
         if (!storeName || !phone || !email || !city || !ownerName) {
-            console.log('Enter Important Data');
+            showToast("error", "Empty Fields! Please fill all required data.");
+            console.log("empty data");
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
-                const response = await axios.post(apiUrl + '/addstoreinfo', {
+                const response = await axios.post(apiUrl + '/editstoreinfo', {
+                    id: item,
                     storeName, ownerName, email, address, address2, city, postalcode, phone
                     , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 console.log(response.data.message);
-                // setStoreName(''); setOwnerName(''); setEmail(''); setAddress(''); setAddress2('');
-                // setCity(''); setPostalcode(''); setPhone(''); setGSTno(''); setStoreType('');
-                // setPancardNo(''); setAadharcardNo(''); setBankName(''); setAccountNo('');
-                // setIFSCCode('');
-                // console.log(" resposne data ---- ", response.data);
-                setQrImage(response.data.qrCodeImage)
-                // setFlag('1');
-                // navigation.navigate('Add', { screen: 'AddStore' });
             } catch (error) {
                 console.log(`EError is : ${error}`)
             }
@@ -61,27 +109,20 @@ const AddStore = ({ navigation }) => {
         }
     }
 
-    const addpaninfo = async() => {
+    const editpaninfo = async () => {
         if (!pancardNo || !aadharcardNo) {
             console.log('Enter Important Data');
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
-                const response = await axios.post(apiUrl + '/addstoreinfo', {
+                const response = await axios.post(apiUrl + '/editstoreinfo', {
+                    id: item,
                     storeName, ownerName, email, address, address2, city, postalcode, phone
                     , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 console.log(response.data.message);
-                // setStoreName(''); setOwnerName(''); setEmail(''); setAddress(''); setAddress2('');
-                // setCity(''); setPostalcode(''); setPhone(''); setGSTno(''); setStoreType('');
-                // setPancardNo(''); setAadharcardNo(''); setBankName(''); setAccountNo('');
-                // setIFSCCode('');
-                // console.log(" resposne data ---- ", response.data);
-                setQrImage(response.data.qrCodeImage)
-                // setFlag('1');
-                // navigation.navigate('Add', { screen: 'AddStore' });
             } catch (error) {
                 console.log(`EError is : ${error}`)
             }
@@ -89,7 +130,7 @@ const AddStore = ({ navigation }) => {
         }
     }
 
-    const Addstore = async () => {
+    const editstore = async () => {
         if (!storeName || !ownerName || !phone || !email || !city || !pancardNo || !aadharcardNo || !accountNo) {
             console.log('Enter Important Value');
         } else {
@@ -102,14 +143,7 @@ const AddStore = ({ navigation }) => {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 console.log(response.data.message);
-                setStoreName(''); setOwnerName(''); setEmail(''); setAddress(''); setAddress2('');
-                setCity(''); setPostalcode(''); setPhone(''); setGSTno(''); setStoreType('');
-                setPancardNo(''); setAadharcardNo(''); setBankName(''); setAccountNo('');
-                setIFSCCode('');
-                // console.log(" resposne data ---- ", response.data);
-                setQrImage(response.data.qrCodeImage)
-                setFlag('1');
-                // navigation.navigate('Add', { screen: 'AddStore' });
+                navigation.goBack();
             } catch (error) {
                 console.log(`EError is : ${error}`)
             }
@@ -122,37 +156,37 @@ const AddStore = ({ navigation }) => {
 
             <View>
                 <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 60, paddingBottom: 30 }}>
-                    <Text style={{ fontSize: 30 }}>Create Account Now!</Text>
+                    <Text style={{ fontSize: 30 }}>Edit Your Store Now!</Text>
                 </View>
             </View>
 
             <View>
                 <View style={{ paddingTop: 10, display: 'flex', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
                     <Pressable style={[{ padding: 10, backgroundColor: (flag >= '1' ? 'green' : 'red'), borderRadius: 5 }]}
-                        // onPress={() => {
-                        //     if (flag <= flag) {
-                        //         setFlag('1');
-                        //     }
-                        // }}
-                        >
+                    // onPress={() => {
+                    //     if (flag <= flag) {
+                    //         setFlag('1');
+                    //     }
+                    // }}
+                    >
                         <Text>Store Info</Text>
                     </Pressable>
                     <Pressable style={[{ padding: 10, backgroundColor: (flag >= '2' ? 'green' : 'red'), borderRadius: 5 }]}
-                        // onPress={() => {
-                        //     if (flag <= flag) {
-                        //         setFlag('2');
-                        //     }
-                        // }}
-                        >
+                    // onPress={() => {
+                    //     if (flag <= flag) {
+                    //         setFlag('2');
+                    //     }
+                    // }}
+                    >
                         <Text>Pan Info</Text>
                     </Pressable>
                     <Pressable style={[{ padding: 10, backgroundColor: (flag >= '3' ? 'green' : 'red'), borderRadius: 5 }]}
-                        // onPress={() => {
-                        //     if (flag <= flag) {
-                        //         setFlag('3');
-                        //     }
-                        // }}
-                        >
+                    // onPress={() => {
+                    //     if (flag <= flag) {
+                    //         setFlag('3');
+                    //     }
+                    // }}
+                    >
                         <Text>Bank Info</Text>
                     </Pressable>
                 </View>
@@ -234,10 +268,16 @@ const AddStore = ({ navigation }) => {
                                     onChangeText={setStoreType}
                                 />
                                 <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
-                                    <Pressable style={styles.sign} onPress={addstoreinfo}>
+                                    <Pressable style={styles.sign} onPress={editstoreinfo}>
                                         <Text style={{ color: 'white', fontSize: 17 }}>Next</Text>
                                     </Pressable>
                                 </View>
+                                {/* <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
+                                    <Pressable style={styles.sign} onPress={toastmessage}>
+                                        <Text style={{ color: 'white', fontSize: 17 }}>Toast</Text>
+                                    </Pressable>
+                                </View> */}
+
                             </>
                         ) : flag < '3' ? (
                             <>
@@ -256,7 +296,7 @@ const AddStore = ({ navigation }) => {
                                     keyboardType="numeric"
                                 />
                                 <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
-                                    <Pressable style={styles.sign} onPress={addpaninfo}>
+                                    <Pressable style={styles.sign} onPress={editpaninfo}>
                                         <Text style={{ color: 'white', fontSize: 17 }}>Next</Text>
                                     </Pressable>
                                 </View>
@@ -288,20 +328,9 @@ const AddStore = ({ navigation }) => {
                                     {/* <Pressable style={styles.sign} onPress={handleGenerateQR}>
                                         <Text style={{ color: 'white', fontSize: 17 }}>Next</Text>
                                     </Pressable> */}
-                                    <Pressable style={styles.sign} onPress={Addstore}>
+                                    <Pressable style={styles.sign} onPress={editstore}>
                                         <Text style={{ color: 'white', fontSize: 17 }}>Finish</Text>
                                     </Pressable>
-                                    {qrImage && (
-                                        <View style={{ paddingBottom: 60 }}>
-                                            <View style={styles.qrContainer}>
-                                                <Text style={styles.qrText}>QR Code:</Text>
-                                                <Image source={{ uri: qrImage }} style={styles.qrImage} />
-                                            </View>
-                                            {/* <Pressable style={styles.sign} onPress={() => navigation.navigate('Home', { screen: 'Home' })}>
-                                                <Text style={{ color: 'white', fontSize: 17 }}>Go Home</Text>
-                                            </Pressable> */}
-                                        </View>
-                                    )}
                                 </View>
                             </>
                         )}
@@ -347,4 +376,4 @@ const styles = StyleSheet.create({
 }
 );
 
-export default AddStore;
+export default EditOrigin;

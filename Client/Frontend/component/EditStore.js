@@ -4,7 +4,7 @@ import { View, Text, Button, Platform, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView, Image } from "react-native";
 
-const EditStore = ({ route }) => {
+const EditStore = ({ navigation,route }) => {
 
     const { item } = route.params;
     // console.log(item);
@@ -38,7 +38,7 @@ const EditStore = ({ route }) => {
                 </View>
             </ScrollView>
             <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
-                <Pressable style={styles.sign}>
+                <Pressable style={styles.sign} onPress={() => navigation.navigate('EditOrigin', { item : item })}>
                     <Text style={{ color: 'white', fontSize: 17 }}>Edit</Text>
                 </Pressable>
             </View>

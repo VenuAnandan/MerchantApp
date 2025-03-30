@@ -184,48 +184,79 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
         const storecollection = db.collection("Store_Info");
         const UniqID = `id_${Date.now()}`;
         const now = new Date();
-        storeInfo["date"] = now.toISOString().split('T')[0];
-        storeInfo["id"] = UniqID;
-        storeInfo["status"] = '';
-        storeInfo["referal_id"] = [token, "id_1742504568227"];
-        storeInfo['pa'] = phone + '@bank';
-        storeInfo['pn'] = storeName
 
-        // qr
-        const qrid = uuidv4();
-        const qrData = {
-            id: storeInfo.id,
-            storeName: storeInfo.storeName,
-            ownerName: storeInfo.ownerName,
-            email: storeInfo.email,
-            phone: storeInfo.phone,
-            date: storeInfo.date,
-            qrId: qrid
-        };
-        const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
-        storeInfo.qrCodeImage = qrCodeImage;
-        storeInfo.qrId = qrid;
-        // 
+        const storedOr = await storecollection.find({ email: email }).toArray();
+        console.log(storedOr, '-----------');
+        if (storedOr.length === 0) {
+
+            storeInfo["date"] = now.toISOString().split('T')[0];
+            storeInfo["id"] = UniqID;
+            storeInfo["status"] = '';
+            storeInfo["referal_id"] = [token, "id_1742504568227"];
+            storeInfo['pa'] = phone + '@bank';
+            storeInfo['pn'] = storeName
+
+            // qr
+            const qrid = uuidv4();
+            const qrData = {
+                id: storeInfo.id,
+                storeName: storeInfo.storeName,
+                ownerName: storeInfo.ownerName,
+                email: storeInfo.email,
+                phone: storeInfo.phone,
+                date: storeInfo.date,
+                qrId: qrid
+            };
+            const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
+            storeInfo.qrCodeImage = qrCodeImage;
+            storeInfo.qrId = qrid;
+            // 
 
 
-        const result = await storecollection.insertOne(storeInfo);
-        const agentcollection = db.collection("Agent_Info");
+            const result = await storecollection.insertOne(storeInfo);
+            const agentcollection = db.collection("Agent_Info");
 
-        if (token) {
-            const update = await agentcollection.updateOne(
-                { id: token },
-                { $inc: { scoreCount: 1 } }
+            if (token) {
+                const update = await agentcollection.updateOne(
+                    { id: token },
+                    { $inc: { scoreCount: 1 } }
+                );
+            }
+            // res.status(200).json("Successfully Added.");
+            res.status(200).json({
+                message: "Store added successfully",
+                storeId: storeInfo.id,
+                qrCodeImage,
+            });
+        } else {
+
+            const qrid = uuidv4();
+            const qrData = {
+                id: storeInfo.id,
+                storeName: storeInfo.storeName,
+                ownerName: storeInfo.ownerName,
+                email: storeInfo.email,
+                phone: storeInfo.phone,
+                date: storeInfo.date,
+                qrId: qrid
+            };
+            const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
+            storeInfo.qrCodeImage = qrCodeImage;
+            storeInfo.qrId = qrid;
+            // console.log(storeInfo);
+            const editdetail = await storecollection.updateOne(
+                { email: email },
+                { $set: storeInfo }
             );
-        }
-        // res.status(200).json("Successfully Added.");
-        res.status(200).json({
-            message: "Store added successfully",
-            storeId: storeInfo.id,
-            qrCodeImage,
-        });
-        // 
-        await client.close();
 
+            res.status(200).json({
+                message: "Store updated successfully",
+                storeId: storeInfo.id,
+                qrCodeImage,
+            });
+
+        }
+        await client.close();
     } catch (error) {
         res.status(500).json(`Error is : ${error}`);
     }
@@ -233,13 +264,13 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
 
 
 //For edit store info
-app.post('/editstoreinfo', async (req, res) => {
+app.post('/editstoreinfo', verifyToken, async (req, res) => {
     try {
-        const { id } = req.body;
-        let updatedetails = {
-            "city": "Chennai",
-            "storeType": "Hotel"
-        }
+        const { id } = req.body.id;
+        const { storeName, ownerName, email, address, address2, city, postalcode, phone, GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode } = req.body;
+
+        const token = req.user.id
+        let updatedetails = { storeName, ownerName, email, address, address2, city, postalcode, phone, GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode };
         if (!id) {
             res.status(200).json("Invalid ID");
         } else {
@@ -247,18 +278,68 @@ app.post('/editstoreinfo', async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const storecollection = db.collection("Store_Info");
+            const now = new Date();
+            updatedetails.date = now.toISOString().split('T')[0];
+
+
+            const qrid = uuidv4();
+            const qrData = {
+                id: id,
+                storeName: updatedetails.storeName,
+                ownerName: updatedetails.ownerName,
+                email: updatedetails.email,
+                phone: updatedetails.phone,
+                date: updatedetails.date,
+                qrId: updatedetails.qrid
+            };
+            const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
+            updatedetails.qrCodeImage = qrCodeImage;
+            updatedetails.qrId = qrid;
+            console.log('---------');
             const editdetail = await storecollection.updateOne(
                 { id: id },
                 { $set: updatedetails }
             );
-            const result = await storecollection.find({ id: id }).toArray();
-            res.status(200).json("Successfully Edited");
+
+            res.status(200).json({
+                message: "Store updated successfully"
+            });
             await client.close();
         }
     } catch (error) {
         res.status(500).json(`Error is : ${error}`);
     }
 });
+
+
+app.post('/getstoreinfo', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.body.id;
+        const token = req.user.id
+        if (!id) {
+            res.status(200).json("Invalid ID");
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+
+            // console.log(storeInfo);
+            const storedetail = await storecollection.find(
+                { id: id }
+            ).toArray();
+
+            res.status(200).json({
+                message: "Store getted successfully",
+                storeinfo: storedetail
+            });
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
+    }
+});
+
 
 
 //For agent created store and display => MyStore

@@ -19,6 +19,7 @@ import EditStore from "./EditStore";
 import AlertMess from "./AlertMess";
 import { SearchBar } from "react-native-screens";
 import SearchStore from "./SearchStore";
+import EditOrigin from "./EditOrigin";
 
 
 
@@ -60,6 +61,7 @@ const CompanyInfo = () => {
                 <Stack.Screen name='EditProfile' component={EditProfile} />
                 <Stack.Screen name='AgentInfo' component={AgentInfo} />
                 <Stack.Screen name='EditStore' component={EditStore} />
+                <Stack.Screen name='EditOrigin' component={EditOrigin} />
             </Stack.Navigator>
         );
     }
