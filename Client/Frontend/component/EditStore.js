@@ -1,12 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Button, Platform, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView, Image } from "react-native";
 
-const EditStore = ({ navigation,route }) => {
+const EditStore = ({ navigation, route }) => {
 
     const { item } = route.params;
+    const [qrImage, setQrImage] = useState(item.qrCodeImage);
+
     // console.log(item);
 
     return (
@@ -36,9 +38,17 @@ const EditStore = ({ navigation,route }) => {
                         </View>
                     </View>
                 </View>
+                {qrImage && (
+                    <View>
+                        <View style={styles.qrContainer}>
+                            <Text style={styles.qrText}>QR Code:</Text>
+                            <Image source={{ uri: qrImage }} style={styles.qrImage} />
+                        </View>
+                    </View>
+                )}
             </ScrollView>
             <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
-                <Pressable style={styles.sign} onPress={() => navigation.navigate('EditOrigin', { item : item })}>
+                <Pressable style={styles.sign} onPress={() => navigation.navigate('EditOrigin', { item: item })}>
                     <Text style={{ color: 'white', fontSize: 17 }}>Edit</Text>
                 </Pressable>
             </View>
@@ -59,6 +69,19 @@ const styles = StyleSheet.create({
         height: 50,
         alignItems: 'center',
         justifyContent: 'center'
+    }, 
+    qrContainer: {
+        marginTop: 20,
+        alignItems: 'center'
+    },
+    qrText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    qrImage: {
+        width: 200,
+        height: 200,
+        marginTop: 10,
     }
 }
 );

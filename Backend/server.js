@@ -119,28 +119,48 @@ app.post('/login', async (req, res) => {
 
 
 //For Agent info page if token use this. else use post and using eith email;
-app.get('/getagentinfo', async (req, res) => {
-    try {
-        const client = connect();
-        await client.connect();
-        const db = client.db("Merchant_App");
-        const agentcollection = db.collection("Agent_Info");
-        const result = await agentcollection.find({}).toArray();
-        res.status(200).json(result);
-        await client.close();
-    } catch (error) {
-        res.status(500).json(`Error is : ${error}`);
+app.get('/getagentinfo', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    if (!id) {
+        res.status(200).json('invalid Id');
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection("Agent_Info");
+            const result = await agentcollection.find({id:id}).toArray();
+            if(result === 0){
+                res.status(200).json('No agent data available');
+            } else {
+                const data = result[0];
+                res.status(200).json({
+                    fname:data.firstName,
+                    lname:data.lastName,
+                    email:data.email,
+                    phone:data.phone,
+                    address:data.address,
+                    score:data.scoreCount,
+                    gender:data.gender,
+                    dob:data.dob,
+                    bg:data.bloodGroup,
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json(`Error is : ${error}`);
+        }
     }
 });
 
 
 //For edit Agent infomation
-app.post('/editagentinfo', async (req, res) => {
-    const { id } = req.body;
-    const updates = {
-        "bloodGroup": "O+ve",
-        "scoreCount": "0"
-    }
+app.post('/editagentinfo',verifyToken, async (req, res) => {
+    const id = req.user.id;
+    const {fname,lname,email,phone,address,gender,dob,bg} = req.body;
+    console.log(bg)
+    const updates = {firstName:fname,lastName:lname,email:email,phone:phone,address:address,gender:gender,dob:dob,bloodGroup:bg}
+    console.log(updates.bloodGroup);
     try {
         if (!id) {
             res.status(200).json(`Invalid ID`);
@@ -150,18 +170,23 @@ app.post('/editagentinfo', async (req, res) => {
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
 
-            const update = await agentcollection.updateOne(
-                { id: id },
-                { $set: updates }
-            );
+            const value = await agentcollection.find({id:id}).toArray();
 
-            // const update = await agentcollection.updateOne(
-            //     { id : id},
-            //     { $set : { bloodGroup : "O-ve", scoreCount : "2" }}
-            // );
+            if(value.length === 0 ){
+                res.status(500).json('Invalid Agent');
+            }else{
+                const update = await agentcollection.updateOne(
+                    { id: id },
+                    { $set: updates }
+                );
+                res.status(200).json({
+                    message : 'Successfully Added'
+                })
+            }
 
-            const result = await agentcollection.find({ id: id }).toArray();
-            res.status(200).json(result);
+            // const result = await agentcollection.find({ id: id }).toArray();
+            // console.log(result,'----------');
+            // res.status(200).json(result);
             await client.close();
         }
     } catch (error) {

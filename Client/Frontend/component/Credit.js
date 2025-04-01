@@ -19,7 +19,7 @@ const Credit = ({ navigation }) => {
                 const resposne = await axios.get(apiUrl+'/getagentid',{
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                console.log(resposne.data,"---score data");
+                // console.log(resposne.data,"---score data");
                 setScore(resposne.data)
             } catch (error) {
                 console.log(`Error is : ${error}`)

@@ -18,7 +18,11 @@ const SearchStore = ({ navigation, route }) => {
         const searchbarfunction = async () => {
             try {
                 const resposne = await axios.post(apiUrl + '/searchstore', { storename: text });
-                setSearchedstore(resposne.data);
+                if (resposne.data == 'Store not found' || resposne.data == 'Empty store name') {
+                    setSearchedstore('');
+                } else {
+                    setSearchedstore(resposne.data);
+                }
                 console.log(resposne.data);
             } catch (error) {
                 console.log(`Eerror is : ${error}`)
@@ -29,22 +33,21 @@ const SearchStore = ({ navigation, route }) => {
 
     return (
 
-        
+
         <View style={styles.container} >
-            {/* <Text>Company Informations Screen : {}</Text> */}
             {searchedstore ? (
                 <FlatList
-                data={searchedstore}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.item}>
-                        <Text>Company name: {item.storeName}</Text>
-                        <Text>Owner name: {item.ownerName}</Text>
-                    </View>
-                )}
-            />
-            ):(
-                <Text>Company Informations Screen : {text} from not</Text>
+                    data={searchedstore}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <View style={styles.item}>
+                            <Text>Company name: {item.storeName}</Text>
+                            <Text>Owner name: {item.ownerName}</Text>
+                        </View>
+                    )}
+                />
+            ) : (
+                <Text>Company Informations Screen : {text} from not Founded</Text>
             )}
         </View>
     );

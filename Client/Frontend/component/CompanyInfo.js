@@ -1,8 +1,11 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect } from "react";
 import { View, Text, Button } from "react-native";
 import { StyleSheet } from "react-native";
 
 const CompanyInfo = ({navigation}) => {
+
+
     return (
         <View style={styles.conatiner} >
             <Text>Company Informations Screen</Text>

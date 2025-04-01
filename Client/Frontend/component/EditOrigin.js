@@ -18,12 +18,12 @@ const EditOrigin = ({ navigation, route }) => {
     // const [message, setMessage] = useState();
 
     const showToast = (type, data) => {
-        Toast.show({
-            type: type,   // 'success', 'error', 'info'
-            text1: type === 'error' ? 'Error!' : 'Success!',
-            text2: data
-        });
-    };
+            Toast.show({
+                type: type,   // 'success', 'error', 'info'
+                text1: type === 'error' ? 'Error!' : 'Success!',
+                text2: data
+            });
+        };
 
 
     useEffect(() => {
@@ -35,7 +35,7 @@ const EditOrigin = ({ navigation, route }) => {
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                console.log(response.data.storeinfo[0].city);
+                // console.log(response.data.storeinfo[0].city);
                 setSi(response.data.storeinfo[0]);
             } catch (error) {
                 console.log(`Error is : ${error}`);
@@ -90,7 +90,7 @@ const EditOrigin = ({ navigation, route }) => {
     const editstoreinfo = async () => {
         if (!storeName || !phone || !email || !city || !ownerName) {
             showToast("error", "Empty Fields! Please fill all required data.");
-            console.log("empty data");
+            // console.log("empty data");
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
@@ -101,7 +101,8 @@ const EditOrigin = ({ navigation, route }) => {
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                console.log(response.data.message);
+                showToast("success", `${response.data.message}`);
+                // console.log(response.data.message);
             } catch (error) {
                 console.log(`EError is : ${error}`)
             }
@@ -111,7 +112,8 @@ const EditOrigin = ({ navigation, route }) => {
 
     const editpaninfo = async () => {
         if (!pancardNo || !aadharcardNo) {
-            console.log('Enter Important Data');
+            // console.log('Enter Important Data');
+            showToast("error", "Empty Fields! Please fill all required data.");
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
@@ -122,6 +124,7 @@ const EditOrigin = ({ navigation, route }) => {
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
+                showToast("success", `${response.data.message}`);
                 console.log(response.data.message);
             } catch (error) {
                 console.log(`EError is : ${error}`)
@@ -132,7 +135,8 @@ const EditOrigin = ({ navigation, route }) => {
 
     const editstore = async () => {
         if (!storeName || !ownerName || !phone || !email || !city || !pancardNo || !aadharcardNo || !accountNo) {
-            console.log('Enter Important Value');
+            // console.log('Enter Important Value');
+            showToast("error", "Empty Fields! Please fill all required data.");
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
@@ -142,7 +146,8 @@ const EditOrigin = ({ navigation, route }) => {
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                console.log(response.data.message);
+                showToast("success", `${response.data.message}`);
+                // console.log(response.data.message);
                 navigation.goBack();
             } catch (error) {
                 console.log(`EError is : ${error}`)
@@ -153,7 +158,6 @@ const EditOrigin = ({ navigation, route }) => {
 
     return (
         <View style={styles.conatiner} >
-
             <View>
                 <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 60, paddingBottom: 30 }}>
                     <Text style={{ fontSize: 30 }}>Edit Your Store Now!</Text>
@@ -325,15 +329,13 @@ const EditOrigin = ({ navigation, route }) => {
                                     onChangeText={setIFSCCode}
                                 />
                                 <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
-                                    {/* <Pressable style={styles.sign} onPress={handleGenerateQR}>
-                                        <Text style={{ color: 'white', fontSize: 17 }}>Next</Text>
-                                    </Pressable> */}
                                     <Pressable style={styles.sign} onPress={editstore}>
                                         <Text style={{ color: 'white', fontSize: 17 }}>Finish</Text>
                                     </Pressable>
                                 </View>
                             </>
                         )}
+                        <Toast ref={(ref) => Toast.setRef(ref)} />
                     </View>
                 </ScrollView>
             </View>
