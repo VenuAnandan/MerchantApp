@@ -26,6 +26,12 @@ app.use(cors(
 ));
 app.use(express.json());
 
+
+app.get('/summa', (req, res) => {
+    res.json('api is worked');
+});
+
+
 const verifyToken = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -41,9 +47,61 @@ const verifyToken = (req, res, next) => {
 };
 
 
-app.get('/summa', (req, res) => {
-    res, json('api is worked');
-})
+
+app.get('/forhome', verifyToken, async (req, res) => {
+    const id = req.user.id;  // Get ID from query params
+    if (!id) {
+        return res.status(400).json({ message: 'Invalid ID' });
+    }
+    try {
+        const client = await connect();
+        const db = client.db("Merchant_App");
+        const agentCollection = db.collection("Agent_Info");
+
+        const result = await agentCollection.findOne({ id: id });
+
+        if (!result) {
+            await client.close();
+            return res.status(404).json({ message: 'No agent data available' });
+        }
+
+        const forhome = {
+            fname: result.firstName,
+            email: result.email,
+            score: result.scoreCount
+        };
+
+        const storecollection = db.collection("Store_Info");
+        const agentstore = await storecollection.find({ referal_id: { $in: [id] } }).toArray();
+        const incomplete = [];
+        agentstore.map(doc => {
+            const nullfields = Object.keys(doc).filter(key => doc[key] === null || doc[key] == '');
+            if (nullfields.length > 0) {
+                incomplete.push(doc);
+            }
+        });
+
+        const store = await storecollection.find({
+            referal_id: id,
+            Pending: { $in: ['Bank', 'Pan'] },
+        }).toArray();
+
+        const mystores = await storecollection.find({ referal_id: { $in: [id] } }).toArray();
+
+
+        forhome.incomple = incomplete.length;
+        forhome.pending = store.length;
+        forhome.sto = mystores.length;
+        res.json(forhome);
+
+        await client.close();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        res.status(500).json({ message: `Error occurred: ${error.message}` });
+    }
+});
+
+
 
 //for Agent Registration Page
 app.post('/agentregistration', async (req, res) => {
@@ -129,21 +187,21 @@ app.get('/getagentinfo', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
-            const result = await agentcollection.find({id:id}).toArray();
-            if(result === 0){
+            const result = await agentcollection.find({ id: id }).toArray();
+            if (result === 0) {
                 res.status(200).json('No agent data available');
             } else {
                 const data = result[0];
                 res.status(200).json({
-                    fname:data.firstName,
-                    lname:data.lastName,
-                    email:data.email,
-                    phone:data.phone,
-                    address:data.address,
-                    score:data.scoreCount,
-                    gender:data.gender,
-                    dob:data.dob,
-                    bg:data.bloodGroup,
+                    fname: data.firstName,
+                    lname: data.lastName,
+                    email: data.email,
+                    phone: data.phone,
+                    address: data.address,
+                    score: data.scoreCount,
+                    gender: data.gender,
+                    dob: data.dob,
+                    bg: data.bloodGroup,
                 });
             }
             await client.close();
@@ -155,11 +213,11 @@ app.get('/getagentinfo', verifyToken, async (req, res) => {
 
 
 //For edit Agent infomation
-app.post('/editagentinfo',verifyToken, async (req, res) => {
+app.post('/editagentinfo', verifyToken, async (req, res) => {
     const id = req.user.id;
-    const {fname,lname,email,phone,address,gender,dob,bg} = req.body;
+    const { fname, lname, email, phone, address, gender, dob, bg } = req.body;
     console.log(bg)
-    const updates = {firstName:fname,lastName:lname,email:email,phone:phone,address:address,gender:gender,dob:dob,bloodGroup:bg}
+    const updates = { firstName: fname, lastName: lname, email: email, phone: phone, address: address, gender: gender, dob: dob, bloodGroup: bg }
     console.log(updates.bloodGroup);
     try {
         if (!id) {
@@ -170,17 +228,17 @@ app.post('/editagentinfo',verifyToken, async (req, res) => {
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
 
-            const value = await agentcollection.find({id:id}).toArray();
+            const value = await agentcollection.find({ id: id }).toArray();
 
-            if(value.length === 0 ){
+            if (value.length === 0) {
                 res.status(500).json('Invalid Agent');
-            }else{
+            } else {
                 const update = await agentcollection.updateOne(
                     { id: id },
                     { $set: updates }
                 );
                 res.status(200).json({
-                    message : 'Successfully Added'
+                    message: 'Successfully Added'
                 })
             }
 
@@ -211,7 +269,7 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
         const now = new Date();
 
         const storedOr = await storecollection.find({ email: email }).toArray();
-        console.log(storedOr, '-----------');
+        // console.log(storedOr, '-----------');
         if (storedOr.length === 0) {
 
             storeInfo["date"] = now.toISOString().split('T')[0];
@@ -237,6 +295,14 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
             storeInfo.qrId = qrid;
             // 
 
+
+            if (!storeInfo.pancardNo || !storeInfo.aadharcardNo) {
+                storeInfo.pending = 'Pan'
+            } else if (!storeInfo.accountNo) {
+                storeInfo.pending = 'Bank'
+            } else {
+                storeInfo.pending = 'No'
+            }
 
             const result = await storecollection.insertOne(storeInfo);
             const agentcollection = db.collection("Agent_Info");
@@ -269,6 +335,17 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
             storeInfo.qrCodeImage = qrCodeImage;
             storeInfo.qrId = qrid;
             // console.log(storeInfo);
+
+
+            if (!storeInfo.pancardNo || !storeInfo.aadharcardNo) {
+                storeInfo.pending = 'Pan'
+            } else if (!storeInfo.accountNo) {
+                storeInfo.pending = 'Bank'
+            } else {
+                storeInfo.pending = 'No'
+            }
+
+
             const editdetail = await storecollection.updateOne(
                 { email: email },
                 { $set: storeInfo }
@@ -320,7 +397,17 @@ app.post('/editstoreinfo', verifyToken, async (req, res) => {
             const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
             updatedetails.qrCodeImage = qrCodeImage;
             updatedetails.qrId = qrid;
-            console.log('---------');
+
+
+            if (!updatedetails.pancardNo || !updatedetails.aadharcardNo) {
+                updatedetails.pending = 'Pan'
+            } else if (!updatedetails.accountNo) {
+                updatedetails.pending = 'Bank'
+            } else {
+                updatedetails.pending = 'No'
+            }
+
+            // console.log('---------');
             const editdetail = await storecollection.updateOne(
                 { id: id },
                 { $set: updatedetails }
@@ -379,9 +466,10 @@ app.get('/mystores', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const storecollection = db.collection("Store_Info");
+            console.log(targetId);
             const result = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
             res.status(200).json(result)
-            // console.log(result);
+            console.log(result);
             await client.close();
         }
     } catch (error) {
@@ -391,16 +479,19 @@ app.get('/mystores', verifyToken, async (req, res) => {
 
 
 app.get('/allstores', async (req, res) => {
+    console.log('1');
     try {
         const client = connect();
         await client.connect();
+        console.log('etho');
         const db = client.db("Merchant_App");
         const storecollection = db.collection("Store_Info");
         const result = await storecollection.find({}).toArray();
+        console.log(result);
         res.status(200).json(result);
         await client.close();
     } catch (error) {
-        ``
+        console.log(error);
         res.status(500).json(`Error is : ${error}`);
     }
 });
@@ -426,7 +517,7 @@ app.get('/numberofincompletestoreinfo', verifyToken, async (req, res) => {
                 if (nullfields.length > 0) {
                     incomplete.push({ id: doc.id });
                 }
-            })
+            });
             res.status(200).json(incomplete);
             await client.close();
         }
@@ -457,7 +548,7 @@ app.get('/incompletestoreinfo', verifyToken, async (req, res) => {
                     incomplete.push(doc);
                     // console.log(incomplete);
                 }
-            })
+            });
             res.status(200).json(incomplete);
             await client.close();
         }
@@ -523,6 +614,31 @@ app.get('/getagentid', verifyToken, async (req, res) => {
     }
 });
 
+
+app.get('/pendingkyc', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    if (!id) {
+        return res.status(400).json({ message: 'Invalid ID' });
+    }
+    try {
+        const client = await connect();
+        const db = client.db("Merchant_App");
+        const storecollection = db.collection("Store_Info");
+
+
+        const store = await storecollection.find({
+            referal_id: id,
+            Pending: { $in: ['Bank', 'Pan'] },
+        }).toArray();
+
+        res.json(store);
+
+        await client.close();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        res.status(500).json({ message: `Error occurred: ${error.message}` });
+    }
+})
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);

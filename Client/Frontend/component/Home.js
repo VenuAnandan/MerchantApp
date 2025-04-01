@@ -13,6 +13,10 @@ const Home = ({ navigation }) => {
     const data = "";
     const [agentname, setAgentname] = useState("Name");
     const [agentemail, setAgentemail] = useState("Email");
+    const [score, setScore] = useState(0);
+    const [incomplete, setIncomplete] = useState(0);
+    const [kycpending, setKYCpending] = useState(0);
+    const [sto, setSto] = useState(0);
     const [search, setSearch] = useState('');
 
     const [message, setMessage] = useState();
@@ -29,19 +33,24 @@ const Home = ({ navigation }) => {
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-    const [allstores, setAllstores] = useState();
-
     useEffect(() => {
-        const getmystore = async () => {
+        const getimcomplet = async () => {
+            const token = await AsyncStorage.getItem("token");
             try {
-                const response = await axios.get(apiUrl + '/allstores', {
+                const response = await axios.get(apiUrl + '/forhome', {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                setAllstores(response.data);
+                setAgentname(response.data.fname);
+                setAgentemail(response.data.email);
+                setScore(response.data.score);
+                setIncomplete(response.data.incomple);
+                setKYCpending(response.data.pending);
+                setSto(response.data.sto);
             } catch (error) {
-                console.log(`EError is : ${error}`)
+                console.log(`EError is : ${error}`);
             }
         }
-        getmystore();
+        getimcomplet();
     }, []);
 
 
@@ -51,7 +60,9 @@ const Home = ({ navigation }) => {
             Toast.show({
                 type: 'error',
                 text1: 'Error!',
-                text2: data
+                text2: data,
+                position: 'top',
+                visibilityTime: 3000
             });
         }
     };
@@ -59,6 +70,7 @@ const Home = ({ navigation }) => {
     return (
         <View style={{ flex: 1, backgroundColor: '#F9F7F5' }}>
             <ScrollView showsVerticalScrollIndicator={false}>
+                <Toast ref={(ref) => Toast.setRef(ref)} />
                 <View style={styles.conatiner}>
                     <View style={styles.top1}>
                         <View style={styles.head1}>
@@ -83,90 +95,76 @@ const Home = ({ navigation }) => {
                         <TouchableOpacity style={styles.edit} onPress={gosearch}>
                             <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Search</Text>
                         </TouchableOpacity>
+                        {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
                     </View>
-                    <View style={{padding:10, marginTop:10}}>
-                        <Text style={{fontSize:22, fontStyle:'italic'}}>Welcome! Unlock opportunities, connect, grow, and <Text style={{color:'red'}}>achieve success</Text></Text>
+                    <View style={{ padding: 10, marginTop: 10 }}>
+                        <Text style={{ fontSize: 22, fontStyle: 'italic' }}>Welcome! Unlock opportunities, connect, grow, and <Text style={{ color: '#309264' }}>achieve success</Text></Text>
                     </View>
                     <View style={styles.head3}>
-                        <TouchableOpacity style={styles.head31} onPress={() => navigation.navigate('Credit')}>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('KYC')}>
+                            <View>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=TqsKL58VfNRg&format=png&color=000000' }}></Image>
+                            </View>
+                            <View>
+                                <Text style={{ color: 'white' }}>KYC Pending</Text>
+                                <View style={styles.num}>
+                                    <Text>{kycpending}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('MyStore')}>
+                            <View>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=3itKcgt8xjuf&format=png&color=000000' }}></Image>
+                            </View>
+                            <View>
+                                <Text style={{ color: 'white' }}>My Stores</Text>
+                                <View style={styles.num}>
+                                    <Text>{sto}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Incomplete')}>
+                            <View>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=otjWWu3EPnWv&format=png&color=000000' }}></Image>
+                            </View>
+                            <View>
+                                <Text style={{ color: 'white' }}>Incomplete</Text>
+                                <View style={styles.num}>
+                                    <Text>{incomplete}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Credit')}>
                             <View>
                                 <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
                             </View>
                             <View>
-                                <Text>Credite Score</Text>
-                                <Text>Out of <Text style={{ fontWeight: 'bold' }}>100</Text></Text>
+                                <Text style={{ color: 'white' }}>Credite Score</Text>
+                                <View style={styles.num}>
+                                    <Text>{score}</Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Achivmentsinfo')}>
+                        {/* <TouchableOpacity style={styles.head32}>
                             <View>
                                 <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                             </View>
                             <View>
-                                <Text>Achivements</Text>
-                                <View>
-                                    <Text>Silver</Text>
-                                </View>
+                                <Text>Devices</Text>
                             </View>
                         </TouchableOpacity>
-                    </View>
-                    {data ? (
-                        <View style={styles.head4}>
-                            <View style={styles.recent}>
-                                <View>
-                                    <Text>Recent Stores</Text>
-                                </View>
-                                <View>
-                                    <Text>View All</Text>
-                                </View>
+                        <TouchableOpacity style={styles.head32}>
+                            <View>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                             </View>
                             <View>
-                                <View style={styles.store}>
-                                    <View style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                                        <View>
-                                            <Image style={{ width: 90, height: 70, borderRadius: 20 }} source={{ uri: 'https://picsum.photos/200/300' }} />
-                                        </View>
-                                        <View>
-                                            <Text>Sri Rajalakshmi Saaman</Text>
-                                            <Text>Chennai</Text>
-                                            <Text>Contact : </Text>
-                                        </View>
-                                    </View>
-                                </View>
+                                <Text>Scanner</Text>
                             </View>
-                        </View>
-                    ) : (
-                        <View style={styles.head4}>
-                            <View style={styles.recent}>
-                                <View>
-                                    <Text style={{ fontSize: 25, fontWeight: 'bold', padding: 5, marginTop: 10 }}>Recent Stores</Text>
-                                </View>
-                                {/* <View>
-                                <Text>View All</Text>
-                            </View> */}
-                            </View>
-                            <View style={{ height: 400, width: '100%' }}>
-                                <FlatList style={{ marginTop: 0, display: 'flex', gap: 10, padding: 5 }}
-                                    data={allstores}  //data={allstores.slice(0, 3)}
-                                    keyExtractor={(item) => item.id}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity style={styles.storess} onPress={() => navigation.navigate('StoreInfo', { item: item })}>
-                                            <View>
-                                                <Image style={{ width: 120, height: 120, borderRadius: 20 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
-                                            </View>
-                                            <View >
-                                                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{item.storeName}</Text>
-                                                <Text >Owner : {item.ownerName}</Text>
-                                                <Text >Phone : {item.phone}</Text>
-                                                <Text >Status : {item.status}</Text>
-                                                <Text >Pending : </Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    )}
-                                />
-                                <Toast ref={(ref) => Toast.setRef(ref)} />
-                            </View>
-                        </View>
-                    )};
+                        </TouchableOpacity> */}
+                    </View>
+                    <View style={styles.toastWrapper}>
+                        <Toast />
+                    </View>
                 </View>
             </ScrollView>
         </View>
@@ -178,26 +176,25 @@ const styles = StyleSheet.create({
         // flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         padding: 20,
-        // backgroundColor:''
+        // backgroundColor:'' #FCCC3A
     },
     edit: {
-        backgroundColor: '#FF9555',
+        backgroundColor: '#FCCC3A',
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
         width: '50%',
         height: 40,
+        shadowColor: 'black',
+        elevation: 10
     },
     top1: {
-        backgroundColor: '#463BCA',
+        backgroundColor: '#309264',
         display: 'flex',
-        // height:500,
         padding: 10,
-        // flexWrap:'wrap',
         borderRadius: 25,
         alignItems: 'center',
-        // justifyContent:'center'
     },
     head1: {
         display: 'flex',
@@ -206,7 +203,6 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         flexDirection: 'row',
         width: '95%',
-        // backgroundColor: 'white'
     },
     head12: {
         display: 'flex',
@@ -214,8 +210,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 9,
-        // backgroundColor:'white',
-        // paddingRight:10,
     },
     image: {
         width: 80,
@@ -262,7 +256,7 @@ const styles = StyleSheet.create({
         padding: 2,
         gap: 5,
         borderRadius: 20,
-        backgroundColor: '#F3D46D',
+        backgroundColor: '#FF9555',
         shadowColor: 'black',
         elevation: 3
     },
@@ -276,9 +270,25 @@ const styles = StyleSheet.create({
         padding: 2,
         gap: 5,
         borderRadius: 20,
-        backgroundColor: '#F36D6D',
+        backgroundColor: '#309264',
         shadowColor: 'black',
-        elevation: 3
+        elevation: 3,
+        position: 'relative',
+    },
+    num: {
+        position: 'absolute',
+        marginTop: -20,
+        marginLeft: 80,
+        backgroundColor: '#FCCC3A',
+        width: 20,
+        height: 20,
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1,
+        borderRadius: '50%'
     },
     head4: {
         display: 'flex',
@@ -314,6 +324,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         shadowColor: 'black',
         elevation: 3
+    },
+    toastWrapper: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1,
+        elevation: 9999,
     }
 
 }

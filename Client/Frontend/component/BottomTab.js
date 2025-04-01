@@ -20,6 +20,7 @@ import AlertMess from "./AlertMess";
 import { SearchBar } from "react-native-screens";
 import SearchStore from "./SearchStore";
 import EditOrigin from "./EditOrigin";
+import KYC from './KYC'
 
 
 
@@ -38,6 +39,14 @@ const CompanyInfo = () => {
                 <Stack.Screen name='StoreInfo' component={StoreInfo} />
                 <Stack.Screen name='AlertMess' component={AlertMess}/>
                 <Stack.Screen name="SearchStore" component={SearchStore}/>
+                <Stack.Screen name="Incomplete" component={Incomplete} />
+                <Stack.Screen name="MyStore" component={MyStore} />
+                <Stack.Screen name="CompanyInfo" component={CompanyInfo}/>
+                <Stack.Screen name='EditProfile' component={EditProfile} />
+                <Stack.Screen name='AgentInfo' component={AgentInfo} />
+                <Stack.Screen name='EditStore' component={EditStore} />
+                <Stack.Screen name='EditOrigin' component={EditOrigin} />
+                <Stack.Screen name="KYC" component={KYC} />
             </Stack.Navigator>
         )
     }
@@ -86,15 +95,16 @@ const CompanyInfo = () => {
 
             return <MaterialIcons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: 'blue',   // Active tab color
-          tabBarInactiveTintColor: 'gray', // Inactive tab color
-          tabBarShowLabel: true,           // Show labels
+          tabBarActiveTintColor: '#309264',  
+          tabBarInactiveTintColor: 'gray', 
+          tabBarShowLabel: true,
         })}
       >
         <Tab.Screen name="Home" component={HomePage} />
         <Tab.Screen name="Add" component={StorePage} />
         <Tab.Screen name="User" component={UserInfoTab} />
       </Tab.Navigator>
+      
     );
 }
 

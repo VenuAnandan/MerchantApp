@@ -1,29 +1,28 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform, Image, Pressable, TouchableOpacity } from "react-native";
+import { View, Text, Button, Platform, Image, TouchableOpacity, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
-import { FlatList } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { FlatList } from "react-native";
+import Feather from '@expo/vector-icons/Feather';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 
-const MyStore = ({ navigation }) => {
+const KYC = ({ navigation }) => {
 
-    const [mystores, setMystores] = useState();
 
+    const [kycpending, setKycpending] = useState('');
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
     useEffect(() => {
         const getmystore = async () => {
             const token = await AsyncStorage.getItem("token");
-            // console.log(token, "-----");
             try {
-                const response = await axios.get(apiUrl + '/mystores', {
+                const response = await axios.get(apiUrl + '/pendingkyc', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                // console.log(response.data);
-                setMystores(response.data);
+                setKycpending(response.data);
             } catch (error) {
                 console.log(`EError is : ${error}`)
             }
@@ -34,28 +33,24 @@ const MyStore = ({ navigation }) => {
 
     return (
         <View style={styles.conatiner} >
-            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 30, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                 <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-                    <View>
-                        <AntDesign name="arrowleft" size={24} color="white" />
-                    </View>
+                    <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
                 <View style={{}}>
-                    <Text style={{ fontSize: 20, color: 'white' }}>My Stores</Text>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Edit Store</Text>
                 </View>
                 <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-                    <View>
-                        <AntDesign name="close" size={24} color="white" />
-                    </View>
+                    <View><AntDesign name="close" size={24} color="white" /></View>
                 </TouchableOpacity>
             </View>
             <FlatList
-                data={mystores}
-                keyExtractor={(item) => item.id}
+                data={kycpending}
+                keyExtractor={item => (item.id)}
                 renderItem={({ item }) => (
                     <Pressable
                         style={styles.card}
-                        onPress={() => navigation.navigate('StoreInfo', { item: item })}>
+                        onPress={() => navigation.navigate('EditStore', { item: item })}>
                         <View style={styles.header}>
                             <Image
                                 style={styles.avatar}
@@ -121,4 +116,4 @@ const styles = StyleSheet.create({
 }
 );
 
-export default MyStore;
+export default KYC;

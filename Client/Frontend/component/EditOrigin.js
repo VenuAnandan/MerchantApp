@@ -2,11 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { use, useEffect, useState } from "react";
-import { View, Text, Button, Platform, Pressable, Image } from "react-native";
+import { View, Text, Button, Platform, Pressable, Image, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native";
 import { TextInput } from "react-native";
 import Toast from "react-native-toast-message";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 const EditOrigin = ({ navigation, route }) => {
@@ -18,12 +19,14 @@ const EditOrigin = ({ navigation, route }) => {
     // const [message, setMessage] = useState();
 
     const showToast = (type, data) => {
-            Toast.show({
-                type: type,   // 'success', 'error', 'info'
-                text1: type === 'error' ? 'Error!' : 'Success!',
-                text2: data
-            });
-        };
+        Toast.show({
+            type: type,
+            text1: type === 'error' ? 'Error!' : 'Success!',
+            text2: data,
+            position: 'top',
+            visibilityTime: 3000
+        });
+    };
 
 
     useEffect(() => {
@@ -87,111 +90,199 @@ const EditOrigin = ({ navigation, route }) => {
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 
+    // const editstoreinfo = async () => {
+    //     if (!storeName || !phone || !email || !city || !ownerName) {
+    //         showToast("error", "Empty Fields! Please fill all required data.");
+    //         // console.log("empty data");
+    //     } else {
+    //         const token = await AsyncStorage.getItem("token");
+    //         try {
+    //             const response = await axios.post(apiUrl + '/editstoreinfo', {
+    //                 id: item,
+    //                 storeName, ownerName, email, address, address2, city, postalcode, phone
+    //                 , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
+    //             }, {
+    //                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    //             });
+    //             showToast("success", `${response.data.message}`);
+    //             // console.log(response.data.message);
+    //         } catch (error) {
+    //             console.log(`EError is : ${error}`)
+    //         }
+    //         setFlag('2');
+    //     }
+    // }
     const editstoreinfo = async () => {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const phonePattern = /^[0-9]{10}$/;
+
         if (!storeName || !phone || !email || !city || !ownerName) {
             showToast("error", "Empty Fields! Please fill all required data.");
-            // console.log("empty data");
+            resetInvalidFields(storeName, phone, email, city, ownerName);
+        } else if (!email.match(emailPattern)) {
+            showToast("error", "Invalid Email Format.");
+            setEmail('');
+        } else if (!phone.match(phonePattern)) {
+            showToast("error", "Invalid Phone Number.");
+            setPhone('');
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
                 const response = await axios.post(apiUrl + '/editstoreinfo', {
                     id: item,
-                    storeName, ownerName, email, address, address2, city, postalcode, phone
-                    , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
+                    storeName, ownerName, email, address, address2, city, postalcode, phone,
+                    GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 showToast("success", `${response.data.message}`);
-                // console.log(response.data.message);
             } catch (error) {
-                console.log(`EError is : ${error}`)
+                console.log(`Error: ${error}`);
             }
             setFlag('2');
         }
-    }
+    };
 
+
+    // const editpaninfo = async () => {
+    //     if (!pancardNo || !aadharcardNo) {
+    //         // console.log('Enter Important Data');
+    //         showToast("error", "Empty Fields! Please fill all required data.");
+    //     } else {
+    //         const token = await AsyncStorage.getItem("token");
+    //         try {
+    //             const response = await axios.post(apiUrl + '/editstoreinfo', {
+    //                 id: item,
+    //                 storeName, ownerName, email, address, address2, city, postalcode, phone
+    //                 , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
+    //             }, {
+    //                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    //             });
+    //             showToast("success", `${response.data.message}`);
+    //             console.log(response.data.message);
+    //         } catch (error) {
+    //             console.log(`EError is : ${error}`)
+    //         }
+    //         setFlag('3');
+    //     }
+    // }
     const editpaninfo = async () => {
+        const pancardPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        const aadharcardPattern = /^[2-9]{1}[0-9]{11}$/;
+
         if (!pancardNo || !aadharcardNo) {
-            // console.log('Enter Important Data');
             showToast("error", "Empty Fields! Please fill all required data.");
+            resetInvalidFields(pancardNo, aadharcardNo);
+        } else if (!pancardNo.match(pancardPattern)) {
+            showToast("error", "Invalid PAN Card Number.");
+            setPancardNo('');
+        } else if (!aadharcardNo.match(aadharcardPattern)) {
+            showToast("error", "Invalid Aadhar Card Number.");
+            setAadharcardNo('');
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
                 const response = await axios.post(apiUrl + '/editstoreinfo', {
                     id: item,
-                    storeName, ownerName, email, address, address2, city, postalcode, phone
-                    , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
+                    storeName, ownerName, email, address, address2, city, postalcode, phone,
+                    GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 showToast("success", `${response.data.message}`);
-                console.log(response.data.message);
             } catch (error) {
-                console.log(`EError is : ${error}`)
+                console.log(`Error: ${error}`);
             }
             setFlag('3');
         }
-    }
+    };
+
+
+    // const editstore = async () => {
+    //     if (!storeName || !ownerName || !phone || !email || !city || !pancardNo || !aadharcardNo || !accountNo) {
+    //         // console.log('Enter Important Value');
+    //         showToast("error", "Empty Fields! Please fill all required data.");
+    //     } else {
+    //         const token = await AsyncStorage.getItem("token");
+    //         try {
+    //             const response = await axios.post(apiUrl + '/addstoreinfo', {
+    //                 storeName, ownerName, email, address, address2, city, postalcode, phone
+    //                 , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
+    //             }, {
+    //                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    //             });
+    //             showToast("success", `${response.data.message}`);
+    //             // console.log(response.data.message);
+    //             navigation.goBack();
+    //         } catch (error) {
+    //             console.log(`EError is : ${error}`)
+    //         }
+    //     }
+    // }
 
     const editstore = async () => {
-        if (!storeName || !ownerName || !phone || !email || !city || !pancardNo || !aadharcardNo || !accountNo) {
-            // console.log('Enter Important Value');
-            showToast("error", "Empty Fields! Please fill all required data.");
+        const accountNoPattern = /^[0-9]{10}$/; 
+        if (!accountNo) {
+            showToast("error", "Account number is required.");
+        } else if (!accountNo.match(accountNoPattern)) {
+            showToast("error", "Invalid Account Number. Please enter a valid 10-digit account number.");
+            setAccountNo('');
         } else {
             const token = await AsyncStorage.getItem("token");
             try {
                 const response = await axios.post(apiUrl + '/addstoreinfo', {
-                    storeName, ownerName, email, address, address2, city, postalcode, phone
-                    , GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
+                    storeName, ownerName, email, address, address2, city, postalcode, phone,
+                    GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 showToast("success", `${response.data.message}`);
-                // console.log(response.data.message);
                 navigation.goBack();
             } catch (error) {
-                console.log(`EError is : ${error}`)
+                console.log(`Error: ${error}`);
             }
         }
-    }
+    };
 
 
     return (
         <View style={styles.conatiner} >
-            <View>
-                <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 60, paddingBottom: 30 }}>
-                    <Text style={{ fontSize: 30 }}>Edit Your Store Now!</Text>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="arrowleft" size={24} color="white" /></View>
+                </TouchableOpacity>
+                <View style={{}}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Edit Store</Text>
                 </View>
+                <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="close" size={24} color="white" /></View>
+                </TouchableOpacity>
             </View>
 
             <View>
-                <View style={{ paddingTop: 10, display: 'flex', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-                    <Pressable style={[{ padding: 10, backgroundColor: (flag >= '1' ? 'green' : 'red'), borderRadius: 5 }]}
-                    // onPress={() => {
-                    //     if (flag <= flag) {
-                    //         setFlag('1');
-                    //     }
-                    // }}
-                    >
-                        <Text>Store Info</Text>
+                <View style={styles.containers}>
+                    <Pressable
+                        style={[
+                            styles.button,
+                            { backgroundColor: flag >= '1' ? '#27AE60' : '#BDC3C7', borderColor: flag === '1' ? '#2ECC71' : '#7F8C8D' },
+                        ]}>
+                        <Text style={[styles.text, { color: flag >= '1' ? '#FFF' : '#333' }]}>Store Info</Text>
                     </Pressable>
-                    <Pressable style={[{ padding: 10, backgroundColor: (flag >= '2' ? 'green' : 'red'), borderRadius: 5 }]}
-                    // onPress={() => {
-                    //     if (flag <= flag) {
-                    //         setFlag('2');
-                    //     }
-                    // }}
-                    >
-                        <Text>Pan Info</Text>
+
+                    <Pressable
+                        style={[
+                            styles.button,
+                            { backgroundColor: flag >= '2' ? '#2980B9' : '#BDC3C7', borderColor: flag === '2' ? '#3498DB' : '#7F8C8D' },
+                        ]}>
+                        <Text style={[styles.text, { color: flag >= '2' ? '#FFF' : '#333' }]}>Pan Info</Text>
                     </Pressable>
-                    <Pressable style={[{ padding: 10, backgroundColor: (flag >= '3' ? 'green' : 'red'), borderRadius: 5 }]}
-                    // onPress={() => {
-                    //     if (flag <= flag) {
-                    //         setFlag('3');
-                    //     }
-                    // }}
-                    >
-                        <Text>Bank Info</Text>
+
+                    <Pressable
+                        style={[
+                            styles.button,
+                            { backgroundColor: flag >= '3' ? '#E67E22' : '#BDC3C7', borderColor: flag === '3' ? '#D35400' : '#7F8C8D' },
+                        ]}>
+                        <Text style={[styles.text, { color: flag >= '3' ? '#FFF' : '#333' }]}>Bank Info</Text>
                     </Pressable>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
@@ -337,6 +428,9 @@ const EditOrigin = ({ navigation, route }) => {
                         )}
                         <Toast ref={(ref) => Toast.setRef(ref)} />
                     </View>
+                    <View style={styles.toastWrapper}>
+                        <Toast />
+                    </View>
                 </ScrollView>
             </View>
         </View >
@@ -348,6 +442,14 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         padding: 30,
+    },
+    containers: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        gap: 12,
     },
     searchbar: {
         borderWidth: 1,
@@ -362,18 +464,29 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     }, storebutton: {
         borderWidth: 1, width: 100, padding: 10, display: 'flex', alignItems: 'center'
-    }, qrContainer: {
-        marginTop: 20,
-        alignItems: 'center'
     },
-    qrText: {
-        fontSize: 18,
+    button: {
+        flex: 1,
+        paddingVertical: 14,
+        alignItems: 'center',
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    text: {
+        fontSize: 16,
         fontWeight: 'bold',
     },
-    qrImage: {
-        width: 200,
-        height: 200,
-        marginTop: 10,
+    toastWrapper: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1,
+        elevation: 9999,
     }
 }
 );

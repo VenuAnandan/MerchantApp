@@ -2,9 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform } from "react-native";
+import { View, Text, Button, Platform, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const Credit = ({ navigation }) => {
 
@@ -16,7 +17,7 @@ const Credit = ({ navigation }) => {
         const getagentscore = async () => {
             const token = await AsyncStorage.getItem('token')
             try {
-                const resposne = await axios.get(apiUrl+'/getagentid',{
+                const resposne = await axios.get(apiUrl + '/getagentid', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 // console.log(resposne.data,"---score data");
@@ -91,21 +92,32 @@ const Credit = ({ navigation }) => {
 
 
     return (
-        <ScrollView
-            style={styles.container}
-            showsVerticalScrollIndicator={false}
-        >
-            <Text style={styles.title}>Credit Score Program</Text>
-
-            <View style={styles.card}>
-                <Text style={styles.score}>Your Score: {score}</Text>
-                <Text style={styles.stage}>{getStage()}</Text>
-                <Text style={styles.target}>{getNextTarget()}</Text>
+        <View style={styles.container}>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 30, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{  width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="arrowleft" size={24} color="white" /></View>
+                </TouchableOpacity>
+                <View style={{}}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Store Informations</Text>
+                </View>
+                <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="close" size={24} color="white" /></View>
+                </TouchableOpacity>
             </View>
+            <ScrollView
+                showsVerticalScrollIndicator={false}>
+                <Text style={styles.title}>Credit Score Program</Text>
 
-            {getBenefits()}
+                <View style={styles.card}>
+                    <Text style={styles.score}>Your Score: {score}</Text>
+                    <Text style={styles.stage}>{getStage()}</Text>
+                    <Text style={styles.target}>{getNextTarget()}</Text>
+                </View>
 
-        </ScrollView>
+                {getBenefits()}
+
+            </ScrollView>
+        </View>
     );
 }
 
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        padding: 30,
+        padding: 20,
     },
     title: {
         fontSize: 28,

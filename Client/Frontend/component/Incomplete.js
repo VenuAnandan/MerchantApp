@@ -2,9 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform, Pressable, Image } from "react-native";
+import { View, Text, Button, Platform, Pressable, Image, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { FlatList } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 const Incomplete = ({ navigation }) => {
 
@@ -19,8 +21,6 @@ const Incomplete = ({ navigation }) => {
                 const response = await axios.get(apiUrl + '/incompletestoreinfo', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                // console.log(apiUrl);
-                // console.log(response.data);
                 setIncompletestores(response.data);
             } catch (error) {
                 console.log(`EError is : ${error}`)
@@ -33,23 +33,40 @@ const Incomplete = ({ navigation }) => {
 
     return (
         <View style={styles.conatiner} >
-            <View>
-                <Text style={{ fontSize: 30, paddingTop: 20, paddingBottom: 20 }}>Incomplete Stores</Text>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 30, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View>
+                        <AntDesign name="arrowleft" size={24} color="white" />
+                    </View>
+                </TouchableOpacity>
+                <View style={{}}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Incomplete Stores</Text>
+                </View>
+                <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View>
+                        <AntDesign name="close" size={24} color="white" />
+                    </View>
+                </TouchableOpacity>
             </View>
             <FlatList
                 data={incompletestores}
                 keyExtractor={item => (item.id)}
                 renderItem={({ item }) => (
-                    <Pressable style={styles.storess} onPress={() => navigation.navigate('EditStore', { item : item })}>
-                        <View>
-                            <Image style={{ width: 100, height: 100, borderRadius: 15 }} source={{ uri: 'https://picsum.photos/200/300' }}></Image>
+                    <Pressable
+                        style={styles.card}
+                        onPress={() => navigation.navigate('EditStore', { item: item })}>
+                        <View style={styles.header}>
+                            <Image
+                                style={styles.avatar}
+                                source={{ uri: 'https://picsum.photos/100/100' }} />
+                            <View>
+                                <Text style={styles.title}>{item.storeName}</Text>
+                                <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                            </View>
                         </View>
-                        <View>
-                            <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{item.storeName}</Text>
-                            <Text >Owner : {item.ownerName}</Text>
-                            <Text >Phone : {item.phone}</Text>
-                            <Text >Status : {item.status}</Text>
-                        </View>
+                        <Image
+                            style={styles.storeImage}
+                            source={{ uri: 'https://picsum.photos/500/300' }} />
                     </Pressable>
                 )}
             />
@@ -61,18 +78,45 @@ const styles = StyleSheet.create({
     conatiner: {
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        padding: 30
+        padding: 20
     },
-    storess: {        
-        marginTop:10,
-        borderWidth: 0.5,
-        display: 'flex',
-        gap: 15,
-        flexWrap: 'wrap',
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        padding: 15,
+        margin: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 3,
+        overflow: 'hidden',
+    },
+    header: {
         flexDirection: 'row',
-        padding: 10,
-        borderRadius: 15
-    }
+        alignItems: 'center',
+        gap: 10,
+        paddingBottom: 10,
+    },
+    avatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#666',
+    },
+    storeImage: {
+        width: '100%',
+        height: 150,
+        borderRadius: 10,
+    },
 }
 );
 

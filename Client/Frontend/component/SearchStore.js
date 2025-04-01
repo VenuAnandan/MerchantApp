@@ -1,10 +1,12 @@
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform } from "react-native";
+import { View, Text, Button, Platform, TouchableOpacity, Pressable, Image } from "react-native";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 const SearchStore = ({ navigation, route }) => {
 
@@ -35,15 +37,38 @@ const SearchStore = ({ navigation, route }) => {
 
 
         <View style={styles.container} >
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="arrowleft" size={24} color="white" /></View>
+                </TouchableOpacity>
+                <View style={{}}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Edit Store</Text>
+                </View>
+                <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="close" size={24} color="white" /></View>
+                </TouchableOpacity>
+            </View>
             {searchedstore ? (
                 <FlatList
                     data={searchedstore}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={item => (item.id)}
                     renderItem={({ item }) => (
-                        <View style={styles.item}>
-                            <Text>Company name: {item.storeName}</Text>
-                            <Text>Owner name: {item.ownerName}</Text>
-                        </View>
+                        <Pressable
+                            style={styles.card}
+                            onPress={() => navigation.navigate('StoreInfo', { item: item })}>
+                            <View style={styles.header}>
+                                <Image
+                                    style={styles.avatar}
+                                    source={{ uri: 'https://picsum.photos/100/100' }} />
+                                <View>
+                                    <Text style={styles.title}>{item.storeName}</Text>
+                                    <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                                </View>
+                            </View>
+                            <Image
+                                style={styles.storeImage}
+                                source={{ uri: 'https://picsum.photos/500/300' }} />
+                        </Pressable>
                     )}
                 />
             ) : (
@@ -58,16 +83,44 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         padding: 20,
-        justifyContent: 'center',
-        alignItems: 'center'
     },
-    item: {
-        padding: 10,
-        marginVertical: 8,
-        backgroundColor: '#f9c2ff',
-        borderRadius: 5,
-        width: '90%',
-    }
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        padding: 15,
+        margin: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 3,
+        overflow: 'hidden',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        paddingBottom: 10,
+    },
+    avatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#666',
+    },
+    storeImage: {
+        width: '100%',
+        height: 150,
+        borderRadius: 10,
+    },
 }
 );
 
