@@ -63,6 +63,18 @@ const KYC = ({ navigation }) => {
                         <Image
                             style={styles.storeImage}
                             source={{ uri: 'https://picsum.photos/500/300' }} />
+
+                        {item.Pending == 'No' ? (
+                            <View style={{ backgroundColor: '' }}>
+                                <Text></Text>
+                            </View>
+                        ) : (
+                            <View style={{display:'flex', alignItems:'center', alignContent:'center', justifyContent:'center'}}>
+                                <View style={{ backgroundColor: 'red', width: '40%', padding: 5, marginTop: 7, display: 'flex', alignContent: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: 20, height: 40 }}>
+                                    <Text style={{ color: 'white' }}>{item.Pending}</Text>
+                                </View>
+                            </View>
+                        )}
                     </Pressable>
                 )}
             />

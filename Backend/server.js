@@ -297,11 +297,11 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
 
 
             if (!storeInfo.pancardNo || !storeInfo.aadharcardNo) {
-                storeInfo.pending = 'Pan'
+                storeInfo.Pending = 'Pan'
             } else if (!storeInfo.accountNo) {
-                storeInfo.pending = 'Bank'
+                storeInfo.Pending = 'Bank'
             } else {
-                storeInfo.pending = 'No'
+                storeInfo.Pending = 'No'
             }
 
             const result = await storecollection.insertOne(storeInfo);
@@ -338,11 +338,11 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
 
 
             if (!storeInfo.pancardNo || !storeInfo.aadharcardNo) {
-                storeInfo.pending = 'Pan'
+                storeInfo.Pending = 'Pan'
             } else if (!storeInfo.accountNo) {
-                storeInfo.pending = 'Bank'
+                storeInfo.Pending = 'Bank'
             } else {
-                storeInfo.pending = 'No'
+                storeInfo.Pending = 'No'
             }
 
 
@@ -400,11 +400,11 @@ app.post('/editstoreinfo', verifyToken, async (req, res) => {
 
 
             if (!updatedetails.pancardNo || !updatedetails.aadharcardNo) {
-                updatedetails.pending = 'Pan'
+                updatedetails.Pending = 'Pan'
             } else if (!updatedetails.accountNo) {
-                updatedetails.pending = 'Bank'
+                updatedetails.Pending = 'Bank'
             } else {
-                updatedetails.pending = 'No'
+                updatedetails.Pending = 'No'
             }
 
             // console.log('---------');
@@ -630,6 +630,7 @@ app.get('/pendingkyc', verifyToken, async (req, res) => {
             referal_id: id,
             Pending: { $in: ['Bank', 'Pan'] },
         }).toArray();
+
 
         res.json(store);
 
