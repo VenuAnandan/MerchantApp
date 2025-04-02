@@ -4,21 +4,25 @@ import { StyleSheet } from "react-native";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigationRef } from "../App";
+import axios from "axios";
+import { CommonActions } from "@react-navigation/native";
 
-const UserInfo = ({ navigation }) => {
+const UserInfo = ({ navigation, setIsLoggedIn }) => {
 
     const agent = 'male';
 
     const goLogout = async () => {
         try {
             await AsyncStorage.removeItem('token');
+            setIsLoggedIn(false);
 
-            if (navigationRef.isReady()) {
-                navigationRef.resetRoot({
-                    index: 0,
-                    routes: [{ name: 'Login' }]
-                });
-            }
+            // navigationRef.current?.dispatch(
+            //     CommonActions.reset({
+            //         index: 0,
+            //         routes: [{ name: 'Login' }],
+            //     })
+            // );
+            // navigation.navigate('Login')
             // navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
         } catch (error) {
             console.error("Logout Error:", error);

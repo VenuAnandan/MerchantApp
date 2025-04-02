@@ -1,4 +1,4 @@
-import { NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
@@ -31,6 +31,7 @@ export const navigationRef = createNavigationContainerRef();
 export default function App() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const checklogin = async () => {
@@ -45,15 +46,18 @@ export default function App() {
   }, [])
 
 
-
   return (
     <NavigationContainer ref={navigationRef}>
       {/* {routetab === "Home" ? <TabNavigator /> : <AuthNavigator />} */}
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
-          <Stack.Screen name="BottomTabs" component={BottomTab} />
+          <Stack.Screen name="BottomTabs">
+            {() => <BottomTab setIsLoggedIn={setIsLoggedIn} />}
+          </Stack.Screen>
         ) : (
-          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Login">
+            {() => <Login setIsLoggedIn={setIsLoggedIn} />}
+          </Stack.Screen>
         )}
       </Stack.Navigator>
     </NavigationContainer>
@@ -61,52 +65,52 @@ export default function App() {
 }
 
 // function AuthNavigator() {
-  //   return (
-  //     <Stack.Navigator>
-  //       <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-  //     </Stack.Navigator>
-  //   );
-  // }
+//   return (
+//     <Stack.Navigator>
+//       <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+//     </Stack.Navigator>
+//   );
+// }
 
-  // function UserInfoTab() {
-  //   return (
-  //     <Stack.Navigator screenOptions={{ headerShown: false }}>
-  //       <Stack.Screen name="UserInfo" component={UserInfo} />
-  //       <Stack.Screen name="Incomplete" component={Incomplete} />
-  //       <Stack.Screen name="MyStore" component={MyStore} />        
-  //       <Stack.Screen name='CompanyInfo' component={CompanyInfo}/>
-  //       <Stack.Screen name='EditProfile' component={EditProfile}/>
-  //       <Stack.Screen name='AgentInfo' component={AgentInfo}/>
-  //     </Stack.Navigator>
-  //   );
-  // }
+// function UserInfoTab() {
+//   return (
+//     <Stack.Navigator screenOptions={{ headerShown: false }}>
+//       <Stack.Screen name="UserInfo" component={UserInfo} />
+//       <Stack.Screen name="Incomplete" component={Incomplete} />
+//       <Stack.Screen name="MyStore" component={MyStore} />
+//       <Stack.Screen name='CompanyInfo' component={CompanyInfo}/>
+//       <Stack.Screen name='EditProfile' component={EditProfile}/>
+//       <Stack.Screen name='AgentInfo' component={AgentInfo}/>
+//     </Stack.Navigator>
+//   );
+// }
 
-  // function HomePage(){
-  //   return(
-  //     <Stack.Navigator screenOptions={{headerShown:false}}>
-  //       <Stack.Screen name='Home' component={Home}/>
-  //       <Stack.Screen name='Credit' component={Credit}/>
-  //       <Stack.Screen name='Achivmentsinfo' component={Achivmentsinfo}/>
-  //     </Stack.Navigator>
-  //   )
-  // }
+// function HomePage(){
+//   return(
+//     <Stack.Navigator screenOptions={{headerShown:false}}>
+//       <Stack.Screen name='Home' component={Home}/>
+//       <Stack.Screen name='Credit' component={Credit}/>
+//       <Stack.Screen name='Achivmentsinfo' component={Achivmentsinfo}/>
+//     </Stack.Navigator>
+//   )
+// }
 
-  // function StorePage(){
-  //   return(
-  //     <Stack.Navigator screenOptions={{headerShown:false}}>
-  //       <Stack.Screen name='AddStore' component={AddStore}/>
-  //       <Stack.Screen name='StoreInfo' component={StoreInfo}/>
-  //     </Stack.Navigator>
-  //   )
-  // }
+// function StorePage(){
+//   return(
+//     <Stack.Navigator screenOptions={{headerShown:false}}>
+//       <Stack.Screen name='AddStore' component={AddStore}/>
+//       <Stack.Screen name='StoreInfo' component={StoreInfo}/>
+//     </Stack.Navigator>
+//   )
+// }
 
 
-  // function TabNavigator() {
-  //   return (
-  //     <Tab.Navigator screenOptions={{ headerShown: false }}>
-  //       <Tab.Screen name="Home" component={HomePage} />
-  //       <Tab.Screen name='Add' component={StorePage}/>
-  //       <Tab.Screen name="User" component={UserInfoTab} />
-  //     </Tab.Navigator>
-  //   );
-  // }
+// function TabNavigator() {
+//   return (
+//     <Tab.Navigator screenOptions={{ headerShown: false }}>
+//       <Tab.Screen name="Home" component={HomePage} />
+//       <Tab.Screen name='Add' component={StorePage}/>
+//       <Tab.Screen name="User" component={UserInfoTab} />
+//     </Tab.Navigator>
+//   );
+// }

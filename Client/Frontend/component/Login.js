@@ -7,7 +7,7 @@ import { TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView } from "react-native";
 
-const Login = ({ navigation }) => {
+const Login = ({ navigation,setIsLoggedIn  }) => {
 
     const [valueinpu, setValueinpu] = useState('In');
     const [email, setEmail] = useState('');
@@ -59,14 +59,9 @@ const Login = ({ navigation }) => {
             const response = await axios.post(apiUrl + '/login', {
                 email, password
             });
-            // console.log("login verify");
-            // console.log(response.data ,"----");
             if (response.data.data === "Successfully") {
-                // await AsyncStorage.setItem("login", "True"); // unlock if is not working
                 await AsyncStorage.setItem("token", response.data.token);
-                navigation.reset({ index: 0, routes: [{ name: 'BottomTabs' }] });
-                // await AsyncStorage.setItem("agentname",response.data.agentname);
-                await AsyncStorage.setItem("agentemail", response.data.agentemail);
+                setIsLoggedIn(true);
             }
         } catch (error) {
             console.log("error is Fetching : ", error);
@@ -97,10 +92,10 @@ const Login = ({ navigation }) => {
             <View>
                 <View style={styles.login1}>
                     <Pressable style={[styles.edit, valueinpu == 'In' && { borderBottomWidth: 1 }]} onPress={() => { setValueinpu('In') }}>
-                        <Text style={{ color: 'black', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Sign In</Text>
+                        <Text style={{ color: '#309264', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Sign In</Text>
                     </Pressable>
                     <Pressable style={[styles.edit, valueinpu == 'Up' && { borderBottomWidth: 1 }]} onPress={() => { setValueinpu('Up') }}>
-                        <Text style={{ color: 'black', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Sign Up</Text>
+                        <Text style={{ color: '#309264', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Sign Up</Text>
                     </Pressable>
                 </View>
             </View>
@@ -113,7 +108,7 @@ const Login = ({ navigation }) => {
                         {(validateEmail === 'true' ? (
                             <Text>Valid email</Text>
                         ) : validemail === 'false' ? (
-                            <Text style={{ paddingTop: 0 }}>Invalid email</Text>
+                            <Text style={{ paddingTop: 0, color:'red' }}>Invalid email</Text>
                         ) : (
                             <Text></Text>
                         ))
@@ -196,7 +191,7 @@ const styles = StyleSheet.create({
         marginTop: 80,
     },
     sign: {
-        backgroundColor: 'black',
+        backgroundColor:'#309264',
         borderRadius: 20,
         width: 200,
         height: 50,
@@ -206,7 +201,7 @@ const styles = StyleSheet.create({
     edit: {
         borderRadius: 7,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     searchbar: {
         borderWidth: 1,

@@ -6,6 +6,8 @@ import { View, Text, Button, Platform, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native";
 import { TextInput } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 const EditProfile = ({ navigation }) => {
 
@@ -61,7 +63,7 @@ const EditProfile = ({ navigation }) => {
             // console.log(bg);
             try {
                 const response = await axios.post(apiUrl + '/editagentinfo', {
-                    fname,lname,email,phone,address,dob,gender,bg
+                    fname, lname, email, phone, address, dob, gender, bg
                 }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
@@ -75,9 +77,17 @@ const EditProfile = ({ navigation }) => {
     return (
 
         <View style={styles.conatiner}>
-            <View>
-                    <Text>Edit Profile</Text>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="arrowleft" size={24} color="white" /></View>
+                </TouchableOpacity>
+                <View style={{}}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Edit Profile</Text>
                 </View>
+                <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    <View><AntDesign name="close" size={24} color="white" /></View>
+                </TouchableOpacity>
+            </View>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                     <TextInput placeholder="Enter First Name*" value={fname} onChangeText={setFname} style={styles.searchbar}></TextInput>
@@ -89,7 +99,7 @@ const EditProfile = ({ navigation }) => {
                     <TextInput placeholder="Enter Gender" value={gender} onChangeText={setGender} style={styles.searchbar}></TextInput>
                     <TextInput placeholder="Enter Blood Group*" value={bg} onChangeText={setBg} style={styles.searchbar}></TextInput>
                 </View>
-                <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, paddingBottom: 150 }}>
+                <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
                     <TouchableOpacity style={styles.sign} onPress={editagentinfo}>
                         <Text style={{ color: 'white', fontSize: 17 }}>Submit</Text>
                     </TouchableOpacity>
@@ -107,16 +117,16 @@ const styles = StyleSheet.create({
     conatiner: {
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        padding: 30,
+        padding: 20,
     },
     searchbar: {
-        width:'100%',
+        width: '100%',
         borderWidth: 1,
         borderRadius: 15,
         padding: 20,
-    }, 
+    },
     sign: {
-        backgroundColor: 'black',
+        backgroundColor: '#309264',
         borderRadius: 20,
         width: 200,
         height: 50,

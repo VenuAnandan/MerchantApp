@@ -28,84 +28,95 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
-const CompanyInfo = () => {
+const CompanyInfo = ({setIsLoggedIn}) => {
 
-    function HomePage() {
-        return (
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name='Home' component={Home} />
-                <Stack.Screen name='Credit' component={Credit} />
-                <Stack.Screen name='Achivmentsinfo' component={Achivmentsinfo} />
-                <Stack.Screen name='StoreInfo' component={StoreInfo} />
-                <Stack.Screen name='AlertMess' component={AlertMess}/>
-                <Stack.Screen name="SearchStore" component={SearchStore}/>
-                <Stack.Screen name="Incomplete" component={Incomplete} />
-                <Stack.Screen name="MyStore" component={MyStore} />
-                <Stack.Screen name="CompanyInfo" component={CompanyInfo}/>
-                <Stack.Screen name='EditProfile' component={EditProfile} />
-                <Stack.Screen name='AgentInfo' component={AgentInfo} />
-                <Stack.Screen name='EditStore' component={EditStore} />
-                <Stack.Screen name='EditOrigin' component={EditOrigin} />
-                <Stack.Screen name="KYC" component={KYC} />
-            </Stack.Navigator>
-        )
-    }
-
-    function StorePage() {
-        return (
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name='AddStore' component={AddStore} />
-            </Stack.Navigator>
-        )
-    }
-
-
-    function UserInfoTab() {
-        return (
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="UserInfo" component={UserInfo} />
-                <Stack.Screen name="Incomplete" component={Incomplete} />
-                <Stack.Screen name="MyStore" component={MyStore} />
-                <Stack.Screen name="CompanyInfo" component={CompanyInfo}/>
-                <Stack.Screen name='EditProfile' component={EditProfile} />
-                <Stack.Screen name='AgentInfo' component={AgentInfo} />
-                <Stack.Screen name='EditStore' component={EditStore} />
-                <Stack.Screen name='EditOrigin' component={EditOrigin} />
-            </Stack.Navigator>
-        );
-    }
-
-
-
+  function HomePage() {
     return (
-        <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='Home' component={Home} />
+        <Stack.Screen name='Credit' component={Credit} />
+        <Stack.Screen name='Achivmentsinfo' component={Achivmentsinfo} />
+        <Stack.Screen name='StoreInfo' component={StoreInfo} />
+        <Stack.Screen name='AlertMess' component={AlertMess} />
+        <Stack.Screen name="SearchStore" component={SearchStore} />
+        <Stack.Screen name="Incomplete" component={Incomplete} />
+        <Stack.Screen name="MyStore" component={MyStore} />
+        <Stack.Screen name="CompanyInfo" component={CompanyInfo} />
+        <Stack.Screen name='EditProfile' component={EditProfile} />
+        <Stack.Screen name='AgentInfo' component={AgentInfo} />
+        <Stack.Screen name='EditStore' component={EditStore} />
+        <Stack.Screen name='EditOrigin' component={EditOrigin} />
+        <Stack.Screen name="KYC" component={KYC} />
+      </Stack.Navigator>
+    )
+  }
 
-            // Assign icons for each tab
-            if (route.name === 'Home') {
-              iconName = 'home';
-            } else if (route.name === 'Add') {
-              iconName = 'add-circle-outline';
-            } else if (route.name === 'User') {
-              iconName = 'person';
-            }
+  function StorePage() {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='AddStore' component={AddStore} />
+      </Stack.Navigator>
+    )
+  }
 
-            return <MaterialIcons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#309264',  
-          tabBarInactiveTintColor: 'gray', 
-          tabBarShowLabel: true,
-        })}
-      >
-        <Tab.Screen name="Home" component={HomePage} />
-        <Tab.Screen name="Add" component={StorePage} />
-        <Tab.Screen name="User" component={UserInfoTab} />
-      </Tab.Navigator>
-      
+
+  // function UserInfoTab() {
+  //   return (
+  //     <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //       <Stack.Screen name="UserInfo" component={UserInfo} />
+  //       {/* <Stack.Screen name="Incomplete" component={Incomplete} />
+  //               <Stack.Screen name="MyStore" component={MyStore} />
+  //               <Stack.Screen name="CompanyInfo" component={CompanyInfo}/>
+  //               <Stack.Screen name='EditProfile' component={EditProfile} />
+  //               <Stack.Screen name='AgentInfo' component={AgentInfo} />
+  //               <Stack.Screen name='EditStore' component={EditStore} />
+  //               <Stack.Screen name='EditOrigin' component={EditOrigin} /> */}
+  //     </Stack.Navigator>
+  //   );
+  // }
+
+  const UserInfoTab = ({ setIsLoggedIn }) => {
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="UserInfo">
+                {() => <UserInfo setIsLoggedIn={setIsLoggedIn} />}
+            </Stack.Screen>
+        </Stack.Navigator>
     );
+};
+
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+
+          // Assign icons for each tab
+          if (route.name === 'Home') {
+            iconName = 'home';
+          } else if (route.name === 'Add') {
+            iconName = 'add-circle-outline';
+          } else if (route.name === 'User') {
+            iconName = 'person';
+          }
+
+          return <MaterialIcons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#309264',
+        tabBarInactiveTintColor: 'gray',
+        tabBarShowLabel: true,
+      })}
+    >
+      <Tab.Screen name="Home" component={HomePage} />
+      <Tab.Screen name="Add" component={StorePage} />
+      <Tab.Screen name="User">
+        {() => <UserInfoTab setIsLoggedIn={setIsLoggedIn} />}
+      </Tab.Screen>
+    </Tab.Navigator>
+
+  );
 }
 
 export default CompanyInfo;
