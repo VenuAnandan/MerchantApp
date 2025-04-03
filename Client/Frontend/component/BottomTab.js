@@ -28,7 +28,7 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
-const CompanyInfo = ({setIsLoggedIn}) => {
+const CompanyInfo = ({ setIsLoggedIn }) => {
 
   function HomePage() {
     return (
@@ -60,30 +60,16 @@ const CompanyInfo = ({setIsLoggedIn}) => {
   }
 
 
-  // function UserInfoTab() {
-  //   return (
-  //     <Stack.Navigator screenOptions={{ headerShown: false }}>
-  //       <Stack.Screen name="UserInfo" component={UserInfo} />
-  //       {/* <Stack.Screen name="Incomplete" component={Incomplete} />
-  //               <Stack.Screen name="MyStore" component={MyStore} />
-  //               <Stack.Screen name="CompanyInfo" component={CompanyInfo}/>
-  //               <Stack.Screen name='EditProfile' component={EditProfile} />
-  //               <Stack.Screen name='AgentInfo' component={AgentInfo} />
-  //               <Stack.Screen name='EditStore' component={EditStore} />
-  //               <Stack.Screen name='EditOrigin' component={EditOrigin} /> */}
-  //     </Stack.Navigator>
-  //   );
-  // }
-
   const UserInfoTab = ({ setIsLoggedIn }) => {
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="UserInfo">
-                {() => <UserInfo setIsLoggedIn={setIsLoggedIn} />}
-            </Stack.Screen>
-        </Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="UserInfo">
+          {({ navigation }) => <UserInfo setIsLoggedIn={setIsLoggedIn} navigation={navigation}/>}
+        </Stack.Screen>
+        <Stack.Screen name='EditProfile' component={EditProfile} />
+      </Stack.Navigator>
     );
-};
+  };
 
 
   return (

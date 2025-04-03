@@ -23,6 +23,7 @@ const MyStore = ({ navigation }) => {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
                 // console.log(response.data);
+                // console.log(response.data.qrCodeImage)
                 setMystores(response.data);
             } catch (error) {
                 console.log(`EError is : ${error}`)
@@ -49,28 +50,37 @@ const MyStore = ({ navigation }) => {
                     </View>
                 </TouchableOpacity>
             </View>
-            <FlatList
-                data={mystores}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Pressable
-                        style={styles.card}
-                        onPress={() => navigation.navigate('StoreInfo', { item: item })}>
-                        <View style={styles.header}>
-                            <Image
-                                style={styles.avatar}
-                                source={{ uri: 'https://picsum.photos/100/100' }} />
-                            <View>
-                                <Text style={styles.title}>{item.storeName}</Text>
-                                <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+            {mystores ? (
+                <FlatList
+                    data={mystores}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <Pressable
+                            style={styles.card}
+                            onPress={() => navigation.navigate('StoreInfo', { item: item })}>
+                            <View style={styles.header}>
+                                <Image
+                                    style={styles.avatar}
+                                    source={{ uri: 'https://picsum.photos/100/100' }} />
+                                <View>
+                                    <Text style={styles.title}>{item.storeName}</Text>
+                                    <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                                </View>
                             </View>
-                        </View>
-                        <Image
-                            style={styles.storeImage}
-                            source={{ uri: 'https://picsum.photos/500/300' }} />
-                    </Pressable>
-                )}
-            />
+                            <Image
+                                style={styles.storeImage}
+                                source={{ uri: 'https://picsum.photos/500/300' }} />
+                        </Pressable>
+                    )}
+                />
+            ) : (
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                    <Image
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Stores</Text>
+                </View>
+            )}
         </View>
     );
 }

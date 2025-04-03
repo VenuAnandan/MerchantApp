@@ -38,46 +38,55 @@ const KYC = ({ navigation }) => {
                     <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
                 <View style={{}}>
-                    <Text style={{ fontSize: 20, color: 'white' }}>Edit Store</Text>
+                    <Text style={{ fontSize: 20, color: 'white' }}>KYC Pending Store</Text>
                 </View>
                 <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View><AntDesign name="close" size={24} color="white" /></View>
                 </TouchableOpacity>
             </View>
-            <FlatList
-                data={kycpending}
-                keyExtractor={item => (item.id)}
-                renderItem={({ item }) => (
-                    <Pressable
-                        style={styles.card}
-                        onPress={() => navigation.navigate('EditStore', { item: item })}>
-                        <View style={styles.header}>
-                            <Image
-                                style={styles.avatar}
-                                source={{ uri: 'https://picsum.photos/100/100' }} />
-                            <View>
-                                <Text style={styles.title}>{item.storeName}</Text>
-                                <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
-                            </View>
-                        </View>
-                        <Image
-                            style={styles.storeImage}
-                            source={{ uri: 'https://picsum.photos/500/300' }} />
-
-                        {item.Pending == 'No' ? (
-                            <View style={{ backgroundColor: '' }}>
-                                <Text></Text>
-                            </View>
-                        ) : (
-                            <View style={{display:'flex', alignItems:'center', alignContent:'center', justifyContent:'center'}}>
-                                <View style={{ backgroundColor: 'red', width: '40%', padding: 5, marginTop: 7, display: 'flex', alignContent: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: 20, height: 40 }}>
-                                    <Text style={{ color: 'white' }}>{item.Pending}</Text>
+            {kycpending ? (
+                <FlatList
+                    data={kycpending}
+                    keyExtractor={item => (item.id)}
+                    renderItem={({ item }) => (
+                        <Pressable
+                            style={styles.card}
+                            onPress={() => navigation.navigate('EditStore', { item: item })}>
+                            <View style={styles.header}>
+                                <Image
+                                    style={styles.avatar}
+                                    source={{ uri: 'https://picsum.photos/100/100' }} />
+                                <View>
+                                    <Text style={styles.title}>{item.storeName}</Text>
+                                    <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
                                 </View>
                             </View>
-                        )}
-                    </Pressable>
-                )}
-            />
+                            <Image
+                                style={styles.storeImage}
+                                source={{ uri: 'https://picsum.photos/500/300' }} />
+
+                            {item.Pending == 'No' ? (
+                                <View style={{ backgroundColor: '' }}>
+                                    <Text></Text>
+                                </View>
+                            ) : (
+                                <View style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
+                                    <View style={{ backgroundColor: 'red', width: '40%', padding: 5, marginTop: 7, display: 'flex', alignContent: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: 20, height: 40 }}>
+                                        <Text style={{ color: 'white' }}>{item.Pending}</Text>
+                                    </View>
+                                </View>
+                            )}
+                        </Pressable>
+                    )}
+                />
+            ) : (
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                    <Image
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Stores</Text>
+                </View>
+            )}
         </View>
     );
 }

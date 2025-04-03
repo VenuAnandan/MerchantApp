@@ -17,19 +17,13 @@ function connect() {
     return client;
 }
 
-app.use(cors(
-    // {
-    //     origin: 'http://192.168.7.7:4000',  // Replace with your LAN IP
-    //     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    //     allowedHeaders: ['Content-Type', 'Authorization']
-    // }
-));
+app.use(cors());
 app.use(express.json());
 
 
-app.get('/summa', (req, res) => {
-    res.json('api is worked');
-});
+// app.get('/summa', (req, res) => {
+//     res.json('api is worked');
+// });
 
 
 const verifyToken = (req, res, next) => {
@@ -458,7 +452,7 @@ app.post('/getstoreinfo', verifyToken, async (req, res) => {
 app.get('/mystores', verifyToken, async (req, res) => {
     try {
         const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
-        console.log(targetId);
+        // console.log(targetId);
         if (!targetId) {
             res.status(200).json("Invaid Input.");
         } else {

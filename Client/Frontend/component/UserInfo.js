@@ -3,27 +3,17 @@ import { View, Text, Button, StatusBar, Platform, Image, Pressable, TouchableOpa
 import { StyleSheet } from "react-native";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { navigationRef } from "../App";
 import axios from "axios";
 import { CommonActions } from "@react-navigation/native";
 
 const UserInfo = ({ navigation, setIsLoggedIn }) => {
-
+    // const navigation = useNavigation();
     const agent = 'male';
 
     const goLogout = async () => {
         try {
             await AsyncStorage.removeItem('token');
             setIsLoggedIn(false);
-
-            // navigationRef.current?.dispatch(
-            //     CommonActions.reset({
-            //         index: 0,
-            //         routes: [{ name: 'Login' }],
-            //     })
-            // );
-            // navigation.navigate('Login')
-            // navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
         } catch (error) {
             console.error("Logout Error:", error);
         }
@@ -53,7 +43,7 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
                 setAdd(response.data.address);
                 setDob(response.data.dob);
                 setScor(response.data.score);
-                console.log(response.data);
+                // console.log(response.data);
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
@@ -66,7 +56,7 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
     return (
         <View style={styles.conatiner}>
             <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <TouchableOpacity style={styles.edit} onPress={() => navigation.navigate('User', { screen: 'EditProfile' })}>
+                <TouchableOpacity style={styles.edit} onPress={()=> navigation.navigate('EditProfile')}>
                     <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
                 </TouchableOpacity>
             </View>

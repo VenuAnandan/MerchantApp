@@ -42,7 +42,7 @@ const SearchStore = ({ navigation, route }) => {
                     <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
                 <View style={{}}>
-                    <Text style={{ fontSize: 20, color: 'white' }}>Edit Store</Text>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Searched Store</Text>
                 </View>
                 <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View><AntDesign name="close" size={24} color="white" /></View>
@@ -72,7 +72,13 @@ const SearchStore = ({ navigation, route }) => {
                     )}
                 />
             ) : (
-                <Text>Company Informations Screen : {text} from not Founded</Text>
+                // https://img.icons8.com/?size=100&id=8rvKNd0gtsym&format=png&color=000000
+                <View style={{marginTop:'50%' ,display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                    <Image
+                        style={{width:200, height:200}}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>{text} not Founded</Text>
+                </View>
             )}
         </View>
     );

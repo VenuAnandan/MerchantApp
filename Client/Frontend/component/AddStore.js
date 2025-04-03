@@ -27,7 +27,6 @@ const AddStore = ({ navigation }) => {
     const [bankName, setBankName] = useState('');
     const [accountNo, setAccountNo] = useState('');
     const [IFSCCode, setIFSCCode] = useState('');
-
     const [flag, setFlag] = useState('1');
     const [subFlag, setSubFlag] = useState('1');
 
@@ -199,6 +198,7 @@ const AddStore = ({ navigation }) => {
                 setPancardNo(''); setAadharcardNo(''); setBankName(''); setAccountNo('');
                 setIFSCCode('');
                 showToast("success", `${response.data.message}`);
+                setFlag('1');
                 navigation.navigate('Home', { screen: 'Home' });
             } catch (error) {
                 console.log(`Error: ${error}`);
