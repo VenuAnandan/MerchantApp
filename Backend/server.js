@@ -82,10 +82,17 @@ app.get('/forhome', verifyToken, async (req, res) => {
 
         const mystores = await storecollection.find({ referal_id: { $in: [id] } }).toArray();
 
+        const ticketcollection = db.collection('Ticket_Rise');
+        const numoftic = await ticketcollection.aggregate([
+            { $match: { referal_id: { $in: [id] } } },
+            { $count: "Count" }
+        ]).toArray();
+
 
         forhome.incomple = incomplete.length;
         forhome.pending = store.length;
         forhome.sto = mystores.length;
+        forhome.ticket = numoftic[0].Count;
         res.json(forhome);
 
         await client.close();
@@ -633,7 +640,70 @@ app.get('/pendingkyc', verifyToken, async (req, res) => {
         console.error(`Error: ${error}`);
         res.status(500).json({ message: `Error occurred: ${error.message}` });
     }
-})
+});
+
+
+app.post('/risetoken', async (req, res) => {
+    const { storeid, tokenMessage } = req.body;
+
+    if (!storeid || !tokenMessage) {
+        res.json('Data is Not Allowed');
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+            const tiketcollection = db.collection("Ticket_Rise");
+            const result = await storecollection.findOne({ id: storeid }, { projection: { storeName: 1, ownerName: 1, id: 1, phone: 1, _id: 0, referal_id: 1 } });
+            // console.log(result);
+            if (result == null || result == '' || result == []) {
+                res.json('Invalid Store Information');
+            } else {
+                // console.log(result.referal_id[0]);
+                result['message'] = tokenMessage;
+                await tiketcollection.insertOne(result);
+                res.status(200).json({
+                    message: "Ticket Rise",
+                    data: result
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.get('/getticketrise', async (req, res) => {
+    const id = 'id_1742404536258';  //use to token req.uer.id
+    if (!id) {
+        res.json('Invalid Emplyeee');
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const ticketcollection = db.collection('Ticket_Rise');
+            const result = await ticketcollection.find({ referal_id: { $in: [id] } }).toArray();
+            // console.log(result);
+            if (result == null || result == '' || result == []) {
+                res.json('Invalid Store Information');
+            } else {
+                res.json({
+                    message: "Ticket Rise Stores",
+                    data: result
+                });
+            }
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);

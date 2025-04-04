@@ -16,6 +16,7 @@ const Home = ({ navigation }) => {
     const [score, setScore] = useState(0);
     const [incomplete, setIncomplete] = useState(0);
     const [kycpending, setKYCpending] = useState(0);
+    const [ticketrise, setTicketrise] = useState(0);
     const [sto, setSto] = useState(0);
     const [search, setSearch] = useState('');
 
@@ -46,6 +47,7 @@ const Home = ({ navigation }) => {
                 setIncomplete(response.data.incomple);
                 setKYCpending(response.data.pending);
                 setSto(response.data.sto);
+                setTicketrise(response.data.ticket);
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
@@ -145,15 +147,18 @@ const Home = ({ navigation }) => {
                                 </View>
                             </View>
                         </TouchableOpacity>
-                        {/* <TouchableOpacity style={styles.head32}>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('TicketRise')}>
                             <View>
                                 <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                             </View>
                             <View>
-                                <Text>Devices</Text>
+                                <Text style={{ color: 'white' }}>Ticket Rise</Text>
+                                <View style={styles.num}>
+                                    <Text>{ticketrise}</Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32}>
+                        {/* <TouchableOpacity style={styles.head32}>
                             <View>
                                 <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
                             </View>

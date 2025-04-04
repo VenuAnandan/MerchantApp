@@ -22,11 +22,9 @@ const MyStore = ({ navigation }) => {
                 const response = await axios.get(apiUrl + '/mystores', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                // console.log(response.data);
-                // console.log(response.data.qrCodeImage)
                 setMystores(response.data);
             } catch (error) {
-                console.log(`EError is : ${error}`)
+                console.log(`EError is : ${error}`);
             }
         }
         getmystore();

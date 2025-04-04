@@ -20,7 +20,8 @@ import AlertMess from "./AlertMess";
 import { SearchBar } from "react-native-screens";
 import SearchStore from "./SearchStore";
 import EditOrigin from "./EditOrigin";
-import KYC from './KYC'
+import KYC from './KYC';
+import TicketRise from "./TicketRise";
 
 
 
@@ -46,6 +47,7 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name='AgentInfo' component={AgentInfo} />
         <Stack.Screen name='EditStore' component={EditStore} />
         <Stack.Screen name='EditOrigin' component={EditOrigin} />
+        <Stack.Screen name="TicketRise" component={TicketRise} />
         <Stack.Screen name="KYC" component={KYC} />
       </Stack.Navigator>
     )
