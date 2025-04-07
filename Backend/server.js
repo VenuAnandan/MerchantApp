@@ -467,10 +467,10 @@ app.get('/mystores', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const storecollection = db.collection("Store_Info");
-            console.log(targetId);
+            // console.log(targetId);
             const result = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
             res.status(200).json(result)
-            console.log(result);
+            // console.log(result);
             await client.close();
         }
     } catch (error) {
@@ -747,7 +747,7 @@ app.post('/chattoagent', async (req, res) => {
 
 
 // This is for Agent....
-app.post('/chattostorekeeper',verifyToken ,async (req, res) => {
+app.post('/chattostorekeeper', verifyToken, async (req, res) => {
     const id = req.user.id;   //use token for store id in the future
     const { message } = req.body
     if (!id || !message) {
@@ -835,12 +835,197 @@ app.get('/allAgentId', async (req, res) => {
     const agentIdcollection = db.collection('Agent_Info');
     const result = await agentIdcollection.find(
         {},
-        {projection : {id:1, _id : 0}}
+        { projection: { id: 1, _id: 0 } }
     ).toArray();
     // console.log(result);
     res.json(result);
     await client.close();
 });
+
+
+app.post('/storedevice', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    if (!id) {
+        res.json({
+            message: 'Employee Id is Missing'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const devicescollection = db.collection('Devices');
+            const agentcollection = db.collection("Agent_Info");
+            const { device } = req.body;
+            if (!device || device == '') {
+                res.json({
+                    message: 'Empty devices'
+                })
+            } else {
+                await Promise.all(device.map(async (item) => {
+                    const itemid = item.deviceid;
+
+                    const check = await agentcollection.findOne({ inventory: { $in: [itemid] } }, { projection: { _id: 0, id: 1 } });
+                    if (!check) {
+                        await agentcollection.updateOne(
+                            { id: { $in: [id] } },
+                            { $push: { inventory: itemid } }
+                        );
+                        await devicescollection.insertOne(item);
+                        // console.log('Device pushed');
+                    }
+
+                    const deviceparcel = await devicescollection.findOne({ deviceid:itemid }, { projection: { _id: 0, id: 1 } });
+
+                    if (!deviceparcel) {
+                        await parcelcollection.insertOne(item);
+                    }
+
+                }));
+                res.json({
+                    message: 'Device added successfully'
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.get('/getmydevices', verifyToken, async (req, res) => {
+    const id = 'id_1742504568227';
+    if (!id) {
+        res.json({
+            message: 'Employee id is empty'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const devicescollection = db.collection('Devices');
+            const result = await devicescollection.find({ agentid: id }, { projection: { devicename: 1, deviceid: 1, _id: 0, } }).toArray();
+            if (result) {
+                res.json({
+                    message: 'Devices are finded',
+                    data: result
+                });
+            } else {
+                res.json({
+                    message: 'Devices not founded',
+                    data: []
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.post('/storeparcels', verifyToken, async (req, res) => {
+
+    const id = req.user.id;
+
+    const { data } = req.body;
+    if (!data) {
+        res.json({
+            message: 'Empty Data'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const parcelcollection = db.collection('Parcels');
+            const agentcollection = db.collection("Agent_Info");
+
+            if (!data || data == '') {
+                res.json({
+                    message: 'Empty devices'
+                });
+            } else {
+                await Promise.all(data.map(async (item) => {
+                    const items = item.devices;
+
+                    // console.log(items[0]);
+
+
+                    await Promise.all(items.map(async (initem) => {
+                        // console.log(initem,"inside items");
+                        const check = await agentcollection.findOne({ inventory: { $in: [initem] } }, { projection: { _id: 0, id: 1 } });
+                        // const checkparcels = await parcelcollection.findOne();
+                        // console.log(item);
+                        // await parcelcollection.insertOne(item);
+                        // console.log(check);
+                        if (!check) {
+                            await agentcollection.updateOne(
+                                { id: { $in: [id] } },
+                                { $push: { inventory: initem } }
+                            );
+                            // console.log(check);
+                            await parcelcollection.insertOne(item);
+                            console.log('Device pushed');
+                        }
+
+                        const checkparcel = await parcelcollection.findOne({ devices: { $in: [initem] } }, { projection: { _id: 0, id: 1 } });
+
+                        if (!checkparcel) {
+                            await parcelcollection.insertOne(item);
+                        }
+
+                    }));
+                }));
+
+
+                res.json({
+                    message: 'Device added successfully'
+                });
+            }
+
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.get('/getmyparcels', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    if (!id) {
+        res.json({
+            message: 'Employee id is empty'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const parcelscollection = db.collection('Parcels');
+            const result = await parcelscollection.find({ agentid: id }, { projection: { reciver: 1, sender: 1, _id: 0,parcelNumber:1 } }).toArray();
+            if (result) {
+                res.json({
+                    message: 'Devices are finded',
+                    data: result
+                });
+            } else {
+                res.json({
+                    message: 'Devices not founded',
+                    data: []
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
 
 
 app.listen(port, () => {

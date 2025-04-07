@@ -23,6 +23,9 @@ import EditOrigin from "./EditOrigin";
 import KYC from './KYC';
 import TicketRise from "./TicketRise";
 import ChatPage from "./ChatPage";
+import Device from "./Device";
+import DeviceInfo from "./DeviceInfo";
+import Parcels from "./Parcels";
 
 
 
@@ -51,6 +54,9 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name="TicketRise" component={TicketRise} />
         <Stack.Screen name="KYC" component={KYC} />
         <Stack.Screen name="ChatPage" component={ChatPage} />
+        <Stack.Screen name="Device" component={Device} />
+        <Stack.Screen name="DeviceInfo" component={DeviceInfo}/>
+        <Stack.Screen name="Parcels" component={Parcels}/>
       </Stack.Navigator>
     )
   }
@@ -68,7 +74,7 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="UserInfo">
-          {({ navigation }) => <UserInfo setIsLoggedIn={setIsLoggedIn} navigation={navigation}/>}
+          {({ navigation }) => <UserInfo setIsLoggedIn={setIsLoggedIn} navigation={navigation} />}
         </Stack.Screen>
         <Stack.Screen name='EditProfile' component={EditProfile} />
       </Stack.Navigator>

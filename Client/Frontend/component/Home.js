@@ -22,6 +22,8 @@ const Home = ({ navigation }) => {
 
     const [message, setMessage] = useState();
 
+    const [parcelsinfo, setParcelsinfo] = useState();
+
     const gosearch = () => {
         if (search === '' || search === null) {
             setMessage('error');
@@ -35,6 +37,41 @@ const Home = ({ navigation }) => {
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
     useEffect(() => {
+
+        const getparcels = async () => {
+            try {
+                const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
+                    "agentid": "id_1742404536258"
+                });
+                setParcelsinfo(response.data.data);
+                console.log(response.data.data[4], "devicess");
+            } catch (error) {
+                console.log(`EError is : ${error}`);
+            }
+        }
+        getparcels();
+
+
+        const storeparcelsinfo = async () => {
+            const token = await AsyncStorage.getItem("token");
+            if (token) {
+                try {
+                    // console.log(parcelsinfo,'stores')
+                    const response = await axios.post(apiUrl + '/storeparcels', {
+                        data: parcelsinfo
+                    }, {
+                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    });
+                    console.log(response.data.message);
+                } catch (error) {
+                    console.log(`EError is : ${error}`);
+                }
+            }
+        }
+
+        storeparcelsinfo();
+
+
         const getimcomplet = async () => {
             const token = await AsyncStorage.getItem("token");
             try {
@@ -158,14 +195,22 @@ const Home = ({ navigation }) => {
                                 </View>
                             </View>
                         </TouchableOpacity>
-                        {/* <TouchableOpacity style={styles.head32}>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Device')}>
                             <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=63961&format=png&color=000000' }}></Image>
                             </View>
                             <View>
-                                <Text>Scanner</Text>
+                                <Text style={{ color: 'white' }}>Device</Text>
                             </View>
-                        </TouchableOpacity> */}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Parcels')}>
+                            <View>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=63961&format=png&color=000000' }}></Image>
+                            </View>
+                            <View>
+                                <Text style={{ color: 'white' }}>Parcels</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.toastWrapper}>
                         <Toast />
