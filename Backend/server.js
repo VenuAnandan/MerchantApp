@@ -662,6 +662,7 @@ app.post('/risetoken', async (req, res) => {
             } else {
                 // console.log(result.referal_id[0]);
                 result['message'] = tokenMessage;
+                result['coversation'] = [];
                 await tiketcollection.insertOne(result);
                 res.status(200).json({
                     message: "Ticket Rise",
@@ -702,6 +703,143 @@ app.get('/getticketrise', async (req, res) => {
             res.status(500).json({ message: `Error occurred: ${error.message}` });
         }
     }
+});
+
+
+// This is for StoreKeeper...
+app.post('/chattoagent', async (req, res) => {
+    const id = "id_1742455199568";   //use token for store id in the future
+    const { message } = req.body
+    if (!id || !message) {
+        res.json({
+            message: 'The Store is Invalid!'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const ticketcollection = db.collection('Ticket_Rise');
+
+            const data = {
+                from: 'store',
+                date: new Date(),
+                message: message,
+            }
+
+            const result = await ticketcollection.updateOne(
+                { id: id },
+                { $push: { coversation: data } }
+            );
+
+            if (result.modifiedCount > 0) {
+                res.json('Message Sended Successfully');
+            } else {
+                res.json('Message is Not Sended or Id Not Matched!');
+            }
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+// This is for Agent....
+app.post('/chattostorekeeper',verifyToken ,async (req, res) => {
+    const id = req.user.id;   //use token for store id in the future
+    const { message } = req.body
+    if (!id || !message) {
+        res.json({
+            message: 'The Store is Invalid!'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const ticketcollection = db.collection('Ticket_Rise');
+
+            // console.log(message);
+
+            const data = {
+                from: 'agent',
+                date: new Date(),
+                message: message,
+            }
+
+            const result = await ticketcollection.updateOne(
+                { referal_id: { $in: [id] } },
+                { $push: { coversation: data } }
+            );
+
+            if (result.modifiedCount > 0) {
+                res.json('Message Sended Successfully');
+            } else {
+                res.json('Message is Not Sended or Id Not Matched!');
+            }
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.get('/chats', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    if (!id) {
+        res.json({
+            message: 'Agent Id is Missing'
+        });
+    } else {
+        // console.log(id);
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const ticketcollection = db.collection('Ticket_Rise');
+
+
+            const result = await ticketcollection.findOne(
+                { referal_id: { $in: [id] } },
+                { projection: { coversation: 1, _id: 0, storeName: 1 } }
+            );
+
+            if (result == '' || result == null || result == undefined) {
+                res.json({
+                    message: 'Empty Messages'
+                });
+            } else {
+                res.json({
+                    message: 'Chats founded',
+                    data: result,
+                    storeName: result.storeName
+                });
+            }
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.get('/allAgentId', async (req, res) => {
+    const client = connect();
+    await client.connect();
+    const db = client.db("Merchant_App");
+    const agentIdcollection = db.collection('Agent_Info');
+    const result = await agentIdcollection.find(
+        {},
+        {projection : {id:1, _id : 0}}
+    ).toArray();
+    // console.log(result);
+    res.json(result);
+    await client.close();
 });
 
 

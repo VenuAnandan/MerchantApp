@@ -22,6 +22,7 @@ import SearchStore from "./SearchStore";
 import EditOrigin from "./EditOrigin";
 import KYC from './KYC';
 import TicketRise from "./TicketRise";
+import ChatPage from "./ChatPage";
 
 
 
@@ -49,6 +50,7 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name='EditOrigin' component={EditOrigin} />
         <Stack.Screen name="TicketRise" component={TicketRise} />
         <Stack.Screen name="KYC" component={KYC} />
+        <Stack.Screen name="ChatPage" component={ChatPage} />
       </Stack.Navigator>
     )
   }

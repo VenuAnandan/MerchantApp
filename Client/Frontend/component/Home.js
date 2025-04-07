@@ -149,7 +149,7 @@ const Home = ({ navigation }) => {
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('TicketRise')}>
                             <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=dG7fBLYuaXhj&format=png&color=000000' }}></Image>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=x18yLpNPidhp&format=png&color=000000' }}></Image>
                             </View>
                             <View>
                                 <Text style={{ color: 'white' }}>Ticket Rise</Text>

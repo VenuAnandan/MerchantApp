@@ -29,8 +29,6 @@ const TicketRise = ({ navigation }) => {
                 const response = await axios.get(apiUrl + '/getticketrise', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                // console.log(response.data.message);
-                // console.log(response.data.data);
                 setMessages(response.data.data);
             } catch (error) {
                 console.log(`EError is : ${error}`);
@@ -41,7 +39,7 @@ const TicketRise = ({ navigation }) => {
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer}>
+        <TouchableOpacity style={styles.notificationContainer} onPress={()=> navigation.navigate('ChatPage')}>
             <Feather name="bell" size={24} color="black" />
             <View style={styles.textContainer}>
                 <Text style={styles.notificationHeading}>{item.storeName}</Text>
@@ -53,7 +51,7 @@ const TicketRise = ({ navigation }) => {
 
     return (
         <View style={styles.conatiner} >
-            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                 <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
@@ -68,8 +66,7 @@ const TicketRise = ({ navigation }) => {
                 <FlatList
                     style={styles.tickets}
                     data={messages}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id} />
+                    renderItem={renderItem} />
             ) : (
                 <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
