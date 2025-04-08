@@ -12,7 +12,6 @@ import axios from "axios";
 const DeviceInfo = ({ navigation, route }) => {
 
     const { item } = route.params;
-    console.log(item);
 
     const [deviceinfo, setDeviceinfo] = useState();
 
@@ -25,8 +24,8 @@ const DeviceInfo = ({ navigation, route }) => {
                 console.log('Token is empty');
             } else {
                 try {
-                    const response = await axios.post('http://192.168.1.8:5000/device/deviceid', {
-                        "deviceid": "SO1101121032035"
+                    const response = await axios.post('http://192.168.4.89:5000/device/deviceid', {
+                        "deviceid": item
                     });
                     setDeviceinfo(response.data);
                     // console.log(response.data, '------');
@@ -37,6 +36,35 @@ const DeviceInfo = ({ navigation, route }) => {
         }
         getdevicedetails();
     }, []);
+
+    const deliverddevice = async () => {
+        if (item) {
+            try {
+                const response = await axios.post('http://192.168.4.89:5000/device/updatedevicestatus', {
+                    deviceid: item,
+                    status: "delivered"
+                });
+                // console.log(response.data.message);
+                const token = await AsyncStorage.getItem("token");
+                if (token) {
+                    try {
+                        const resposne = await axios.post(apiUrl + '/removeagentdevice',{
+                            deviceid : item
+                        }, {
+                            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                        });
+                    } catch (error) {
+                        console.log(`EError is : ${error}`);
+                    }
+                }
+
+                navigation.navigate('Device');
+            } catch (error) {
+                console.log(`EError is : ${error}`);
+            }
+        }
+    }
+
 
 
     return (
@@ -52,16 +80,19 @@ const DeviceInfo = ({ navigation, route }) => {
                     <View><AntDesign name="close" size={24} color="white" /></View>
                 </TouchableOpacity>
             </View>
-            <Text>hello</Text>
             {deviceinfo ? (
                 <View>
-                    <Text>{deviceinfo.status}</Text>
+                    <Text>{deviceinfo.device.status}</Text>
+                    <Text>{deviceinfo.device.supportid}</Text>
+                    <TouchableOpacity style={{ borderWidth: 1, padding: 5 }} onPress={deliverddevice}>
+                        <Text>Delivered</Text>
+                    </TouchableOpacity>
                 </View>
-            ):(
+            ) : (
                 <View>
                     <Text>Innternet issues</Text>
                 </View>
-            ) }
+            )}
             {/* <FlatList
                 data={messages}
                 renderItem={renderItem}

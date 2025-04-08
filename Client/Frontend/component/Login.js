@@ -6,8 +6,9 @@ import { StyleSheet } from "react-native";
 import { TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView } from "react-native";
+import bcrypt from 'react-native-bcrypt';
 
-const Login = ({ navigation,setIsLoggedIn  }) => {
+const Login = ({ navigation, setIsLoggedIn }) => {
 
     const [valueinpu, setValueinpu] = useState('In');
     const [email, setEmail] = useState('');
@@ -23,6 +24,10 @@ const Login = ({ navigation,setIsLoggedIn  }) => {
     const [reemployee, setReemployee] = useState('');
     const [rephone, setRephone] = useState('');
     const [reconpass, setReconpass] = useState('');
+    const [hashrepass, setHashrepass] = useState('');
+
+
+
 
 
     useEffect(() => {
@@ -70,13 +75,17 @@ const Login = ({ navigation,setIsLoggedIn  }) => {
 
     //for registration api
     const goregistration = async () => {
+        // const salt = bcrypt.genSaltSync(10);
+        // const hash = bcrypt.hashSync(repassword, salt);
+        // setHashrepass(hash);
+        // console.log(hash);
         try {
-            const response = await axios.post('http://192.168.7.2:4000/agentregistration',
+            const response = await axios.post(apiUrl + '/agentregistration',
                 {
-                    refname, relname, reemail, repassword, reemployee, rephone
+                    refname, relname, reemail, hashrepass, reemployee, rephone
                 }
             );
-            console.log(response.data)
+            // console.log(response.data);
             if (response.data == "Agent Info Added" || response.data == "Enter to all feild!.") {
                 console.log("Flase");
             } else {
@@ -108,7 +117,7 @@ const Login = ({ navigation,setIsLoggedIn  }) => {
                         {(validateEmail === 'true' ? (
                             <Text>Valid email</Text>
                         ) : validemail === 'false' ? (
-                            <Text style={{ paddingTop: 0, color:'red' }}>Invalid email</Text>
+                            <Text style={{ paddingTop: 0, color: 'red' }}>Invalid email</Text>
                         ) : (
                             <Text></Text>
                         ))
@@ -191,7 +200,7 @@ const styles = StyleSheet.create({
         marginTop: 80,
     },
     sign: {
-        backgroundColor:'#309264',
+        backgroundColor: '#309264',
         borderRadius: 20,
         width: 200,
         height: 50,

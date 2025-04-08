@@ -11,14 +11,6 @@ import axios from "axios";
 
 const Device = ({ navigation }) => {
 
-
-    //     const [messages, setMessages] = useState(
-    //     //     [
-    //     //     { id: '1', heading: 'New Message', text: 'You have a new message waiting for you!' },
-    //     //     { id: '2', heading: 'Update Available', text: 'There is a new update for your app.' },
-    //     //     { id: '3', heading: 'Reminder', text: 'Don’t forget to check your settings.' },
-    //     // ]
-    // );
     const [devices, setDevice] = useState();
     const [send, setSend] = useState();
 
@@ -26,43 +18,6 @@ const Device = ({ navigation }) => {
 
     useEffect(() => {
         const getassigndevice = async () => {
-            const token = await AsyncStorage.getItem("token");
-            if (!token) {
-                console.log('Token is empty');
-            } else {
-                try {
-                    const response = await axios.post('http://192.168.1.8:5000/device/agentid', {
-                        agentid: "id_1742404536258"
-                    });
-                    setSend(response.data.data);
-                    // console.log(response.data.data);
-                } catch (error) {
-                    console.log(`EError is : ${error}`);
-                }
-            }
-        }
-        getassigndevice();
-    }, []);
-
-    useEffect(() => {
-        const storedevice = async () => {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) {
-                console.log('Token is empty');
-            } else {
-                try {
-                    const resposne = await axios.post(apiUrl + '/storedevice', {
-                        device: send
-                    }, {
-                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                    });
-                } catch (error) {
-                    console.log(`EError is : ${error}`);
-                }
-            }
-        }
-        storedevice();
-        const getdevices = async () => {
             const token = await AsyncStorage.getItem('token');
             if (!token) {
                 console.log('Token is empty');
@@ -71,22 +26,28 @@ const Device = ({ navigation }) => {
                     const resposne = await axios.get(apiUrl + '/getmydevices', {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
+                    // console.log(resposne.data.data);
                     setDevice(resposne.data.data);
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
             }
         }
-        getdevices();
-    }, [send]);
+        getassigndevice();
+
+
+
+    }, []);
+
+    
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={() => { navigation.navigate('DeviceInfo', { item: item.deviceid }) }}>
+        <TouchableOpacity style={styles.notificationContainer} onPress={() => { navigation.navigate('DeviceInfo', { item: item }) }}>
             <Feather name="bell" size={24} color="black" />
             <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>{item.devicename}</Text>
-                <Text style={styles.notificationText}>{item.deviceid}</Text>
+                <Text style={styles.notificationHeading}>{item}</Text>
+                {/* <Text style={styles.notificationText}>{item.deviceid}</Text> */}
             </View>
         </TouchableOpacity>
     );
@@ -106,8 +67,9 @@ const Device = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             {devices ? (
-                <View>
+                <View style={{width:'100%', height:'86%'}}>
                     <FlatList
+                        style={{padding:10}}
                         data={devices}
                         renderItem={renderItem} />
                 </View>

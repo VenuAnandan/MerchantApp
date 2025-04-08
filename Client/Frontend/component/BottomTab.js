@@ -26,6 +26,7 @@ import ChatPage from "./ChatPage";
 import Device from "./Device";
 import DeviceInfo from "./DeviceInfo";
 import Parcels from "./Parcels";
+import ParcelInfo from "./ParcelInfo";
 
 
 
@@ -57,6 +58,7 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name="Device" component={Device} />
         <Stack.Screen name="DeviceInfo" component={DeviceInfo}/>
         <Stack.Screen name="Parcels" component={Parcels}/>
+        <Stack.Screen name="ParcelInfo" component={ParcelInfo}/>
       </Stack.Navigator>
     )
   }

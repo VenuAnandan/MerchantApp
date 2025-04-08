@@ -107,12 +107,13 @@ app.get('/forhome', verifyToken, async (req, res) => {
 //for Agent Registration Page
 app.post('/agentregistration', async (req, res) => {
     try {
-        const { refname, relname, reemail, reemployee, rephone, bloodGroup, dob, address } = req.body
-        console.log("hello")
-
-        if (!refname || !relname || !reemail || !reemployee || !rephone) {
+        const { refname, relname, reemail, reemployee, rephone, bloodGroup, dob, address, hashrepass } = req.body
+        // console.log("hello");
+        // console.log(hashrepass,"password");
+        if (!refname || !relname || !reemail || !reemployee || !rephone || !hashrepass) {
             res.status(200).json(`Enter to all feild!.`);
-        } else {
+        }
+        else {
             let agentInfo = { firstname: refname, lastname: relname, email: reemail, emplyoyeeID: reemployee, phone: rephone, bloodGroup: bloodGroup, dob: dob, address: address, gender };
             const client = connect();
             await client.connect();
@@ -133,6 +134,8 @@ app.post('/agentregistration', async (req, res) => {
                 }
             }
         }
+        res.json('hello');
+        await client.close();
     } catch (error) {
         res.status(500).json(`EError is : ${error}`);
     }
@@ -835,7 +838,7 @@ app.get('/allAgentId', async (req, res) => {
     const agentIdcollection = db.collection('Agent_Info');
     const result = await agentIdcollection.find(
         {},
-        { projection: { id: 1, _id: 0 } }
+        { projection: { id: 1, firstname: 1, _id: 0 } }
     ).toArray();
     // console.log(result);
     res.json(result);
@@ -875,7 +878,7 @@ app.post('/storedevice', verifyToken, async (req, res) => {
                         // console.log('Device pushed');
                     }
 
-                    const deviceparcel = await devicescollection.findOne({ deviceid:itemid }, { projection: { _id: 0, id: 1 } });
+                    const deviceparcel = await devicescollection.findOne({ deviceid: itemid }, { projection: { _id: 0, id: 1 } });
 
                     if (!deviceparcel) {
                         await parcelcollection.insertOne(item);
@@ -895,7 +898,7 @@ app.post('/storedevice', verifyToken, async (req, res) => {
 
 
 app.get('/getmydevices', verifyToken, async (req, res) => {
-    const id = 'id_1742504568227';
+    const id = req.user.id;
     if (!id) {
         res.json({
             message: 'Employee id is empty'
@@ -905,12 +908,12 @@ app.get('/getmydevices', verifyToken, async (req, res) => {
             const client = connect();
             await client.connect();
             const db = client.db("Merchant_App");
-            const devicescollection = db.collection('Devices');
-            const result = await devicescollection.find({ agentid: id }, { projection: { devicename: 1, deviceid: 1, _id: 0, } }).toArray();
-            if (result) {
+            const agentcollection = db.collection('Agent_Info');
+            const devices = await agentcollection.findOne({ id: id }, { projection: { inventory: 1, _id: 0 } });
+            if (devices) {
                 res.json({
                     message: 'Devices are finded',
-                    data: result
+                    data: devices.inventory
                 });
             } else {
                 res.json({
@@ -1007,7 +1010,7 @@ app.get('/getmyparcels', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const parcelscollection = db.collection('Parcels');
-            const result = await parcelscollection.find({ agentid: id }, { projection: { reciver: 1, sender: 1, _id: 0,parcelNumber:1 } }).toArray();
+            const result = await parcelscollection.find({ agentid: id }, { projection: { reciver: 1, sender: 1, _id: 0, parcelNumber: 1 } }).toArray();
             if (result) {
                 res.json({
                     message: 'Devices are finded',
@@ -1026,6 +1029,127 @@ app.get('/getmyparcels', verifyToken, async (req, res) => {
     }
 });
 
+
+app.post('/addagentstoredevice', verifyToken, async (req, res) => {
+    const { deviceids } = req.body;
+    const id = req.user.id;
+    if (deviceids || id) {
+        try {
+
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection("Agent_Info");
+
+            const checkagent = await agentcollection.findOne({ id: id }, { projection: { inventory: 1, _id: 0 } });
+            const agentinventory = checkagent.inventory;
+
+
+            await Promise.all(deviceids.map(async (deviceid) => {
+                const devicetrue = agentinventory.includes(deviceid);
+                if (!devicetrue) {
+                    await agentcollection.updateOne(
+                        { id: { $in: [id] } },
+                        { $push: { inventory: deviceid } }
+                    );
+                    res.json({
+                        message: 'Added Successfully'
+                    });
+                } else {
+                    res.json({
+                        message: 'Added Successfully'
+                    });
+                }
+            }));
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    } else {
+        res.json({
+            message: 'Employee id is empty'
+        });
+    }
+});
+
+
+
+app.post('/addagentstoreaccess', verifyToken, async (req, res) => {
+    const { access } = req.body;
+    const id = req.user.id;
+    // console.log(id);
+    if (access || id) {
+        try {
+
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection("Agent_Info");
+
+            const checkagent = await agentcollection.findOne({ id: id }, { projection: { accessories: 1, _id: 0 } });
+            const agentaccess = checkagent.accessories;
+
+
+            await Promise.all(access.map(async (accesss) => {
+                const accesstrue = agentaccess.find(item => item.id === accesss.id);
+                if (accesstrue) {
+                    await agentcollection.updateOne(
+                        { id: id, 'accessories.id': accesss.id },
+                        { $inc: { 'accessories.$.quantity': accesss.quantity } }
+                        // { $push: { accessories: { id: accesss.id, quantity: accesss.quantity }  } }
+                    );
+                    res.json({
+                        message: 'Added was Successfully'
+                    });
+                } else {
+                    await agentcollection.updateOne(
+                        { id: id },
+                        // {$inc:{'accessories.$.quantity':accesss.quantity}}
+                        { $push: { accessories: { id: accesss.id, quantity: accesss.quantity } } }
+                    );
+                    res.json({
+                        message: 'Added Successfully'
+                    });
+                }
+            }));
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    } else {
+        res.json({
+            message: 'Employee id is empty'
+        });
+    }
+});
+
+
+app.post('/removeagentdevice', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    const { deviceid } = req.body;
+    console.log(deviceid);
+    if (id || deviceid) {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection("Agent_Info");
+
+            const result = await agentcollection.updateOne(
+                { id: id },
+                {$pull : {inventory:deviceid}});
+            
+            res.json({
+                message:'Deliverd'
+            });
+
+            await client.close();
+        } catch (error) {
+
+        }
+    }
+});
 
 
 app.listen(port, () => {

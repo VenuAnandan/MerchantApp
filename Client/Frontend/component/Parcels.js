@@ -22,11 +22,11 @@ const Parcels = ({ navigation }) => {
                 console.log('Token is empty');
             } else {
                 try {
-                    const response = await axios.get(apiUrl + '/getmyparcels', {
-                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    const response = await axios.post('http://192.168.4.89:5000/parcel/agentid', {
+                        "agentid": "id_1742404536258"
                     });
                     setParcels(response.data.data);
-                    console.log(response.data.data, "parcels");
+                    // console.log(response.data.data, "parcels");
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
@@ -38,7 +38,7 @@ const Parcels = ({ navigation }) => {
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer}>
+        <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate('ParcelInfo', { item: item.parcelNumber })}>
             <Feather name="bell" size={24} color="black" />
             <View style={styles.textContainer}>
                 <Text style={styles.notificationHeading}>{item.parcelNumber}</Text>

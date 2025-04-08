@@ -38,18 +38,18 @@ const Home = ({ navigation }) => {
 
     useEffect(() => {
 
-        const getparcels = async () => {
-            try {
-                const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
-                    "agentid": "id_1742404536258"
-                });
-                setParcelsinfo(response.data.data);
-                console.log(response.data.data[4], "devicess");
-            } catch (error) {
-                console.log(`EError is : ${error}`);
-            }
-        }
-        getparcels();
+        // const getparcels = async () => {
+        //     try {
+        //         const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
+        //             "agentid": "id_1742404536258"
+        //         });
+        //         setParcelsinfo(response.data.data);
+        //         // console.log(response.data.data[4], "devicess");
+        //     } catch (error) {
+        //         console.log(`EError is : ${error}`);
+        //     }
+        // }
+        // getparcels();
 
 
         const storeparcelsinfo = async () => {
@@ -62,7 +62,7 @@ const Home = ({ navigation }) => {
                     }, {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
-                    console.log(response.data.message);
+                    // console.log(response.data.message);
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
