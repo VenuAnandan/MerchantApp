@@ -25,7 +25,7 @@ const SearchStore = ({ navigation, route }) => {
                 } else {
                     setSearchedstore(resposne.data);
                 }
-                console.log(resposne.data);
+                // console.log(resposne.data);
             } catch (error) {
                 console.log(`Eerror is : ${error}`)
             }

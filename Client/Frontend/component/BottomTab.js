@@ -27,6 +27,11 @@ import Device from "./Device";
 import DeviceInfo from "./DeviceInfo";
 import Parcels from "./Parcels";
 import ParcelInfo from "./ParcelInfo";
+import Deliverpage from "./Deliverpage";
+import Scan from "./Scan";
+import DamageParcels from "./DamageParcels";
+import GetParcel from "./GetParcel";
+import ParcelUpdate from "./ParcelUpdate";
 
 
 
@@ -59,6 +64,11 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name="DeviceInfo" component={DeviceInfo}/>
         <Stack.Screen name="Parcels" component={Parcels}/>
         <Stack.Screen name="ParcelInfo" component={ParcelInfo}/>
+        <Stack.Screen name="Deliverpage" component={Deliverpage}/>
+        <Stack.Screen name="Scan" component={Scan}/>
+        <Stack.Screen name='DamageParcels' component={DamageParcels}/>   
+        <Stack.Screen name="GetParcel" component={GetParcel}/>
+        <Stack.Screen name="ParcelUpdate" component={ParcelUpdate} />
       </Stack.Navigator>
     )
   }

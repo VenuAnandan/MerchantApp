@@ -60,7 +60,7 @@ app.get('/forhome', verifyToken, async (req, res) => {
         }
 
         const forhome = {
-            fname: result.firstName,
+            fname: result.firstname,
             email: result.email,
             score: result.scoreCount
         };
@@ -574,9 +574,9 @@ app.post('/searchstore', async (req, res) => {
             const db = client.db("Merchant_App");
             const storecollection = db.collection("Store_Info");
 
-            // console.log(storename,"   storename");
+
             const result = await storecollection.find({
-                storeName: { $regex: `^${storename}$`, $options: "i" }
+                storeName: { $regex: storename, $options: "i" }
             }).toArray();
 
             // console.log(result,"    result");
@@ -1046,21 +1046,20 @@ app.post('/addagentstoredevice', verifyToken, async (req, res) => {
 
 
             await Promise.all(deviceids.map(async (deviceid) => {
-                const devicetrue = agentinventory.includes(deviceid);
+                // console.log(agentinventory);
+
+                const devicetrue = agentinventory.some((detail) => detail.devicesid == deviceid);
                 if (!devicetrue) {
                     await agentcollection.updateOne(
                         { id: { $in: [id] } },
-                        { $push: { inventory: deviceid } }
+                        { $push: { inventory: { devicesid: deviceid, status: 'active' } } }
                     );
-                    res.json({
-                        message: 'Added Successfully'
-                    });
-                } else {
-                    res.json({
-                        message: 'Added Successfully'
-                    });
                 }
             }));
+
+            res.json({
+                message: 'Added Successfully'
+            });
             await client.close();
         } catch (error) {
             res.status(500).json({ message: `Error occurred: ${error.message}` });
@@ -1095,23 +1094,22 @@ app.post('/addagentstoreaccess', verifyToken, async (req, res) => {
                 if (accesstrue) {
                     await agentcollection.updateOne(
                         { id: id, 'accessories.id': accesss.id },
-                        { $inc: { 'accessories.$.quantity': accesss.quantity } }
+                        { $inc: { 'accessories.$.quantity': parseInt(accesss.quantity) } }
                         // { $push: { accessories: { id: accesss.id, quantity: accesss.quantity }  } }
                     );
-                    res.json({
-                        message: 'Added was Successfully'
-                    });
                 } else {
+                    console.log(accesss.id);
                     await agentcollection.updateOne(
                         { id: id },
                         // {$inc:{'accessories.$.quantity':accesss.quantity}}
-                        { $push: { accessories: { id: accesss.id, quantity: accesss.quantity } } }
+                        { $push: { accessories: { id: accesss.id, quantity: parseInt(accesss.quantity) } } }
                     );
-                    res.json({
-                        message: 'Added Successfully'
-                    });
                 }
             }));
+
+            res.json({
+                message: 'Added Successfully'
+            });
 
             await client.close();
         } catch (error) {
@@ -1125,10 +1123,10 @@ app.post('/addagentstoreaccess', verifyToken, async (req, res) => {
 });
 
 
-app.post('/removeagentdevice', verifyToken, async (req, res) => {
+app.post('/devilveragentdevice', verifyToken, async (req, res) => {
     const id = req.user.id;
     const { deviceid } = req.body;
-    console.log(deviceid);
+    // console.log(deviceid);
     if (id || deviceid) {
         try {
             const client = connect();
@@ -1136,12 +1134,20 @@ app.post('/removeagentdevice', verifyToken, async (req, res) => {
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
 
-            const result = await agentcollection.updateOne(
-                { id: id },
-                {$pull : {inventory:deviceid}});
-            
+            const checkagent = await agentcollection.findOne({ id: id }, { projection: { inventory: 1, _id: 0 } });
+            const agentinventory = checkagent.inventory;
+
+            const devicetrue = agentinventory.some((detail) => detail.devicesid == deviceid);
+            // console.log(devicetrue);
+            if (devicetrue) {
+                await agentcollection.updateOne(
+                    { id: { $in: [id] }, 'inventory.devicesid': deviceid },
+                    { $set: { 'inventory.$.status': "delivered", } }
+                );
+            }
+
             res.json({
-                message:'Deliverd'
+                message: 'Deliverd'
             });
 
             await client.close();
@@ -1150,6 +1156,202 @@ app.post('/removeagentdevice', verifyToken, async (req, res) => {
         }
     }
 });
+
+
+app.post('/verifydeviceid', verifyToken, async (req, res) => {
+    const { deviceid } = req.body;
+    const id = req.user.id;
+    if (!deviceid || !id) {
+        res.json({
+            message: 'Device or id missing'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection("Agent_Info");
+            const result = await agentcollection.findOne({ id: id, "inventory.devicesid": deviceid }, { projection: { id: 1, _id: 0 } });
+
+            res.json({
+                message: result ? 'Yes' : 'No',
+            });
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+
+    }
+});
+
+
+app.post('/packdamage', verifyToken, async (req, res) => {
+    const { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc } = req.body;
+    const id = req.user.id;
+    console.log(id);
+    if (!deviceid || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc) {
+        res.json({
+            message: 'Data Missing'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const damagecollection = db.collection("Damages");
+            const agentcollection = db.collection("Agent_Info");
+            const data = { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc }
+
+            // console.log(data);
+            const generateParcelNumber = () => {
+                const timestamp = Date.now().toString().slice(-6);
+                const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+                return `PCL${timestamp}${randomSuffix}`;
+            };
+
+            data["parcel_id"] = generateParcelNumber();
+            data["status"] = "pending";
+            data["agent_id"] = id;
+
+            // console.log(data);
+
+            await damagecollection.insertOne(data);
+
+            await Promise.all(deviceid.map(async (item) => {
+                await agentcollection.updateOne(
+                    { 'inventory.devicesid': item }, // Match agent who owns this device
+                    {
+                        $set: { 'inventory.$[elem].status': 'damaged' }
+                    },
+                    {
+                        arrayFilters: [{ 'elem.devicesid': item }]
+                    }
+                );
+            }));
+
+            res.json({
+                message: 'Added Data'
+            })
+
+            await client.close();
+
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.get('/getpdamageparcels', verifyToken, async (req, res) => {
+    const id = req.user.id;
+    if (!id) {
+        res.json({
+            message: 'Employee id is empty'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const damagecollection = db.collection('Damages');
+            const damage = await damagecollection.find({}).toArray();
+            if (damage) {
+                res.json({
+                    message: 'Devices are finded',
+                    data: damage
+                });
+            } else {
+                res.json({
+                    message: 'Devices not founded',
+                    data: []
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
+
+app.post('/getparcelinfo', verifyToken, async (req, res) => {
+    const { parcel_id } = req.body;
+    const id = req.user.id;
+    if (!parcel_id || !id) {
+        res.json({
+            message: 'Device or id missing'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const damagecollection = db.collection("Damages");
+            const result = await damagecollection.findOne({ parcel_id: parcel_id }, { projection: { _id: 0 } });
+            // console.log(result);
+
+            res.json({
+                message: result ? 'Yes' : 'No',
+                data: result
+            });
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+
+    }
+});
+
+
+app.post('/updatepackdamage', verifyToken, async (req, res) => {
+    const { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id } = req.body;
+    const id = req.user.id;
+    // console.log(id);
+    if (!deviceid || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc || !parcel_id) {
+        res.json({
+            message: 'Data Missing'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const damagecollection = db.collection("Damages");
+            const agentcollection = db.collection('Agent_Info');
+            const data = { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id }
+
+            const findparcel = await damagecollection.findOne({ parcel_id: parcel_id }, { projection: { status: 1, _id: 0 } });
+            // console.log(findparcel);
+            if (findparcel == '' || findparcel == null) {
+                res.json({
+                    messgaes: 'No find Parcel',
+                });
+            } else {
+                await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
+
+                await agentcollection.updateOne(
+                    { id },
+                    { $set: { 'inventory.$[match].status': 'damaged' } },
+                    { arrayFilters: [{ 'match.devicesid': { $in: deviceid } }] }
+                );
+
+                await agentcollection.updateOne(
+                    { id },
+                    { $set: { 'inventory.$[others].status': 'active' } },
+                    { arrayFilters: [{ 'others.devicesid': { $nin: deviceid } }] }
+                );
+
+                res.json({
+                    messgaes: 'Parcel Updated',
+                });
+            }
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
+
 
 
 app.listen(port, () => {

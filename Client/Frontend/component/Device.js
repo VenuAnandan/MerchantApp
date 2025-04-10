@@ -43,11 +43,12 @@ const Device = ({ navigation }) => {
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={() => { navigation.navigate('DeviceInfo', { item: item }) }}>
+        <TouchableOpacity style={styles.notificationContainer} onPress={() => { navigation.navigate('DeviceInfo', { item: item.devicesid }) }}>
             <Feather name="bell" size={24} color="black" />
             <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>{item}</Text>
-                {/* <Text style={styles.notificationText}>{item.deviceid}</Text> */}
+                {/* {console.log(item)} */}
+                <Text style={styles.notificationHeading}>{item.devicesid}</Text>
+                <Text style={styles.notificationText}>{item.status}</Text>
             </View>
         </TouchableOpacity>
     );

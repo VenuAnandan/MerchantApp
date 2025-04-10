@@ -31,6 +31,7 @@ const ParcelInfo = ({ navigation, route }) => {
                     setParcelinfo(response.data.data);
                     setParceldevices(response.data.data.devices);
                     setParecelAccess(response.data.data.accessories);
+                    // console.log(response.data.data.accessories);
                     // console.log(response.data.data.accessories[0], "parcel Info");
                 } catch (error) {
                     console.log(`EError is : ${error}`);
@@ -47,10 +48,10 @@ const ParcelInfo = ({ navigation, route }) => {
         if (data) {
             if (token) {
                 try {
-                    const response = await axios.post('http://192.168.4.89:5000/parcel/updatestatus', {
-                        "parcelNumber": data,
-                        "status":"received"
-                    });
+                    // const response = await axios.post('http://192.168.4.89:5000/parcel/updatestatus', {
+                    //     "parcelNumber": data,
+                    //     "status":"received"
+                    // });
                     console.log(response.data,"recive");
                 } catch (error) {
                     console.log(`EError is : ${error}`);
@@ -77,7 +78,7 @@ const ParcelInfo = ({ navigation, route }) => {
             // console.log(response.data.message);
         }
         storeaccess();
-        
+        navigation.navigate('Parcels');
     }
 
 

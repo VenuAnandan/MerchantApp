@@ -39,15 +39,15 @@ const Home = ({ navigation }) => {
     useEffect(() => {
 
         // const getparcels = async () => {
-        //     try {
-        //         const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
-        //             "agentid": "id_1742404536258"
-        //         });
-        //         setParcelsinfo(response.data.data);
-        //         // console.log(response.data.data[4], "devicess");
-        //     } catch (error) {
-        //         console.log(`EError is : ${error}`);
-        //     }
+            // try {
+            //     const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
+            //         "agentid": "id_1742404536258"
+            //     });
+            //     setParcelsinfo(response.data.data);
+            //     // console.log(response.data.data[4], "devicess");
+            // } catch (error) {
+            //     console.log(`EError is : ${error}`);
+            // }
         // }
         // getparcels();
 
@@ -205,10 +205,18 @@ const Home = ({ navigation }) => {
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Parcels')}>
                             <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=63961&format=png&color=000000' }}></Image>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=j8Gul5fFFyJA&format=png&color=000000' }}></Image>
                             </View>
                             <View>
                                 <Text style={{ color: 'white' }}>Parcels</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('DamageParcels')}>
+                            <View>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=T34j6RY0HsPA&format=png&color=000000' }}></Image>
+                            </View>
+                            <View>
+                                <Text style={{ color: 'white' }}>Delivery</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
