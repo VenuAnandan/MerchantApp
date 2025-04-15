@@ -59,7 +59,7 @@ const Login = ({ navigation, setIsLoggedIn }) => {
 
     //for login api
     const gologin = async () => {
-
+        // console.log("-------------------");
         try {
             const response = await axios.post(apiUrl + '/login', {
                 email, password

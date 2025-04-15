@@ -120,6 +120,8 @@ app.post('/agentregistration', async (req, res) => {
             const UniqID = `id_${Date.now()}`;
             agentInfo["id"] = UniqID;
             agentInfo["scoreCount"] = 0;
+            agentInfo["inventory"] = [];
+            agentInfo["accessories"] = [];
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
             if (reemail) {
@@ -191,14 +193,16 @@ app.get('/getagentinfo', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
-            const result = await agentcollection.find({ id: id }).toArray();
+            const result = await agentcollection.findOne({ id: id },{projection:{_id:0, password:0}});
+            // const fiterItems = await agentcollection.findOne({id:id},{projection:{'inventory.devicesid':1,accessories:1, _id:0}});
+
             if (result === 0) {
                 res.status(200).json('No agent data available');
             } else {
-                const data = result[0];
+                const data = result;
                 res.status(200).json({
-                    fname: data.firstName,
-                    lname: data.lastName,
+                    fname: data.firstname,
+                    lname: data.lastname,
                     email: data.email,
                     phone: data.phone,
                     address: data.address,
@@ -206,7 +210,19 @@ app.get('/getagentinfo', verifyToken, async (req, res) => {
                     gender: data.gender,
                     dob: data.dob,
                     bg: data.bloodGroup,
+                    id: data.id,
+                    device : parseInt(data.inventory.length),
+                    charge : parseInt(data.accessories.find(item => item.id == 'AC-CH1742536643458' )?.quantity),
+                    audio : parseInt(data.accessories.find(item => item.id == 'AC-ADC1742536643460' )?.quantity),
+                    battry : parseInt(data.accessories.find(item => item.id == 'AC-BTM1742536643461' )?.quantity)
+
+                    // charger : result.find(item => item.accessories.id == 'AC-CH1742536643458' )?.quantity,
+                    // audio: result.find(item => item.accessories.id == 'AC-ADC1742536643460' )?.quantity,
+                    // battry : result.find(item => item.accessories.id == 'AC-BTM1742536643461' )?.quantity,
+                    // device: fiterItems.inventory.length,
+                    // charge: fiterItems.
                 });
+                // console.log(data.accessories.find(item => item.id == 'AC-CH1742536643458' )?.quantity);
             }
             await client.close();
         } catch (error) {
@@ -1188,7 +1204,7 @@ app.post('/verifydeviceid', verifyToken, async (req, res) => {
 app.post('/packdamage', verifyToken, async (req, res) => {
     const { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc } = req.body;
     const id = req.user.id;
-    console.log(id);
+    // console.log(id);
     if (!deviceid || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc) {
         res.json({
             message: 'Data Missing'
@@ -1200,6 +1216,7 @@ app.post('/packdamage', verifyToken, async (req, res) => {
             const db = client.db("Merchant_App");
             const damagecollection = db.collection("Damages");
             const agentcollection = db.collection("Agent_Info");
+            // console.log(id);
             const data = { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc }
 
             // console.log(data);
@@ -1212,26 +1229,44 @@ app.post('/packdamage', verifyToken, async (req, res) => {
             data["parcel_id"] = generateParcelNumber();
             data["status"] = "pending";
             data["agent_id"] = id;
+            data["batteryinfo"] = { id: 'AC-BTM1742536643461', quantity: battery, status: 'damaged' }
+            data['audioinfo'] = { id: 'AC-ADC1742536643460', quantity: audiocable, status: 'damaged' }
+            data['chargerinfo'] = { id: 'AC-CH1742536643458', quantity: charge, status: 'damaged' }
 
             // console.log(data);
 
-            await damagecollection.insertOne(data);
+            const agentinfo = await agentcollection.findOne({ id: id }, { projection: { accessories: 1, _id: 0 } });
 
-            await Promise.all(deviceid.map(async (item) => {
-                await agentcollection.updateOne(
-                    { 'inventory.devicesid': item }, // Match agent who owns this device
-                    {
-                        $set: { 'inventory.$[elem].status': 'damaged' }
-                    },
-                    {
-                        arrayFilters: [{ 'elem.devicesid': item }]
-                    }
-                );
-            }));
+            const chargeavailable = agentinfo.accessories.some(item => item.id == "AC-CH1742536643458" && item.quantity >= charge);
+            const audioavailable = agentinfo.accessories.some(item => item.id == "AC-ADC1742536643460" && item.quantity >= audiocable);
+            const batteryavailable = agentinfo.accessories.some(item => item.id == "AC-BTM1742536643461" && item.quantity >= battery);
 
-            res.json({
-                message: 'Added Data'
-            })
+            console.log(chargeavailable, audioavailable, batteryavailable);
+
+            if (chargeavailable && audioavailable && batteryavailable) {
+                await damagecollection.insertOne(data);
+
+                await Promise.all(deviceid.map(async (item) => {
+                    await agentcollection.updateOne(
+                        { 'inventory.devicesid': item },
+                        {
+                            $set: { 'inventory.$[elem].status': 'damaged' }
+                        },
+                        {
+                            arrayFilters: [{ 'elem.devicesid': item }]
+                        }
+                    );
+                }));
+
+
+                res.json({
+                    message: 'Added Data'
+                });
+            } else {
+                res.json({
+                    message: 'Data is Missing or Quantity is High'
+                });
+            }
 
             await client.close();
 
@@ -1306,7 +1341,6 @@ app.post('/getparcelinfo', verifyToken, async (req, res) => {
 app.post('/updatepackdamage', verifyToken, async (req, res) => {
     const { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id } = req.body;
     const id = req.user.id;
-    // console.log(id);
     if (!deviceid || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc || !parcel_id) {
         res.json({
             message: 'Data Missing'
@@ -1327,23 +1361,49 @@ app.post('/updatepackdamage', verifyToken, async (req, res) => {
                     messgaes: 'No find Parcel',
                 });
             } else {
-                await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
 
-                await agentcollection.updateOne(
-                    { id },
-                    { $set: { 'inventory.$[match].status': 'damaged' } },
-                    { arrayFilters: [{ 'match.devicesid': { $in: deviceid } }] }
-                );
+                const agentinfo = await agentcollection.findOne({ id: id }, { projection: { accessories: 1, _id: 0 } });
 
-                await agentcollection.updateOne(
-                    { id },
-                    { $set: { 'inventory.$[others].status': 'active' } },
-                    { arrayFilters: [{ 'others.devicesid': { $nin: deviceid } }] }
-                );
+                const chargeavailable = agentinfo.accessories.some(item => item.id == "AC-CH1742536643458" && item.quantity >= charge);
+                const audioavailable = agentinfo.accessories.some(item => item.id == "AC-ADC1742536643460" && item.quantity >= audiocable);
+                const batteryavailable = agentinfo.accessories.some(item => item.id == "AC-BTM1742536643461" && item.quantity >= battery);
 
-                res.json({
-                    messgaes: 'Parcel Updated',
-                });
+                // console.log(chargeavailable, audioavailable, batteryavailable);
+
+                if (chargeavailable && audioavailable && batteryavailable) {
+
+                    await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'batteryinfo.quantity': battery } });
+                    await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'audioinfo.quantity': audiocable } });
+                    await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'chargerinfo.quantity': charge } });
+                    console.log(data);
+
+
+                    //------------------------------------------------------------
+                    // await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
+
+                    // await agentcollection.updateOne(
+                    //     { id },
+                    //     { $set: { 'inventory.$[match].status': 'damaged' } },
+                    //     { arrayFilters: [{ 'match.devicesid': { $in: deviceid } }] }
+                    // );
+
+                    // await agentcollection.updateOne(
+                    //     { id },
+                    //     { $set: { 'inventory.$[others].status': 'active' } },
+                    //     { arrayFilters: [{ 'others.devicesid': { $nin: deviceid } }] }
+                    // );
+                    //------------------------------------------------------------
+
+                    res.json({
+                        messgaes: 'Parcel Updated',
+                    });
+
+                } else {
+                    res.json({
+                        messgaes: 'Parcel Not Updated, Quantity is heigh',
+                    });
+                }
+
             }
             await client.close();
         } catch (error) {
@@ -1351,6 +1411,61 @@ app.post('/updatepackdamage', verifyToken, async (req, res) => {
         }
     }
 });
+
+
+
+//request for device 
+// app.post('/itemsrequest',verifyToken, async (req, res) => {
+//     const id = req.user.id;
+//     const {data} = req.body
+//     if (!id || !data ) {
+//         res.json({
+//             message: 'ID or Data is missing'
+//         });
+//     } else {
+//         try {
+//             const client = connect();
+//             await client.connect();
+//             const db = client.db("Merchant_App");
+//             const damagecollection = db.collection("Damages");
+//             const agentcollection = db.collection('Agent_Info');
+
+//             const fiterItems = await agentcollection.findOne({id:id},{projection:{'inventory.devicesid':1,accessories:1, _id:0}});
+
+//             // console.log(requestItem)
+
+//             res.json({
+//                 message:'Data',
+//                 data:requestItem
+//             });
+
+//             await client.close();
+
+//         } catch (error) {
+//             res.status(500).json({
+//                 message:error
+//             });
+//         }
+
+//     }
+// });
+
+
+// app.post('/gettrue', async (req, res) => {
+//     const { quantity } = req.body
+//     const client = connect();
+//     await client.connect();
+//     const db = client.db("Merchant_App");
+//     // const damagecollection = db.collection("Damages");
+//     const agentcollection = db.collection('Agent_Info');
+// const agentinfo = await agentcollection.findOne({ id: "id_1742404536258" }, { projection: { accessories: 1, _id: 0 } });
+
+// const chargeavailable = agentinfo.accessories.some(item => item.id == "AC-CH1742536643458" && item.quantity >= quantity );
+
+
+//     await client.close()
+
+// });
 
 
 

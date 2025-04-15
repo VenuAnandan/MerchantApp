@@ -62,7 +62,7 @@ const Home = ({ navigation }) => {
                     }, {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
-                    // console.log(response.data.message);
+                    // console.log(response.data);
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }

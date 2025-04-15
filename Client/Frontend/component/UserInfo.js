@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, StatusBar, Platform, Image, Pressable, TouchableOpacity, InfoRow } from "react-native";
+import { View, Text, Button, StatusBar, Platform, Image, Pressable, TouchableOpacity, InfoRow, Modal, TextInput } from "react-native";
 import { StyleSheet } from "react-native";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { CommonActions } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const UserInfo = ({ navigation, setIsLoggedIn }) => {
     // const navigation = useNavigation();
+
+    const [aldevice, setAldevice] = useState(0);
+    const [alcharge, setAlcharge] = useState(0);
+    const [albatt, setAllbatt] = useState(0);
+    const [alaudio, setAlaudio] = useState(0);
     const agent = 'male';
+    const [modalVisible, setModalVisible] = useState(false);
+    const [numDevice, setNumDevice] = useState(0);
+    const [numCharg, setNumCharg] = useState(0);
+    const [numBatt, setNumBatt] = useState(0);
+    const [numAudio, setNumAudio] = useState(0);
 
     const goLogout = async () => {
         try {
@@ -25,9 +36,35 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
     const [add, setAdd] = useState('Some Address');
     const [dob, setDob] = useState('10-06-2025');
     const [scor, setScor] = useState('23');
+    const [agentid, setAgentid] = useState();
 
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+    const sendrequest = async () => {
+        if (numDevice || numCharg || numAudio || numBatt) {
+            const requestItem = {"agent_id":agentid,"status":'Device & Accessories Request', "Number_of_device" : numDevice, "Charger":{"device_id":'AC-CH1742536643458',"quantity":parseInt(numCharg)},"AudioCable":{"device_id":"AC-ADC1742536643460","quantity":parseInt(numAudio)},"Battry":{"device_id":'AC-BTM1742536643461',"quantity":parseInt(numBatt)}}
+            const token = await AsyncStorage.getItem("token");
+            if (token) {
+                try {
+                    console.log(requestItem);
+                    // const response = await axios.post(apiUrl+'/itemsrequest',{
+                    //     data : requestItem
+                    // },{
+                    //     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    // });
+                    showToast("success", `Run the code `);
+                } catch (error) {
+                    console.log(`EError is : ${error}`);
+                }
+            }
+
+            // showToast("success", `Run the code `);
+        } else {
+            showToast("error", `Data missing `);
+            // console.log("");
+        }
+    }
 
 
     useEffect(() => {
@@ -43,20 +80,37 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
                 setAdd(response.data.address);
                 setDob(response.data.dob);
                 setScor(response.data.score);
-                // console.log(response.data);
+                setAgentid(response.data.id);
+                setAldevice(response.data.device);
+                setAlcharge(response.data.charge);
+                setAlaudio(response.data.audio);
+                setAllbatt(response.data.battry);
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
         }
         getagentinfo();
-    }, [])
+    }, []);
 
+    const showToast = (type, data) => {
+        Toast.show({
+            type: type,
+            text1: type === 'error' ? 'Error!' : 'Success!',
+            text2: data,
+            position: 'top',
+            visibilityTime: 3000
+        });
+    };
 
 
     return (
         <View style={styles.conatiner}>
+            <View style={styles.toastWrapper}>
+                <Toast />
+            </View>
+            <Toast ref={(ref) => Toast.setRef(ref)} />
             <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <TouchableOpacity style={styles.edit} onPress={()=> navigation.navigate('EditProfile')}>
+                <TouchableOpacity style={styles.edit} onPress={() => navigation.navigate('EditProfile')}>
                     <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Edit Profile</Text>
                 </TouchableOpacity>
             </View>
@@ -95,10 +149,51 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
             </View>
 
             <View style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => setModalVisible(true)} style={{ padding: '10', backgroundColor: "#309264", display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', alignContent: 'center', borderRadius: '10%' }} >
+                    <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Device request</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                 <TouchableOpacity style={styles.edit} onPress={goLogout}>
                     <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Logout</Text>
                 </TouchableOpacity>
             </View>
+
+            <Modal
+                transparent={true}
+                visible={modalVisible}
+                animationType="fade"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.title}>Already Stored</Text>
+
+                        <Text style={styles.label}>Devices:{aldevice}</Text>
+                        <Text style={styles.label}>Chargers:{alcharge}</Text>
+                        <Text style={styles.label}>HDMI Cables:{alaudio}</Text>
+                        <Text style={styles.label}>Batteries:{albatt}</Text>
+
+                        <Text style={styles.subTitle}>Request Devices & Accessories</Text>
+
+                        <TextInput style={styles.input} value={numDevice} onChangeText={setNumDevice} placeholder="Number of Devices" keyboardType="numeric" />
+                        <TextInput style={styles.input} value={numCharg} onChangeText={setNumCharg} placeholder="Number of Chargers" keyboardType="numeric" />
+                        <TextInput style={styles.input} value={numAudio} onChangeText={setNumAudio} placeholder="Number of HDMI Cables" keyboardType="numeric" />
+                        <TextInput style={styles.input} value={numBatt} onChangeText={setNumBatt} placeholder="Number of Batteries" keyboardType="numeric" />
+
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style={[styles.button, styles.closeButton]}>
+                                <Text style={styles.buttonText}>Close</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={sendrequest} style={[styles.button, styles.sendButton]}>
+                                <Text style={styles.buttonText}>Send</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -154,7 +249,67 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#555',
     },
-
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding: 20,
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 20,
+        elevation: 5,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 15,
+        textAlign: 'center',
+        color: '#333',
+    },
+    subTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginVertical: 10,
+        color: '#444',
+    },
+    label: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 3,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 10,
+        marginTop: 8,
+        marginBottom: 8,
+        backgroundColor: '#fafafa',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
+    button: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginHorizontal: 5,
+    },
+    closeButton: {
+        backgroundColor: '#888',
+    },
+    sendButton: {
+        backgroundColor: '#007BFF',
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
 }
 );
 

@@ -78,9 +78,9 @@ const ParcelUpdate = ({ navigation, route }) => {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
                     const detail = response.data.data;
-                    setdevice(detail.deviceid);
+                    const getalldevices = detail.deviceid.map(item => item.devicedata);
+                    setdevice(getalldevices);                    
                     setAudiocable(detail.audiocable);
-                    // console.log(detail.audiocable);
                     setBattery(detail.battery);
                     setCharge(detail.charge);
                     setdesloc(detail.desloc);
@@ -148,7 +148,8 @@ const ParcelUpdate = ({ navigation, route }) => {
                             
                             const finddevice = device.find((item)=>item == barcode.data);
                             if(!finddevice){
-                                device.push(barcode.data);
+                                device.push({devicedata:barcode.data ,status :'damage'});     ///-------------------------------------------------
+                                // device.push(barcode.data);
                                 showToast("success", `Added - ${barcode.data}`);
                             } else {
                                 showToast("success", `Already Added - ${barcode.data}`);
@@ -195,7 +196,7 @@ const ParcelUpdate = ({ navigation, route }) => {
                     // console.log(response.data);
                     if (response.data.messgaes == 'Parcel Updated') {
                         showToast("success", `${response.data.message}`);
-                        navigation.goBack();
+                        // navigation.goBack();
                     } else {
                         showToast("error", `${response.data.message}`);
                     }

@@ -52,7 +52,7 @@ const Deliverpage = ({ navigation }) => {
             if (token) {
                 try {
                     // console.log(parcelsinfo,'stores')
-                    const response = await axios.get('http://192.168.4.89:5000/user/allSuportId', {
+                    const response = await axios.get('http://192.168.4.51:5000/user/allSuportId', {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
                     setSupportinfo(response.data);
@@ -111,10 +111,11 @@ const Deliverpage = ({ navigation }) => {
                         });
                         if (response.data.message == 'Yes') {
                             setBarcodeData(barcode.data);
-                            
-                            const finddevice = device.find((item)=>item == barcode.data);
-                            if(!finddevice){
-                                device.push(barcode.data);
+                            // const status = {status:'damage'}
+                            // const devicedata=barcode.data
+                            const finddevice = device.find((item) => item == barcode.data);
+                            if (!finddevice) {
+                                device.push({devicedata:barcode.data ,status :'damage'});
                                 showToast("success", `Added - ${barcode.data}`);
                             } else {
                                 showToast("success", `Already Added - ${barcode.data}`);
@@ -190,9 +191,9 @@ const Deliverpage = ({ navigation }) => {
     const renderAccessItem = ({ item }) => (
         <View style={styles.notificationContainer}>
             <View style={{ flex: 1 }}>
-                <Text style={styles.notificationHeading}>{item}</Text>
+                <Text style={styles.notificationHeading}>{item.devicedata}</Text>
             </View>
-            <TouchableOpacity><Text style={{color:'white'}} onPress={() => removeid(item)}>X</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={{ color: 'white' }} onPress={() => removeid(item)}>X</Text></TouchableOpacity>
         </View>
     );
 
@@ -267,7 +268,7 @@ const Deliverpage = ({ navigation }) => {
                     />
                     <TextInput
                         placeholder="Device Ids"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={devices}
                         onChangeText={setdevices}
@@ -286,21 +287,21 @@ const Deliverpage = ({ navigation }) => {
 
                     <TextInput
                         placeholder="Charge Quantity"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={charge}
                         onChangeText={setCharge}
                     />
                     <TextInput
                         placeholder="Battery Quantity"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={battery}
                         onChangeText={setBattery}
                     />
                     <TextInput
                         placeholder="AudioCable Quantity"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={audiocable}
                         onChangeText={setAudiocable}
@@ -480,12 +481,12 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent:'center',
+        justifyContent: 'center',
         // alignContent:'center',
         backgroundColor: '#333',
         padding: 15,
         width: '50%',
-        height:60,
+        height: 60,
         marginBottom: 5,
         borderRadius: 8,
         // borderColor: 'black',
