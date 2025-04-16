@@ -48,7 +48,15 @@ const Device = ({ navigation }) => {
             <View style={styles.textContainer}>
                 {/* {console.log(item)} */}
                 <Text style={styles.notificationHeading}>{item.devicesid}</Text>
-                <Text style={styles.notificationText}>{item.status}</Text>
+                {item.status == 'damaged' ? (
+                    <View style={{padding:5, backgroundColor:'red'}}>
+                        <Text style={styles.notificationText}>{item.status}</Text>
+                    </View>
+                ):(
+                    <View style={{padding:5, backgroundColor:'green'}}>
+                        <Text style={styles.notificationText}>{item.status}</Text>
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );

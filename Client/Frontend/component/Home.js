@@ -114,7 +114,7 @@ const Home = ({ navigation }) => {
                     <View style={styles.top1}>
                         <View style={styles.head1}>
                             <View style={styles.head12}>
-                                <TouchableOpacity style={{ backgroundColor: 'white', borderRadius: '45%' }}>
+                                <TouchableOpacity style={{ backgroundColor: 'white', borderRadius: '45%' }} onPress={()=>navigation.navigate('UserInfo')}>
                                     <Image style={styles.image} source={{ uri: 'https://img.icons8.com/?size=100&id=13042&format=png&color=000000' }} />
                                 </TouchableOpacity>
                                 <View>
@@ -162,15 +162,15 @@ const Home = ({ navigation }) => {
                                 </View>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Incomplete')}>
+                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('AddStore')}>
                             <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=otjWWu3EPnWv&format=png&color=000000' }}></Image>
+                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=jiu762ukkS7J&format=png&color=000000' }}></Image>
                             </View>
                             <View>
-                                <Text style={{ color: 'white' }}>Incomplete</Text>
-                                <View style={styles.num}>
+                                <Text style={{ color: 'white' }}>Add Merchant</Text>
+                                {/* <View style={styles.num}>
                                     <Text>{incomplete}</Text>
-                                </View>
+                                </View> */}
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Credit')}>

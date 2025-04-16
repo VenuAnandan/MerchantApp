@@ -41,9 +41,9 @@ const Tab = createBottomTabNavigator();
 
 const CompanyInfo = ({ setIsLoggedIn }) => {
 
-  function HomePage() {
+  function HomePage({ setIsLoggedIn }) {
     return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
         <Stack.Screen name='Home' component={Home} />
         <Stack.Screen name='Credit' component={Credit} />
         <Stack.Screen name='Achivmentsinfo' component={Achivmentsinfo} />
@@ -69,60 +69,72 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name='DamageParcels' component={DamageParcels}/>   
         <Stack.Screen name="GetParcel" component={GetParcel}/>
         <Stack.Screen name="ParcelUpdate" component={ParcelUpdate} />
-      </Stack.Navigator>
-    )
-  }
-
-  function StorePage() {
-    return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name='AddStore' component={AddStore} />
-      </Stack.Navigator>
-    )
-  }
-
-
-  const UserInfoTab = ({ setIsLoggedIn }) => {
-    return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="UserInfo">
           {({ navigation }) => <UserInfo setIsLoggedIn={setIsLoggedIn} navigation={navigation} />}
         </Stack.Screen>
-        <Stack.Screen name='EditProfile' component={EditProfile} />
       </Stack.Navigator>
-    );
-  };
+    )
+  }
+
+  // function StorePage() {
+  //   return (
+  //     <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //       <Stack.Screen name='AddStore' component={AddStore} />
+  //     </Stack.Navigator>
+  //   )
+  // }
+
+
+  // const UserInfoTab = ({ setIsLoggedIn }) => {
+  //   return (
+  //     <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //       <Stack.Screen name="UserInfo">
+  //         {({ navigation }) => <UserInfo setIsLoggedIn={setIsLoggedIn} navigation={navigation} />}
+  //       </Stack.Screen>
+  //       <Stack.Screen name='EditProfile' component={EditProfile} />
+  //     </Stack.Navigator>
+  //   );
+  // };
 
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
 
-          // Assign icons for each tab
-          if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Add') {
-            iconName = 'add-circle-outline';
-          } else if (route.name === 'User') {
-            iconName = 'person';
-          }
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home">
+        {()=> <HomePage setIsLoggedIn={setIsLoggedIn} />}
+      </Stack.Screen>
+    </Stack.Navigator>
 
-          return <MaterialIcons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#309264',
-        tabBarInactiveTintColor: 'gray',
-        tabBarShowLabel: true,
-      })}
-    >
-      <Tab.Screen name="Home" component={HomePage} />
-      <Tab.Screen name="Add" component={StorePage} />
-      <Tab.Screen name="User">
-        {() => <UserInfoTab setIsLoggedIn={setIsLoggedIn} />}
-      </Tab.Screen>
-    </Tab.Navigator>
+
+    // <Tab.Navigator
+    //   screenOptions={({ route }) => ({
+    //     headerShown: false,
+    //     tabBarIcon: ({ color, size }) => {
+    //       let iconName;
+
+    //       // Assign icons for each tab
+    //       if (route.name === 'Home') {
+    //         iconName = 'home';
+    //       } else if (route.name === 'Add') {
+    //         iconName = 'add-circle-outline';
+    //       } else if (route.name === 'User') {
+    //         iconName = 'person';
+    //       }
+
+    //       return <MaterialIcons name={iconName} size={size} color={color} />;
+    //     },
+    //     tabBarActiveTintColor: '#309264',
+    //     tabBarInactiveTintColor: 'gray',
+    //     tabBarShowLabel: true,
+    //   })}
+    // >
+    //   <Tab.Screen name="Home" component={HomePage} />
+    //   <Tab.Screen name="Add" component={StorePage} />
+    //   <Tab.Screen name="User">
+    //     {() => <UserInfoTab setIsLoggedIn={setIsLoggedIn} />}
+    //   </Tab.Screen>
+    // </Tab.Navigator>
 
   );
 }

@@ -22,7 +22,7 @@ const Parcels = ({ navigation }) => {
                 console.log('Token is empty');
             } else {
                 try {
-                    const response = await axios.post('http://192.168.4.89:5000/parcel/agentid', {
+                    const response = await axios.post('http://192.168.1.48:5000/parcel/agentid', {
                         "agentid": "id_1742404536258"
                     });
                     setParcels(response.data.data);

@@ -52,13 +52,13 @@ const Deliverpage = ({ navigation }) => {
             if (token) {
                 try {
                     // console.log(parcelsinfo,'stores')
-                    const response = await axios.get('http://192.168.4.51:5000/user/allSuportId', {
+                    const response = await axios.get('http://192.168.1.48:5000/user/allSuportId', {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
                     setSupportinfo(response.data);
                     // console.log(response.data);
                 } catch (error) {
-                    console.log(`EError is : ${error}`);
+                    console.log(`-EError is : ${error}`);
                 }
             }
         }
@@ -96,6 +96,7 @@ const Deliverpage = ({ navigation }) => {
     }
 
     const handleBarcodeScanned = (barcode) => {
+        // console.log("hello");
         if (!scanned) {
             setScanned(true);
 

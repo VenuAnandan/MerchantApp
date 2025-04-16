@@ -43,26 +43,29 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
 
     const sendrequest = async () => {
         if (numDevice || numCharg || numAudio || numBatt) {
-            const requestItem = {"agent_id":agentid,"status":'Device & Accessories Request', "Number_of_device" : numDevice, "Charger":{"device_id":'AC-CH1742536643458',"quantity":parseInt(numCharg)},"AudioCable":{"device_id":"AC-ADC1742536643460","quantity":parseInt(numAudio)},"Battry":{"device_id":'AC-BTM1742536643461',"quantity":parseInt(numBatt)}}
+            const requestItem = {"agent_id":agentid,"status":'Reqested',"Type":"Parcel Request", "devices" : numDevice, "accessories" : [
+                {"accessoriesid":'AC-CH1742536643458',"quantity":parseInt(numCharg)},
+                {"accessoriesid":"AC-ADC1742536643460","quantity":parseInt(numAudio)},
+                {"accessoriesid":'AC-BTM1742536643461',"quantity":parseInt(numBatt)}]
+            }
             const token = await AsyncStorage.getItem("token");
             if (token) {
                 try {
-                    console.log(requestItem);
-                    // const response = await axios.post(apiUrl+'/itemsrequest',{
-                    //     data : requestItem
-                    // },{
-                    //     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                    // });
-                    showToast("success", `Run the code `);
+                    const response = await axios.post('http://192.168.1.48:5000/tickets/requestParcel',{
+                        requestItem
+                    });
+                    showToast("success", `${response.data.message} `);
+                    setModalVisible(false);
+                    setNumDevice(0);
+                    setNumAudio(0);
+                    setNumBatt(0);
+                    setNumCharg(0);
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
             }
-
-            // showToast("success", `Run the code `);
         } else {
             showToast("error", `Data missing `);
-            // console.log("");
         }
     }
 

@@ -24,14 +24,15 @@ const ParcelInfo = ({ navigation, route }) => {
             if (!token) {
                 console.log('Token is empty');
             } else {
+                // console.log("heee");
                 try {
-                    const response = await axios.post('http://192.168.4.89:5000/parcel/parcelNumber', {
+                    const response = await axios.post('http://192.168.1.48:5000/parcel/parcelNumber', {
                         "parcelNumber": item
                     });
                     setParcelinfo(response.data.data);
                     setParceldevices(response.data.data.devices);
                     setParecelAccess(response.data.data.accessories);
-                    // console.log(response.data.data.accessories);
+                    console.log(response.data.data.accessories);
                     // console.log(response.data.data.accessories[0], "parcel Info");
                 } catch (error) {
                     console.log(`EError is : ${error}`);

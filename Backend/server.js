@@ -193,7 +193,7 @@ app.get('/getagentinfo', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
-            const result = await agentcollection.findOne({ id: id },{projection:{_id:0, password:0}});
+            const result = await agentcollection.findOne({ id: id }, { projection: { _id: 0, password: 0 } });
             // const fiterItems = await agentcollection.findOne({id:id},{projection:{'inventory.devicesid':1,accessories:1, _id:0}});
 
             if (result === 0) {
@@ -211,10 +211,10 @@ app.get('/getagentinfo', verifyToken, async (req, res) => {
                     dob: data.dob,
                     bg: data.bloodGroup,
                     id: data.id,
-                    device : parseInt(data.inventory.length),
-                    charge : parseInt(data.accessories.find(item => item.id == 'AC-CH1742536643458' )?.quantity),
-                    audio : parseInt(data.accessories.find(item => item.id == 'AC-ADC1742536643460' )?.quantity),
-                    battry : parseInt(data.accessories.find(item => item.id == 'AC-BTM1742536643461' )?.quantity)
+                    device: parseInt(data.inventory.length),
+                    charge: parseInt(data.accessories.find(item => item.id == 'AC-CH1742536643458')?.quantity),
+                    audio: parseInt(data.accessories.find(item => item.id == 'AC-ADC1742536643460')?.quantity),
+                    battry: parseInt(data.accessories.find(item => item.id == 'AC-BTM1742536643461')?.quantity)
 
                     // charger : result.find(item => item.accessories.id == 'AC-CH1742536643458' )?.quantity,
                     // audio: result.find(item => item.accessories.id == 'AC-ADC1742536643460' )?.quantity,
@@ -473,7 +473,6 @@ app.post('/getstoreinfo', verifyToken, async (req, res) => {
 });
 
 
-
 //For agent created store and display => MyStore
 app.get('/mystores', verifyToken, async (req, res) => {
     try {
@@ -518,65 +517,65 @@ app.get('/allstores', async (req, res) => {
 
 
 // For Incompleted store information 
-app.get('/numberofincompletestoreinfo', verifyToken, async (req, res) => {
-    try {
-        const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
-        // console.log(targetId);
-        if (!targetId) {
-            res.status(200).json("Invaid Input.")
-        } else {
-            const client = connect();
-            await client.connect();
-            const db = client.db("Merchant_App");
-            const storecollection = db.collection("Store_Info");
-            const agentstore = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
-            const incomplete = [];
-            agentstore.map(doc => {
-                console.log(doc.email);
-                const nullfields = Object.keys(doc).filter(key => doc[key] === null);
-                if (nullfields.length > 0) {
-                    incomplete.push({ id: doc.id });
-                }
-            });
-            res.status(200).json(incomplete);
-            await client.close();
-        }
-    } catch (error) {
-        res.status(500).json(`Error is : ${error}`);
-    }
-    const targetId = req.body;
-});
+// app.get('/numberofincompletestoreinfo', verifyToken, async (req, res) => {
+//     try {
+//         const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
+//         // console.log(targetId);
+//         if (!targetId) {
+//             res.status(200).json("Invaid Input.")
+//         } else {
+//             const client = connect();
+//             await client.connect();
+//             const db = client.db("Merchant_App");
+//             const storecollection = db.collection("Store_Info");
+//             const agentstore = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
+//             const incomplete = [];
+//             agentstore.map(doc => {
+//                 console.log(doc.email);
+//                 const nullfields = Object.keys(doc).filter(key => doc[key] === null);
+//                 if (nullfields.length > 0) {
+//                     incomplete.push({ id: doc.id });
+//                 }
+//             });
+//             res.status(200).json(incomplete);
+//             await client.close();
+//         }
+//     } catch (error) {
+//         res.status(500).json(`Error is : ${error}`);
+//     }
+//     const targetId = req.body;
+// });
 
 
-app.get('/incompletestoreinfo', verifyToken, async (req, res) => {
-    try {
-        const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
-        // console.log(targetId);
-        if (!targetId) {
-            res.status(200).json("Invaid Input.")
-        } else {
-            const client = connect();
-            await client.connect();
-            const db = client.db("Merchant_App");
-            const storecollection = db.collection("Store_Info");
-            const agentstore = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
-            const incomplete = [];
-            agentstore.map(doc => {
-                // console.log(doc.email);
-                const nullfields = Object.keys(doc).filter(key => doc[key] === null || doc[key] == '');
-                if (nullfields.length > 0) {
-                    incomplete.push(doc);
-                    // console.log(incomplete);
-                }
-            });
-            res.status(200).json(incomplete);
-            await client.close();
-        }
-    } catch (error) {
-        res.status(500).json(`Error is : ${error}`);
-    }
-    const targetId = req.body;
-});
+// app.get('/incompletestoreinfo', verifyToken, async (req, res) => {
+//     try {
+//         const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
+//         // console.log(targetId);
+//         if (!targetId) {
+//             res.status(200).json("Invaid Input.")
+//         } else {
+//             const client = connect();
+//             await client.connect();
+//             const db = client.db("Merchant_App");
+//             const storecollection = db.collection("Store_Info");
+//             const agentstore = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
+//             const incomplete = [];
+//             agentstore.map(doc => {
+//                 // console.log(doc.email);
+//                 const nullfields = Object.keys(doc).filter(key => doc[key] === null || doc[key] == '');
+//                 if (nullfields.length > 0) {
+//                     incomplete.push(doc);
+//                     // console.log(incomplete);
+//                 }
+//             });
+//             res.status(200).json(incomplete);
+//             await client.close();
+//         }
+//     } catch (error) {
+//         res.status(500).json(`Error is : ${error}`);
+//     }
+//     const targetId = req.body;
+// });
 
 
 app.post('/searchstore', async (req, res) => {
@@ -620,12 +619,12 @@ app.get('/getagentid', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
-            const result = await agentcollection.find({ id: id }).toArray();
-            console.log(result);
-            if (result.length === 0) {
+            const result1 = await agentcollection.findOne({ id: id }, { projection: { _id: 0, scoreCount: 1 } });
+            // console.log(result1.scoreCount);
+            if (result1.length === 0) {
                 res.json("Match Not Found!");
             } else {
-                res.status(200).json(result[0].scoreCount);
+                res.status(200).json(result1.scoreCount);
             }
             await client.close();
         }
@@ -1229,9 +1228,15 @@ app.post('/packdamage', verifyToken, async (req, res) => {
             data["parcel_id"] = generateParcelNumber();
             data["status"] = "pending";
             data["agent_id"] = id;
+            // if the model is differe to other we wil modify it easily
             data["batteryinfo"] = { id: 'AC-BTM1742536643461', quantity: battery, status: 'damaged' }
             data['audioinfo'] = { id: 'AC-ADC1742536643460', quantity: audiocable, status: 'damaged' }
             data['chargerinfo'] = { id: 'AC-CH1742536643458', quantity: charge, status: 'damaged' }
+            data['accessories'] = [
+                { id: 'AC-BTM1742536643461', quantity: battery, status: 'damaged' },
+                { id: 'AC-ADC1742536643460', quantity: audiocable, status: 'damaged' },
+                { id: 'AC-CH1742536643458', quantity: charge, status: 'damaged' }
+            ]
 
             // console.log(data);
 
@@ -1241,9 +1246,10 @@ app.post('/packdamage', verifyToken, async (req, res) => {
             const audioavailable = agentinfo.accessories.some(item => item.id == "AC-ADC1742536643460" && item.quantity >= audiocable);
             const batteryavailable = agentinfo.accessories.some(item => item.id == "AC-BTM1742536643461" && item.quantity >= battery);
 
-            console.log(chargeavailable, audioavailable, batteryavailable);
+            // console.log(chargeavailable, audioavailable, batteryavailable);
 
             if (chargeavailable && audioavailable && batteryavailable) {
+                
                 await damagecollection.insertOne(data);
 
                 await Promise.all(deviceid.map(async (item) => {
@@ -1375,23 +1381,23 @@ app.post('/updatepackdamage', verifyToken, async (req, res) => {
                     await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'batteryinfo.quantity': battery } });
                     await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'audioinfo.quantity': audiocable } });
                     await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'chargerinfo.quantity': charge } });
-                    console.log(data);
+                    // console.log(data);
 
 
                     //------------------------------------------------------------
-                    // await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
+                    await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
 
-                    // await agentcollection.updateOne(
-                    //     { id },
-                    //     { $set: { 'inventory.$[match].status': 'damaged' } },
-                    //     { arrayFilters: [{ 'match.devicesid': { $in: deviceid } }] }
-                    // );
+                    await agentcollection.updateOne(
+                        { id },
+                        { $set: { 'inventory.$[match].status': 'damaged' } },
+                        { arrayFilters: [{ 'match.devicesid': { $in: deviceid } }] }
+                    );
 
-                    // await agentcollection.updateOne(
-                    //     { id },
-                    //     { $set: { 'inventory.$[others].status': 'active' } },
-                    //     { arrayFilters: [{ 'others.devicesid': { $nin: deviceid } }] }
-                    // );
+                    await agentcollection.updateOne(
+                        { id },
+                        { $set: { 'inventory.$[others].status': 'active' } },
+                        { arrayFilters: [{ 'others.devicesid': { $nin: deviceid } }] }
+                    );
                     //------------------------------------------------------------
 
                     res.json({
@@ -1412,6 +1418,105 @@ app.post('/updatepackdamage', verifyToken, async (req, res) => {
     }
 });
 
+
+app.get('/agentdeviceinfo', async (req, res) => {
+    try {
+        const client = connect();
+        await client.connect();
+        const db = client.db("Merchant_App");
+        const agentcollection = db.collection('Agent_Info');
+        const agents = await agentcollection.find({}, { projection: { id: 1, _id: 0, firstname: 1, emplyoyeeID: 1, phone: 1, inventory: 1, accessories: 1 } }).toArray();
+
+        const result = agents.map(agent => {
+            const id = agent.id;
+            const firstname = agent.firstname;
+            const lastname = agent.lastname;
+            const emplyoyeeID = agent.emplyoyeeID;
+            const phone = agent.phone;
+            const deviceCount = Array.isArray(agent.inventory)
+                ? agent.inventory.filter(device => device.status == 'active').length : 0;
+
+            const agentaccessories = Array.isArray(agent.accessories)
+                ? agent.accessories.map(acc => ({
+                    device_id: acc.id || null,
+                    quantity: acc.quantity || 0
+                })) : [{ device_id: null, quantity: 0 }];
+
+            return {
+                id: id,
+                firstname: firstname,
+                lastname: lastname,
+                emplyoyeeID: emplyoyeeID,
+                phone: phone,
+                deviceCount: deviceCount,
+                accessories: agentaccessories
+            };
+        });
+
+
+        res.json({
+            message: 'Agent Inventories',
+            data: result
+        });
+
+        await client.close();
+    } catch (error) {
+        res.status(500).json({ message: `Error occurred: ${error.message}` });
+    }
+});
+
+
+// remove devices
+app.post('/removedevices', async (req, res) => {
+    const id = req.body.agent_id;
+    const { deviceid, accessories } = req.body
+    if (!id) {
+        res.json({
+            message: 'Agent Id is missing'
+        });
+    } else {
+        try {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const agentcollection = db.collection('Agent_Info');
+            const agentdetail = await agentcollection.findOne({ id: id }, { projection: { inventory: 1, accessories: 1, _id: 0 } });
+
+            await Promise.all(deviceid.map(async (dev) => {
+                await Promise.all(agentdetail.inventory.map(async (device) => {
+                    if (device.devicesid == dev.devicedata) {
+                        const removedevices = await agentcollection.updateOne({ id: id }, { $pull: { inventory: { devicesid: dev.devicedata } } });
+                        if (removedevices.modifiedCount > 0) {
+                            console.log("removed")
+                        }
+                    }
+                }));
+            }));
+
+
+            await Promise.all(accessories.map(async (dev) => {
+                await Promise.all(agentdetail.accessories.map(async (device) => {
+                    if (device.id == dev.id) {
+                        const removedevices = await agentcollection.updateOne({ id: id, "accessories.id": dev.id }, { $inc: { 'accessories.$.quantity': -dev.quantity } });
+                        if (removedevices.modifiedCount > 0) {
+                            console.log("removed");
+                        }
+                    }
+                }));
+            }));
+
+
+            res.json({
+                data: deviceid,
+                message: "requested data"
+            });
+
+            await client.close();
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred: ${error.message}` });
+        }
+    }
+});
 
 
 //request for device 
