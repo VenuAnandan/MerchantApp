@@ -22,6 +22,7 @@ const DamageParcels = ({ navigation }) => {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
                     setDamageparcel(response.data.data);
+                    // console.log(response.data);
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
@@ -32,10 +33,10 @@ const DamageParcels = ({ navigation }) => {
 
 
     const renderAccessItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={()=> navigation.navigate('GetParcel',{item:item.parcel_id})}>
+        <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate('GetParcel', { item: item.parcel_id })}>
             <View style={styles.textContainer}>
                 <Text style={styles.notificationHeading}>Supporter Name : {item.suppname}</Text>
-                {/* <Text style={styles.notificationText}>Quantity : {item.quantity}</Text> */}
+                <Text style={styles.notificationText}>Parcel Number : {item.parcel_id} - {item.status}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -59,7 +60,7 @@ const DamageParcels = ({ navigation }) => {
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Deliverpage')}
                     style={{ padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap', backgroundColor: '#309264' }}>
-                    <Text style={{color:'white'}}>Create Parcels</Text>
+                    <Text style={{ color: 'white' }}>Create Parcels</Text>
                 </TouchableOpacity>
             </View>
 
@@ -70,8 +71,11 @@ const DamageParcels = ({ navigation }) => {
                         renderItem={renderAccessItem} />
                 </View>
             ) : (
-                <View>
-                    <Text>No</Text>
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                    <Image
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Stores</Text>
                 </View>
             )}
 

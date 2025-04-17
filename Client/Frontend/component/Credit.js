@@ -98,7 +98,7 @@ const Credit = ({ navigation }) => {
                     <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
                 <View style={{}}>
-                    <Text style={{ fontSize: 20, color: 'white' }}>Store Informations</Text>
+                    <Text style={{ fontSize: 20, color: 'white' }}>Agent Credits</Text>
                 </View>
                 <TouchableOpacity onPress={() => { navigation.navigate('Home') }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View><AntDesign name="close" size={24} color="white" /></View>

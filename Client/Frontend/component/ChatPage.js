@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     tickets: {
         width: '100%',
         height: '90%',
-        backgroundColor:'yellow'
+        // backgroundColor:'yellow'
     },
     message: {
         // position: 'relative',
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
         // height:'20%'
         width: '100%',
         height: 70,
-        backgroundColor: 'white'
+        // backgroundColor: 'white'
 
     },
     chatmes: {

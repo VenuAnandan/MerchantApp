@@ -1153,7 +1153,7 @@ app.post('/devilveragentdevice', verifyToken, async (req, res) => {
             const agentinventory = checkagent.inventory;
 
             const devicetrue = agentinventory.some((detail) => detail.devicesid == deviceid);
-            // console.log(devicetrue);
+            console.log(devicetrue);
             if (devicetrue) {
                 await agentcollection.updateOne(
                     { id: { $in: [id] }, 'inventory.devicesid': deviceid },
@@ -1201,10 +1201,11 @@ app.post('/verifydeviceid', verifyToken, async (req, res) => {
 
 
 app.post('/packdamage', verifyToken, async (req, res) => {
-    const { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc } = req.body;
+    console.log(req.body);
+    const { devices, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc } = req.body;
     const id = req.user.id;
     // console.log(id);
-    if (!deviceid || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc) {
+    if (!devices || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc) {
         res.json({
             message: 'Data Missing'
         });
@@ -1216,7 +1217,7 @@ app.post('/packdamage', verifyToken, async (req, res) => {
             const damagecollection = db.collection("Damages");
             const agentcollection = db.collection("Agent_Info");
             // console.log(id);
-            const data = { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc }
+            const data = { devices, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc }
 
             // console.log(data);
             const generateParcelNumber = () => {
@@ -1249,10 +1250,10 @@ app.post('/packdamage', verifyToken, async (req, res) => {
             // console.log(chargeavailable, audioavailable, batteryavailable);
 
             if (chargeavailable && audioavailable && batteryavailable) {
-                
+
                 await damagecollection.insertOne(data);
 
-                await Promise.all(deviceid.map(async (item) => {
+                await Promise.all(devices.map(async (item) => {
                     await agentcollection.updateOne(
                         { 'inventory.devicesid': item },
                         {
@@ -1345,9 +1346,10 @@ app.post('/getparcelinfo', verifyToken, async (req, res) => {
 
 
 app.post('/updatepackdamage', verifyToken, async (req, res) => {
-    const { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id } = req.body;
+    const { devices, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id } = req.body;
+    // console.log(req.body);
     const id = req.user.id;
-    if (!deviceid || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc || !parcel_id) {
+    if (!devices || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc || !parcel_id) {
         res.json({
             message: 'Data Missing'
         });
@@ -1358,10 +1360,9 @@ app.post('/updatepackdamage', verifyToken, async (req, res) => {
             const db = client.db("Merchant_App");
             const damagecollection = db.collection("Damages");
             const agentcollection = db.collection('Agent_Info');
-            const data = { deviceid, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id }
+            const data = { devices, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id }
 
             const findparcel = await damagecollection.findOne({ parcel_id: parcel_id }, { projection: { status: 1, _id: 0 } });
-            // console.log(findparcel);
             if (findparcel == '' || findparcel == null) {
                 res.json({
                     messgaes: 'No find Parcel',
@@ -1381,23 +1382,42 @@ app.post('/updatepackdamage', verifyToken, async (req, res) => {
                     await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'batteryinfo.quantity': battery } });
                     await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'audioinfo.quantity': audiocable } });
                     await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: { 'chargerinfo.quantity': charge } });
-                    // console.log(data);
+
+                    await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
+
+                    await damagecollection.updateOne(
+                        { parcel_id: parcel_id, agent_id: id, 'accessories.id': "AC-BTM1742536643461" },
+                        { $set: { 'accessories.$[elem].quantity': battery } },
+                        { arrayFilters: [{ "elem.id": "AC-BTM1742536643461" }] }
+                    );
+
+                    await damagecollection.updateOne(
+                        { parcel_id: parcel_id, agent_id: id, 'accessories.id': "AC-ADC1742536643460" },
+                        { $set: { 'accessories.$[elem].quantity': audiocable } },
+                        { arrayFilters: [{ "elem.id": "AC-BTM1742536643461" }] }
+                    );
+
+                    await damagecollection.updateOne(
+                        { parcel_id: parcel_id, agent_id: id, 'accessories.id': "AC-CH1742536643458" },
+                        { $set: { 'accessories.$[elem].quantity': charge } },
+                        { arrayFilters: [{ "elem.id": "AC-BTM1742536643461" }] }
+                    );
 
 
                     //------------------------------------------------------------
-                    await damagecollection.updateOne({ parcel_id: parcel_id, agent_id: id }, { $set: data });
+                    const damagedDeviceIds = devices.map(item => item.deviceid);
 
                     await agentcollection.updateOne(
                         { id },
                         { $set: { 'inventory.$[match].status': 'damaged' } },
-                        { arrayFilters: [{ 'match.devicesid': { $in: deviceid } }] }
-                    );
+                        { arrayFilters: [{ 'match.devicesid': { $in: damagedDeviceIds } }] });
 
                     await agentcollection.updateOne(
                         { id },
-                        { $set: { 'inventory.$[others].status': 'active' } },
-                        { arrayFilters: [{ 'others.devicesid': { $nin: deviceid } }] }
-                    );
+                        { $set: { 'inventory.$[other].status': 'active' } },
+                        { arrayFilters: [{ 'other.devicesid': { $nin: damagedDeviceIds } }] });
+                    console.log('hello')
+
                     //------------------------------------------------------------
 
                     res.json({

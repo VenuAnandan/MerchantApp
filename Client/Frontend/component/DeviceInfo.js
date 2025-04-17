@@ -14,6 +14,7 @@ const DeviceInfo = ({ navigation, route }) => {
     const { item } = route.params;
 
     const [deviceinfo, setDeviceinfo] = useState();
+    const [devicestatus, setDevicestatus] = useState();
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -24,11 +25,12 @@ const DeviceInfo = ({ navigation, route }) => {
                 console.log('Token is empty');
             } else {
                 try {
-                    const response = await axios.post('http://192.168.4.89:5000/device/deviceid', {
+                    const response = await axios.post('http://192.168.1.48:5000/device/deviceid', {
                         "deviceid": item
                     });
                     setDeviceinfo(response.data);
-                    // console.log(response.data, '------');
+                    setDevicestatus(response.data.device.status);
+                    // console.log(response.data.device.status, '------');
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
@@ -40,28 +42,33 @@ const DeviceInfo = ({ navigation, route }) => {
     const deliverddevice = async () => {
         if (item) {
             try {
-                const response = await axios.post('http://192.168.4.89:5000/device/updatedevicestatus', {
-                    deviceid: item,
-                    status: "delivered"
-                });
-
-                console.log(response.data.message);
+                try {
+                    const response = await axios.post('http://192.168.1.48:5000/device/updatedevicestatus', {
+                        deviceid: item,
+                        status: "delivered"
+                    });
+                    console.log(response.data);
+                } catch (error) {
+                    console.log(`EError is : ${error}`);
+                }
                 const token = await AsyncStorage.getItem("token");
                 if (token) {
                     try {
-                        const resposne = await axios.post(apiUrl + '/devilveragentdevice',{
-                            deviceid : item
+                        const resposne = await axios.post(apiUrl + '/devilveragentdevice', {
+                            deviceid: item
                         }, {
                             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                         });
+                        if (resposne.data.message == 'Deliverd') {
+                            navigation.navigate('Device');
+                        }
                     } catch (error) {
                         console.log(`EError is : ${error}`);
                     }
                 }
-
                 navigation.navigate('Device');
             } catch (error) {
-                console.log(`EError is : ${error}`);
+                console.log(`-EError is : ${error}`);
             }
         }
     }
@@ -83,11 +90,15 @@ const DeviceInfo = ({ navigation, route }) => {
             </View>
             {deviceinfo ? (
                 <View>
-                    <Text>{deviceinfo.device.status}</Text>
-                    <Text>{deviceinfo.device.supportid}</Text>
-                    <TouchableOpacity style={{ borderWidth: 1, padding: 5 }} onPress={deliverddevice}>
-                        <Text>Delivered</Text>
-                    </TouchableOpacity>
+                    <Text>Device Id : {item}</Text>
+                    <Text>Support Id : {deviceinfo.device.supportid}</Text>
+                    {devicestatus == 'damaged' ? (
+                        <Text>The device is Damaged (Verified From Supply Managment)</Text>
+                    ) : (
+                        <TouchableOpacity style={{ borderWidth: 1, padding: 5 }} onPress={deliverddevice}>
+                            <Text>Delivered</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             ) : (
                 <View>

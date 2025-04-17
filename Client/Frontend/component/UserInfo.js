@@ -313,6 +313,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
     },
+    toastWrapper: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1,
+        elevation: 9999,
+    }
 }
 );
 

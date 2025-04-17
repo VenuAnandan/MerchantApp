@@ -39,9 +39,10 @@ const Parcels = ({ navigation }) => {
 
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate('ParcelInfo', { item: item.parcelNumber })}>
-            <Feather name="bell" size={24} color="black" />
+            {/* <Feather name="bell" size={24} color="black" /> */}
             <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>{item.parcelNumber}</Text>
+                <Text style={styles.notificationHeading}>Parcel Number : {item.parcelNumber}</Text>
+                <Text style={styles.notificationText}>Sender : {item.supportname}({item.supportid})</Text>
             </View>
         </TouchableOpacity>
     );

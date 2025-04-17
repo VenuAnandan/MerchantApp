@@ -34,6 +34,7 @@ const Deliverpage = ({ navigation }) => {
     const [suppname, setSuppname] = useState();
     const [pickloc, setPickloc] = useState();
     const [desloc, setdesloc] = useState();
+    const [devmess, setDevmess] = useState();
 
 
     const [scanned, setScanned] = useState(false);
@@ -116,13 +117,14 @@ const Deliverpage = ({ navigation }) => {
                             // const devicedata=barcode.data
                             const finddevice = device.find((item) => item == barcode.data);
                             if (!finddevice) {
-                                device.push({devicedata:barcode.data ,status :'damage'});
+                                device.push({deviceid:barcode.data ,status :'damaged',DamageMsg:devmess});
                                 showToast("success", `Added - ${barcode.data}`);
                             } else {
                                 showToast("success", `Already Added - ${barcode.data}`);
                             }
                             setdevices(barcode.data);
-                            setModel(false);
+
+                            // setModel(false);
                         } else {
                             showToast("error", `${barcode.data}`);
                         }
@@ -145,22 +147,28 @@ const Deliverpage = ({ navigation }) => {
         }
     };
 
+    const CloseModel=()=>{
+        setModel(false);
+        setDevmess();
+    }
+
 
     const sendparcel = async () => {
 
         const verifyAcces = async () => {
             const token = await AsyncStorage.getItem("token");
-            if (!token || !devices || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc) {
+            console.log(device);
+            if (!token || !device || !charge || !battery || !audiocable || !suppid || !suppname || !pickloc || !desloc) {
                 showToast("error", `Data Not Found`);
             } else {
                 try {
                     const response = await axios.post(apiUrl + '/packdamage', {
-                        deviceid: device, charge: parseInt(charge), battery: parseInt(battery), audiocable: parseInt(audiocable), messgaes: messgaes, suppid: suppid, suppname: suppname,
+                        devices: device, charge: parseInt(charge), battery: parseInt(battery), audiocable: parseInt(audiocable), messgaes: messgaes, suppid: suppid, suppname: suppname,
                         pickloc: pickloc, desloc: desloc
                     }, {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
-                    // console.log(response.data);
+                    // console.log(response.data)
                     if (response.data.message == 'Added Data') {
                         showToast("success", `${response.data.message}`);
                         navigation.navigate('DamageParcels');
@@ -192,7 +200,7 @@ const Deliverpage = ({ navigation }) => {
     const renderAccessItem = ({ item }) => (
         <View style={styles.notificationContainer}>
             <View style={{ flex: 1 }}>
-                <Text style={styles.notificationHeading}>{item.devicedata}</Text>
+                <Text style={styles.notificationHeading}>{item.deviceid}</Text>
             </View>
             <TouchableOpacity><Text style={{ color: 'white' }} onPress={() => removeid(item)}>X</Text></TouchableOpacity>
         </View>
@@ -337,10 +345,11 @@ const Deliverpage = ({ navigation }) => {
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={{ color: "white" }}>Scanner</Text>
-                            <TouchableOpacity onPress={() => setModel(false)}>
+                            {/* <TouchableOpacity onPress={CloseModel}>
                                 <Text style={{ color: "white" }}>X</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
+                        <TextInput value={devmess} onChangeText={setDevmess} placeholder="Device Problem"/>
                         <View style={styles.cameraWrapper}>
 
                             <CameraView
@@ -361,8 +370,8 @@ const Deliverpage = ({ navigation }) => {
 
                         </View>
                         {/* <Text style={styles.barcodeText}>{barcode}</Text> */}
-                        <TouchableOpacity style={styles.getIdButton}>
-                            <Text style={{ color: "white" }}>Get Id</Text>
+                        <TouchableOpacity style={styles.getIdButton} onPress={CloseModel}>
+                            <Text style={{ color: "white" }}>Ok</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -209,7 +209,11 @@ const AddStore = ({ navigation }) => {
 
     return (
         <View style={styles.conatiner} >
-            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+            <View style={{ zIndex: 0, width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                <View style={styles.toastWrapper}>
+                    <Toast />
+                </View>
+                <Toast ref={(ref) => Toast.setRef(ref)} />
                 <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
@@ -252,7 +256,6 @@ const AddStore = ({ navigation }) => {
                     </Pressable>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    <Toast ref={(ref) => Toast.setRef(ref)} />
                     <View style={{ display: 'flex', gap: 30, padding: 20 }}>
 
                         {flag < '2' ? (
@@ -402,9 +405,6 @@ const AddStore = ({ navigation }) => {
                                 </View>
                             </>
                         )}
-                    </View>
-                    <View style={styles.toastWrapper}>
-                        <Toast />
                     </View>
                 </ScrollView>
             </View>

@@ -26,9 +26,9 @@ const ParcelUpdate = ({ navigation, route }) => {
     const [model, setModel] = useState(false);
 
     const [devices, setdevices] = useState([]);
-    const [charge, setCharge] = useState('');
-    const [battery, setBattery] = useState('');
-    const [audiocable, setAudiocable] = useState('');
+    const [charge, setCharge] = useState();
+    const [battery, setBattery] = useState();
+    const [audiocable, setAudiocable] = useState();
     const [messgaes, setMessages] = useState();
     const [supportinfo, setSupportinfo] = useState([]);
     const [suppid, setSuppid] = useState();
@@ -36,6 +36,7 @@ const ParcelUpdate = ({ navigation, route }) => {
     const [pickloc, setPickloc] = useState();
     const [desloc, setdesloc] = useState();
     const [parcelid, setParcelid] = useState();
+    const [devmess, setDevmess] = useState();
 
 
     const [scanned, setScanned] = useState(false);
@@ -47,7 +48,7 @@ const ParcelUpdate = ({ navigation, route }) => {
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
     const [refreshKey, setRefreshKey] = useState(0);
 
-    const {parcel_id} = route.params;
+    const { parcel_id } = route.params;
 
     useEffect(() => {
         const getsupportinfo = async () => {
@@ -55,7 +56,7 @@ const ParcelUpdate = ({ navigation, route }) => {
             if (token) {
                 try {
                     // console.log(parcelsinfo,'stores')
-                    const response = await axios.get('http://192.168.4.89:5000/user/allSuportId', {
+                    const response = await axios.get('http://192.168.1.48:5000/user/allSuportId', {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
                     setSupportinfo(response.data);
@@ -67,19 +68,22 @@ const ParcelUpdate = ({ navigation, route }) => {
         }
         getsupportinfo();
 
-        const getparccelinfo = async()=>{
+        const getparccelinfo = async () => {
             const token = await AsyncStorage.getItem("token");
             if (token) {
                 try {
                     // console.log(parcelsinfo,'stores')
-                    const response = await axios.post(apiUrl+'/getparcelinfo',{
-                        parcel_id : parcel_id
-                    },{
+                    const response = await axios.post(apiUrl + '/getparcelinfo', {
+                        parcel_id: parcel_id
+                    }, {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
                     const detail = response.data.data;
-                    const getalldevices = detail.deviceid.map(item => item.devicedata);
-                    setdevice(getalldevices);                    
+                    // console.log(response.data.data.devices);
+                    // const getalldevices = detail.deviceid.map(item => item.devicedata);
+                    const getalldevices = detail.devices
+                    // console.log(getalldevices);
+                    setdevice(getalldevices);
                     setAudiocable(detail.audiocable);
                     setBattery(detail.battery);
                     setCharge(detail.charge);
@@ -145,17 +149,19 @@ const ParcelUpdate = ({ navigation, route }) => {
                         });
                         if (response.data.message == 'Yes') {
                             setBarcodeData(barcode.data);
-                            
-                            const finddevice = device.find((item)=>item == barcode.data);
-                            if(!finddevice){
-                                device.push({devicedata:barcode.data ,status :'damage'});     ///-------------------------------------------------
-                                // device.push(barcode.data);
+
+                            const finddevice = device.find((item) => item.devicedata == barcode.data);
+                            // console.log(finddevice);
+                            if (!finddevice) {
+                                device.push({deviceid:barcode.data ,status :'damage',DamageMsg:devmess});     ///-------------------------------------------------
+                                // device.push(barcode.data)
+                                // console.log(device,'device');
                                 showToast("success", `Added - ${barcode.data}`);
                             } else {
                                 showToast("success", `Already Added - ${barcode.data}`);
                             }
                             setdevices(barcode.data);
-                            setModel(false);
+                            // setModel(false);
                         } else {
                             showToast("error", `${barcode.data}`);
                         }
@@ -188,8 +194,8 @@ const ParcelUpdate = ({ navigation, route }) => {
             } else {
                 try {
                     const response = await axios.post(apiUrl + '/updatepackdamage', {
-                        deviceid: device, charge: parseInt(charge), battery: parseInt(battery), audiocable: parseInt(audiocable), messgaes: messgaes, suppid: suppid, suppname: suppname,
-                        pickloc: pickloc, desloc: desloc, parcel_id:parcel_id
+                        devices: device, charge: parseInt(charge), battery: parseInt(battery), audiocable: parseInt(audiocable), messgaes: messgaes, suppid: suppid, suppname: suppname,
+                        pickloc: pickloc, desloc: desloc, parcel_id: parcel_id
                     }, {
                         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                     });
@@ -225,9 +231,9 @@ const ParcelUpdate = ({ navigation, route }) => {
     const renderAccessItem = ({ item }) => (
         <View style={styles.notificationContainer}>
             <View style={{ flex: 1 }}>
-                <Text style={styles.notificationHeading}>{item}</Text>
+                <Text style={styles.notificationHeading}>{item.deviceid}</Text>
             </View>
-            <TouchableOpacity><Text style={{color:'white'}} onPress={() => removeid(item)}>X</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={{ color: 'white' }} onPress={() => removeid(item)}>X</Text></TouchableOpacity>
         </View>
     );
 
@@ -302,7 +308,7 @@ const ParcelUpdate = ({ navigation, route }) => {
                     />
                     <TextInput
                         placeholder="Device Ids"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={devices}
                         onChangeText={setdevices}
@@ -321,21 +327,21 @@ const ParcelUpdate = ({ navigation, route }) => {
 
                     <TextInput
                         placeholder="Charge Quantity"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={charge}
                         onChangeText={setCharge}
                     />
                     <TextInput
                         placeholder="Battery Quantity"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={battery}
                         onChangeText={setBattery}
                     />
                     <TextInput
                         placeholder="AudioCable Quantity"
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
                         style={styles.input}
                         value={audiocable}
                         onChangeText={setAudiocable}
@@ -374,6 +380,7 @@ const ParcelUpdate = ({ navigation, route }) => {
                                 <Text style={{ color: "white" }}>X</Text>
                             </TouchableOpacity>
                         </View>
+                        <TextInput value={devmess} onChangeText={setDevmess} placeholder="Device Problem" />
                         <View style={styles.cameraWrapper}>
 
                             <CameraView
@@ -515,12 +522,12 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent:'center',
+        justifyContent: 'center',
         // alignContent:'center',
         backgroundColor: '#333',
         padding: 15,
         width: '50%',
-        height:60,
+        height: 60,
         marginBottom: 5,
         borderRadius: 8,
         // borderColor: 'black',
