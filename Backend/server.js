@@ -41,7 +41,7 @@ const verifyToken = (req, res, next) => {
 };
 
 
-
+// Using for Home Page -------------
 app.get('/forhome', verifyToken, async (req, res) => {
     const id = req.user.id;  // Get ID from query params
     if (!id) {
@@ -52,7 +52,7 @@ app.get('/forhome', verifyToken, async (req, res) => {
         const db = client.db("Merchant_App");
         const agentCollection = db.collection("Agent_Info");
 
-        const result = await agentCollection.findOne({ id: id });
+        const result = await agentCollection.findOne({ id: id }, { projection: { id: 1, firstname: 1, lastname: 1, scoreCount: 1, _id: 0, email: 1, inventory: 1 } });
 
         if (!result) {
             await client.close();
@@ -62,7 +62,9 @@ app.get('/forhome', verifyToken, async (req, res) => {
         const forhome = {
             fname: result.firstname,
             email: result.email,
-            score: result.scoreCount
+            score: result.scoreCount,
+            device: result.inventory.length,
+            id: id
         };
 
         const storecollection = db.collection("Store_Info");
@@ -88,11 +90,14 @@ app.get('/forhome', verifyToken, async (req, res) => {
             { $count: "Count" }
         ]).toArray();
 
+        const damagecollection = db.collection('Damages');
+        const damageparcel = await damagecollection.find({ agent_id: id }).toArray();
 
         forhome.incomple = incomplete.length;
         forhome.pending = store.length;
         forhome.sto = mystores.length;
         forhome.ticket = numoftic[0].Count;
+        forhome.damage = damageparcel.length;
         res.json(forhome);
 
         await client.close();
@@ -107,14 +112,14 @@ app.get('/forhome', verifyToken, async (req, res) => {
 //for Agent Registration Page
 app.post('/agentregistration', async (req, res) => {
     try {
-        const { refname, relname, reemail, reemployee, rephone, bloodGroup, dob, address, hashrepass } = req.body
-        // console.log("hello");
+        const { refname, relname, reemail, reemployee, rephone, gender, bloodGroup, dob, address, repassword } = req.body
+        console.log(req.body);
         // console.log(hashrepass,"password");
-        if (!refname || !relname || !reemail || !reemployee || !rephone || !hashrepass) {
+        if (!refname || !relname || !reemail || !reemployee || !rephone || !repassword) {
             res.status(200).json(`Enter to all feild!.`);
-        }
-        else {
-            let agentInfo = { firstname: refname, lastname: relname, email: reemail, emplyoyeeID: reemployee, phone: rephone, bloodGroup: bloodGroup, dob: dob, address: address, gender };
+        } else {
+            let agentInfo = { firstname: refname, lastname: relname, email: reemail, emplyoyeeID: reemployee, phone: rephone, bloodGroup: bloodGroup, dob: dob, address: address, gender: gender, password: repassword };
+            console.log(agentInfo);
             const client = connect();
             await client.connect();
             const UniqID = `id_${Date.now()}`;
@@ -125,20 +130,21 @@ app.post('/agentregistration', async (req, res) => {
             const db = client.db("Merchant_App");
             const agentcollection = db.collection("Agent_Info");
             if (reemail) {
-                const mailverify = await agentcollection.find({ email: reemail }).toArray();
-                if (mailverify == '' || mailverify == null) {
+                const mailverify = await agentcollection.find({ email: reemail }).project({ email: 1, _id: 0 }).toArray();
+                if (!mailverify || mailverify.length == 0) {
                     const result = await agentcollection.insertOne(agentInfo);
                     res.status(200).json("Agent Info Added");
                     await client.close();
                 } else {
-                    res.status(200).json('Email Already Exist');
+                    res.status().json('Email Already Exist');
                     await client.close();
                 }
             }
         }
-        res.json('hello');
-        await client.close();
+        // console.log('hello');
+        // await client.close();
     } catch (error) {
+        console.log(error);
         res.status(500).json(`EError is : ${error}`);
     }
 });
@@ -273,7 +279,7 @@ app.post('/editagentinfo', verifyToken, async (req, res) => {
 });
 
 
-//For add store info
+//Using for Add Store Informations
 app.post('/addstoreinfo', verifyToken, async (req, res) => {
     try {
         const { storeName, ownerName, email, address, address2, city, postalcode, phone, GSTno, storeType, pancardNo, aadharcardNo, bankName, accountNo, IFSCCode } = req.body;
@@ -385,7 +391,7 @@ app.post('/addstoreinfo', verifyToken, async (req, res) => {
 });
 
 
-//For edit store info
+//Using for Edited Store Page ----------
 app.post('/editstoreinfo', verifyToken, async (req, res) => {
     try {
         const { id } = req.body.id;
@@ -461,6 +467,7 @@ app.post('/getstoreinfo', verifyToken, async (req, res) => {
                 { id: id }
             ).toArray();
 
+            console.log(storedetail);
             res.status(200).json({
                 message: "Store getted successfully",
                 storeinfo: storedetail
@@ -473,11 +480,10 @@ app.post('/getstoreinfo', verifyToken, async (req, res) => {
 });
 
 
-//For agent created store and display => MyStore
+//Using for My Stores Page -----------
 app.get('/mystores', verifyToken, async (req, res) => {
     try {
         const targetId = req.user.id  //"id_1742404536258"; make sure change req.body and POST method.
-        // console.log(targetId);
         if (!targetId) {
             res.status(200).json("Invaid Input.");
         } else {
@@ -485,10 +491,19 @@ app.get('/mystores', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const storecollection = db.collection("Store_Info");
-            // console.log(targetId);
-            const result = await storecollection.find({ referal_id: { $in: [targetId] } }).toArray();
-            res.status(200).json(result)
+            const result = await storecollection.find({ referal_id: { $in: [targetId] } }, { projection: { _id: 0, storeName: 1, ownerName: 1, id: 1 } }).toArray();
             // console.log(result);
+            if (result.modifiedCount == 0 || result == [] || result.length == 0) {
+                res.status(200).json({
+                    message: 'Store Not founded',
+                    data: []
+                });
+            } else {
+                res.status(200).json({
+                    message: 'Store is founded',
+                    data: result
+                });
+            }
             await client.close();
         }
     } catch (error) {
@@ -592,13 +607,21 @@ app.post('/searchstore', async (req, res) => {
 
             const result = await storecollection.find({
                 storeName: { $regex: storename, $options: "i" }
-            }).toArray();
+            }, {
+                project: { ownerName: 1, storeName: 1, id: 1, _id: 0 }
+            }
+            ).toArray();
 
-            // console.log(result,"    result");
             if (result.length === 0) {
-                res.status(200).json("Store not found");
+                res.status(200).json({
+                    message: "Store not found",
+                    data: []
+                });
             } else {
-                res.status(200).json(result);
+                res.status(200).json({
+                    message: "Store Founded",
+                    data: result
+                });
             }
 
             await client.close();
@@ -609,6 +632,7 @@ app.post('/searchstore', async (req, res) => {
 });
 
 
+// Using for Credit score page --------
 app.get('/getagentid', verifyToken, async (req, res) => {
     try {
         const id = req.user.id;
@@ -634,29 +658,90 @@ app.get('/getagentid', verifyToken, async (req, res) => {
 });
 
 
-app.get('/pendingkyc', verifyToken, async (req, res) => {
+// Using for KYC pending -------
+app.post('/pendingkyc', verifyToken, async (req, res) => {
+    const { data } = req.body
     const id = req.user.id;
-    if (!id) {
+    // console.log(id);
+    if (!id || !data) {
         return res.status(400).json({ message: 'Invalid ID' });
     }
     try {
-        const client = await connect();
-        const db = client.db("Merchant_App");
-        const storecollection = db.collection("Store_Info");
+        if (data == "All") {
+            const client = await connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
 
 
-        const store = await storecollection.find({
-            referal_id: id,
-            Pending: { $in: ['Bank', 'Pan'] },
-        }).toArray();
+            const store = await storecollection.find({
+                referal_id: id,
+                Pending: { $in: ['Bank', 'Pan'] },
+            }, { projection: { _id: 0, storeName: 1, ownerName: 1, Pending: 1, id: 1 } }).toArray();
 
 
-        res.json(store);
+            res.json(store);
 
-        await client.close();
+            await client.close();
+        } else {
+            const client = await connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+
+
+            const store = await storecollection.find({
+                referal_id: id,
+                // Pending: { $in: ['Bank', 'Pan'] },
+                Pending: data
+            }).toArray();
+
+
+            res.json(store);
+
+            await client.close();
+        }
     } catch (error) {
         console.error(`Error: ${error}`);
         res.status(500).json({ message: `Error occurred: ${error.message}` });
+    }
+});
+
+
+// Using for Editing Store Deatils -------
+app.post('/getstoredetail', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.body;
+        const token = req.user.id
+        if (!id) {
+            res.status(200).json("Invalid ID");
+        } else {
+            const client = connect();
+            await client.connect();
+            const db = client.db("Merchant_App");
+            const storecollection = db.collection("Store_Info");
+
+            // console.log(storeInfo);
+            const storedetail = await storecollection.findOne(
+                { id: id }, { projection: { storeName: 1, ownerName: 1, email: 1, city: 1, address: 1, qrCodeImage: 1, _id: 0 } }
+            );
+
+            if (storedetail.modifiedCount == 0) {
+                res.status(200).json({
+                    message: "Store Not Found",
+                    storeinfo: []
+                });
+            } else {
+                res.status(200).json({
+                    message: "Store getted successfully",
+                    storeinfo: storedetail
+                });
+            }
+
+            // console.log(storedetail);
+
+            await client.close();
+        }
+    } catch (error) {
+        res.status(500).json(`Error is : ${error}`);
     }
 });
 
@@ -695,8 +780,9 @@ app.post('/risetoken', async (req, res) => {
 });
 
 
-app.get('/getticketrise', async (req, res) => {
-    const id = 'id_1742404536258';  //use to token req.uer.id
+// Using for Get Rises of Tickets ---------
+app.get('/getticketrise', verifyToken, async (req, res) => {
+    const id = req.user.id;  //use to token req.uer.id
     if (!id) {
         res.json('Invalid Emplyeee');
     } else {
@@ -705,10 +791,17 @@ app.get('/getticketrise', async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const ticketcollection = db.collection('Ticket_Rise');
-            const result = await ticketcollection.find({ referal_id: { $in: [id] } }).toArray();
+            const result = await ticketcollection.find({ referal_id: { $in: [id] } }, {
+                projection: {
+                    storeName: 1, message: 1, id: 1, _id: 0
+                }
+            }).toArray();
             // console.log(result);
             if (result == null || result == '' || result == []) {
-                res.json('Invalid Store Information');
+                res.json({
+                    message: 'Invalid Store Information',
+                    data: []
+                });
             } else {
                 res.json({
                     message: "Ticket Rise Stores",
@@ -764,7 +857,7 @@ app.post('/chattoagent', async (req, res) => {
 });
 
 
-// This is for Agent....
+// Using for Agent Chat - This is for Agent -------------
 app.post('/chattostorekeeper', verifyToken, async (req, res) => {
     const id = req.user.id;   //use token for store id in the future
     const { message } = req.body
@@ -806,9 +899,11 @@ app.post('/chattostorekeeper', verifyToken, async (req, res) => {
 });
 
 
-app.get('/chats', verifyToken, async (req, res) => {
+// Using for Tickets Rises Chat Page ---------
+app.post('/chats', verifyToken, async (req, res) => {
     const id = req.user.id;
-    if (!id) {
+    const { dataid } = req.body
+    if (!id || !dataid) {
         res.json({
             message: 'Agent Id is Missing'
         });
@@ -822,7 +917,7 @@ app.get('/chats', verifyToken, async (req, res) => {
 
 
             const result = await ticketcollection.findOne(
-                { referal_id: { $in: [id] } },
+                { id : dataid },
                 { projection: { coversation: 1, _id: 0, storeName: 1 } }
             );
 
@@ -912,6 +1007,7 @@ app.post('/storedevice', verifyToken, async (req, res) => {
 });
 
 
+// Using for listout the devices ----------
 app.get('/getmydevices', verifyToken, async (req, res) => {
     const id = req.user.id;
     if (!id) {
@@ -1045,6 +1141,7 @@ app.get('/getmyparcels', verifyToken, async (req, res) => {
 });
 
 
+// Using for Agent add devices ------------
 app.post('/addagentstoredevice', verifyToken, async (req, res) => {
     const { deviceids } = req.body;
     const id = req.user.id;
@@ -1087,7 +1184,7 @@ app.post('/addagentstoredevice', verifyToken, async (req, res) => {
 });
 
 
-
+// Using for Agent accessories ----------
 app.post('/addagentstoreaccess', verifyToken, async (req, res) => {
     const { access } = req.body;
     const id = req.user.id;
@@ -1173,6 +1270,7 @@ app.post('/devilveragentdevice', verifyToken, async (req, res) => {
 });
 
 
+// using for verify the devices ----------
 app.post('/verifydeviceid', verifyToken, async (req, res) => {
     const { deviceid } = req.body;
     const id = req.user.id;
@@ -1200,6 +1298,7 @@ app.post('/verifydeviceid', verifyToken, async (req, res) => {
 });
 
 
+// using for create damage parcel ----------
 app.post('/packdamage', verifyToken, async (req, res) => {
     console.log(req.body);
     const { devices, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc } = req.body;
@@ -1284,6 +1383,7 @@ app.post('/packdamage', verifyToken, async (req, res) => {
 });
 
 
+// Using for list out Damaged parcel -----------
 app.get('/getpdamageparcels', verifyToken, async (req, res) => {
     const id = req.user.id;
     if (!id) {
@@ -1296,7 +1396,7 @@ app.get('/getpdamageparcels', verifyToken, async (req, res) => {
             await client.connect();
             const db = client.db("Merchant_App");
             const damagecollection = db.collection('Damages');
-            const damage = await damagecollection.find({}).toArray();
+            const damage = await damagecollection.find({ agent_id: id }).toArray();
             if (damage) {
                 res.json({
                     message: 'Devices are finded',
@@ -1316,6 +1416,7 @@ app.get('/getpdamageparcels', verifyToken, async (req, res) => {
 });
 
 
+// using for Damaged parcel details ----------
 app.post('/getparcelinfo', verifyToken, async (req, res) => {
     const { parcel_id } = req.body;
     const id = req.user.id;
@@ -1345,6 +1446,7 @@ app.post('/getparcelinfo', verifyToken, async (req, res) => {
 });
 
 
+//  Using for update the damaged parcel ---------
 app.post('/updatepackdamage', verifyToken, async (req, res) => {
     const { devices, charge, battery, audiocable, messgaes, suppid, suppname, pickloc, desloc, parcel_id } = req.body;
     // console.log(req.body);

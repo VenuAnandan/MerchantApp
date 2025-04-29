@@ -252,8 +252,7 @@ const Deliverpage = ({ navigation }) => {
                 /> */}
                     <Picker
                         selectedValue={suppname}
-                        onValueChange={(itemValue) => handlenamechange(itemValue)}
-                    >
+                        onValueChange={(itemValue) => handlenamechange(itemValue)}>
                         <Picker.Item label="-- Select --" value="" />
                         {supportinfo.length > 0 &&
                             supportinfo.map((item) => (

@@ -32,6 +32,8 @@ import Scan from "./Scan";
 import DamageParcels from "./DamageParcels";
 import GetParcel from "./GetParcel";
 import ParcelUpdate from "./ParcelUpdate";
+import Taskpage from "./Taskpage";
+import translateText from "./translateText";
 
 
 
@@ -70,6 +72,8 @@ const CompanyInfo = ({ setIsLoggedIn }) => {
         <Stack.Screen name="GetParcel" component={GetParcel}/>
         <Stack.Screen name="ParcelUpdate" component={ParcelUpdate} />
         <Stack.Screen name='AddStore' component={AddStore} />
+        <Stack.Screen name="Taskpage" component={Taskpage}/>
+        <Stack.Screen name="translateText" component={translateText}/>
         <Stack.Screen name="UserInfo">
           {({ navigation }) => <UserInfo setIsLoggedIn={setIsLoggedIn} navigation={navigation} />}
         </Stack.Screen>

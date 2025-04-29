@@ -51,7 +51,7 @@ const UserInfo = ({ navigation, setIsLoggedIn }) => {
             const token = await AsyncStorage.getItem("token");
             if (token) {
                 try {
-                    const response = await axios.post('http://192.168.1.48:5000/tickets/requestParcel',{
+                    const response = await axios.post('http://192.168.1.7:5000/tickets/requestParcel',{
                         requestItem
                     });
                     showToast("success", `${response.data.message} `);

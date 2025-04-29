@@ -1,15 +1,39 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, Platform, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView, Image } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 
 const StoreInfo = ({ navigation, route }) => {
 
     const { item } = route.params;
+    console.log(item);
     const [qrImage, setQrImage] = useState(item.qrCodeImage);
+    const [storedetail, setStoredetail] = useState();
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+    useEffect(() => {
+        const getmystore = async () => {
+            const token = await AsyncStorage.getItem("token");
+            try {
+                const response = await axios.post(apiUrl + '/getstoredetail', {
+                    id: item
+                }, {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                });
+                // console.log(response.data.message);
+                setStoredetail(response.data.storeinfo);
+                setQrImage(response.data.storeinfo.qrCodeImage);
+            } catch (error) {
+                console.log(`EError is : ${error}`);
+            }
+        }
+        getmystore();
+    }, []);
 
 
     return (
@@ -29,44 +53,53 @@ const StoreInfo = ({ navigation, route }) => {
                     </View>
                 </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <Text style={styles.storeName}>{item.storeName} Store</Text>
+            {storedetail ? (
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={styles.header}>
+                        <Text style={styles.storeName}>{storedetail.storeName} Store</Text>
+                        <Image
+                            style={styles.storeImage}
+                            source={{ uri: 'https://picsum.photos/500/300' }}
+                        />
+                    </View>
+                    <View style={styles.card}>
+                        <Text style={styles.cardTitle}>Store Information</Text>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Owner:</Text>
+                            <Text style={styles.value}>{storedetail.ownerName}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Contact:</Text>
+                            <Text style={styles.value}>+91 {storedetail.phone}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Email:</Text>
+                            <Text style={styles.value}>{storedetail.email}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>City:</Text>
+                            <Text style={styles.value}>{storedetail.city}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Address:</Text>
+                            <Text style={styles.value}>{storedetail.address}</Text>
+                        </View>
+                    </View>
+                    {qrImage && (
+                        <View style={styles.qrContainer}>
+                            <Text style={styles.qrText}>Scan QR Code:</Text>
+                            <Image source={{ uri: qrImage }} style={styles.qrImage} />
+                        </View>
+                    )}
+                </ScrollView>
+            ) : (
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
-                        style={styles.storeImage}
-                        source={{ uri: 'https://picsum.photos/500/300' }}
-                    />
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Stores</Text>
                 </View>
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Store Information</Text>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Owner:</Text>
-                        <Text style={styles.value}>{item.ownerName}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Contact:</Text>
-                        <Text style={styles.value}>+91 {item.phone}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Email:</Text>
-                        <Text style={styles.value}>{item.email}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>City:</Text>
-                        <Text style={styles.value}>{item.city}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Address:</Text>
-                        <Text style={styles.value}>{item.address}</Text>
-                    </View>
-                </View>
-                {qrImage && (
-                    <View style={styles.qrContainer}>
-                        <Text style={styles.qrText}>Scan QR Code:</Text>
-                        <Image source={{ uri: qrImage }} style={styles.qrImage} />
-                    </View>
-                )}
-            </ScrollView>
+            )}
         </View>
     );
 }
@@ -81,20 +114,20 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         marginBottom: 20,
-      },
-      storeName: {
+    },
+    storeName: {
         fontSize: 26,
         fontWeight: 'bold',
         textAlign: 'center',
         color: '#333',
         marginBottom: 10,
-      },
-      storeImage: {
+    },
+    storeImage: {
         width: '100%',
         height: 200,
         borderRadius: 15,
-      },
-      card: {
+    },
+    card: {
         backgroundColor: '#fff',
         padding: 15,
         borderRadius: 10,
@@ -103,29 +136,29 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
         marginBottom: 20,
-      },
-      cardTitle: {
+    },
+    cardTitle: {
         fontSize: 20,
         fontWeight: 'bold',
         color: '#444',
         marginBottom: 10,
         textAlign: 'center',
-      },
-      infoRow: {
+    },
+    infoRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingVertical: 5,
-      },
-      label: {
+    },
+    label: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#666',
-      },
-      value: {
+    },
+    value: {
         fontSize: 16,
         color: '#333',
-      },
-      qrContainer: {
+    },
+    qrContainer: {
         alignItems: 'center',
         padding: 15,
         backgroundColor: '#fff',
@@ -134,18 +167,18 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
-      },
-      qrText: {
+    },
+    qrText: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10,
         color: '#333',
-      },
-      qrImage: {
+    },
+    qrImage: {
         width: 150,
         height: 150,
         borderRadius: 10,
-      }
+    }
 }
 );
 

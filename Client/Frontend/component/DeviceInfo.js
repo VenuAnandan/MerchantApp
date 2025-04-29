@@ -25,11 +25,12 @@ const DeviceInfo = ({ navigation, route }) => {
                 console.log('Token is empty');
             } else {
                 try {
-                    const response = await axios.post('http://192.168.1.48:5000/device/deviceid', {
+                    const response = await axios.post('http://192.168.4.64:5000/device/deviceid', {
                         "deviceid": item
                     });
                     setDeviceinfo(response.data);
                     setDevicestatus(response.data.device.status);
+                    // console.log(response.data);
                     // console.log(response.data.device.status, '------');
                 } catch (error) {
                     console.log(`EError is : ${error}`);
@@ -43,7 +44,7 @@ const DeviceInfo = ({ navigation, route }) => {
         if (item) {
             try {
                 try {
-                    const response = await axios.post('http://192.168.1.48:5000/device/updatedevicestatus', {
+                    const response = await axios.post('http://192.168.4,64:5000/device/updatedevicestatus', {
                         deviceid: item,
                         status: "delivered"
                     });
@@ -89,27 +90,59 @@ const DeviceInfo = ({ navigation, route }) => {
                 </TouchableOpacity>
             </View>
             {deviceinfo ? (
-                <View>
-                    <Text>Device Id : {item}</Text>
-                    <Text>Support Id : {deviceinfo.device.supportid}</Text>
-                    {devicestatus == 'damaged' ? (
-                        <Text>The device is Damaged (Verified From Supply Managment)</Text>
-                    ) : (
-                        <TouchableOpacity style={{ borderWidth: 1, padding: 5 }} onPress={deliverddevice}>
-                            <Text>Delivered</Text>
-                        </TouchableOpacity>
-                    )}
+                <View style={styles.card}>
+                    <Image 
+                    // source={{ uri: deviceinfo.device.image }} 
+                    source={{ uri: 'https://th.bing.com/th/id/OIP.vscrkFtcXqYulbLGZUyh1wHaHa?pid=ImgDet&w=191&h=191&c=7' }}
+                    style={styles.image} />
+
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.deviceName}>{deviceinfo.device.devicename}</Text>
+
+                        <View style={styles.row}>
+                            {/* <Icon name="qr-code-outline" size={18} color="#666" /> */}
+                            <Text style={styles.label}> Device ID: <Text style={styles.value}>{deviceinfo.device.deviceid}</Text></Text>
+                        </View>
+
+                        <View style={styles.row}>
+                            {/* <Icon name="person-circle-outline" size={18} color="#666" /> */}
+                            <Text style={styles.label}> Agent ID: <Text style={styles.value}>{deviceinfo.device.agentid}</Text></Text>
+                        </View>
+
+                        <View style={styles.row}>
+                            {/* <Icon name="cube-outline" size={18} color="#666" /> */}
+                            <Text style={styles.label}> Parcel: <Text style={styles.value}>{deviceinfo.device.parcelNumber}</Text></Text>
+                        </View>
+
+                        <View style={styles.row}>
+                            {/* <Icon name="call-outline" size={18} color="#666" /> */}
+                            <Text style={styles.label}> Support ID: <Text style={styles.value}>{deviceinfo.device.supportid}</Text></Text>
+                        </View>
+
+                        <View style={[styles.statusTag, deviceinfo.device.status === 'delivered' ? styles.statusDelivered : styles.statusPending]}>
+                            <Text style={styles.statusText}>{deviceinfo.device.status.toUpperCase()}</Text>
+                        </View>
+
+                        {devicestatus === 'damaged' ? (
+                            <Text style={styles.damaged}>
+                                Device is Damaged (Verified by Supply Team)
+                            </Text>
+                        ) : (
+                            <TouchableOpacity style={styles.assignButton} onPress={deliverddevice}>
+                                <Text style={styles.assignText}>Assign Device</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
+
             ) : (
-                <View>
-                    <Text>Innternet issues</Text>
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                    <Image
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Devices Information</Text>
                 </View>
             )}
-            {/* <FlatList
-                data={messages}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}/> */}
-
         </View>
     );
 }
@@ -144,6 +177,81 @@ const styles = StyleSheet.create({
     notificationText: {
         color: '#ddd',
         fontSize: 14,
+    },
+    card: {
+        backgroundColor: '#ffffff',
+        borderRadius: 16,
+        margin: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 5,
+    },
+    image: {
+        width: '100%',
+        height: 330,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        resizeMode: 'cover',
+    },
+    infoContainer: {
+        padding: 16,
+    },
+    deviceName: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#333',
+        marginBottom: 8,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 4,
+    },
+    label: {
+        fontSize: 14,
+        color: '#555',
+        marginLeft: 6,
+    },
+    value: {
+        color: '#000',
+        fontWeight: '500',
+    },
+    statusTag: {
+        marginTop: 12,
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        alignSelf: 'flex-start',
+    },
+    statusDelivered: {
+        backgroundColor: '#d4edda',
+    },
+    statusPending: {
+        backgroundColor: '#fff3cd',
+    },
+    statusText: {
+        fontSize: 12,
+        color: '#000',
+        fontWeight: '600',
+    },
+    damaged: {
+        marginTop: 10,
+        color: '#c82333',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    assignButton: {
+        marginTop: 12,
+        backgroundColor: '#309264',
+        paddingVertical: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    assignText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 15,
     },
 }
 );

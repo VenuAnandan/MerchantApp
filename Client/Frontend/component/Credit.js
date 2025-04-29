@@ -94,7 +94,7 @@ const Credit = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 30, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
-                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{  width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View><AntDesign name="arrowleft" size={24} color="white" /></View>
                 </TouchableOpacity>
                 <View style={{}}>
@@ -104,9 +104,8 @@ const Credit = ({ navigation }) => {
                     <View><AntDesign name="close" size={24} color="white" /></View>
                 </TouchableOpacity>
             </View>
-            <ScrollView
-                showsVerticalScrollIndicator={false}>
-                <Text style={styles.title}>Credit Score Program</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <Text style={styles.title}>Agent Credit Score</Text>
 
                 <View style={styles.card}>
                     <Text style={styles.score}>Your Score: {score}</Text>

@@ -9,8 +9,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 
-const ChatPage = ({ navigation }) => {
+const ChatPage = ({ navigation, route }) => {
 
+    const { item } = route.params;
 
     const [messages, setMessages] = useState(
         //     [
@@ -29,12 +30,17 @@ const ChatPage = ({ navigation }) => {
         const Ticketrises = async () => {
             const token = await AsyncStorage.getItem("token");
             try {
-                const response = await axios.get(apiUrl + '/chats', {
+                const response = await axios.post(apiUrl + '/chats', { dataid: item }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                setMessages(response.data.data.coversation);
-                setStoreName(response.data.storeName);
-                // console.log(response.data.data.coversation);
+                // console.log(response.data.message);
+                if (response.data.message == 'Chats founded') {
+                    setMessages(response.data.data.coversation);
+                    setStoreName(response.data.storeName);
+                } else {
+                    setMessages();
+                    setStoreName("Store Name");
+                }
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
@@ -65,26 +71,40 @@ const ChatPage = ({ navigation }) => {
         }
     }
 
+    const formatDateTime = (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date)) return 'Invalid date & time';
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = String(date.getFullYear()).slice(-2);
+
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        } catch (error) {
+            return 'Invalid date & time';
+        }
+    };
+
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer}>
-            {item.from == 'store' ? (
-                <View style={styles.textContainerstore}>
-                    <View style={styles.fromstore}>
-                        <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=77118&format=png&color=000000' }}></Image>
-                        <Text style={styles.notificationTextA}>{item.message}</Text>
-                    </View>
-                </View>
-            ) : (
-                <View style={styles.textContaineragent}>
-                    <View style={styles.fromagent}>
-                        <Text style={styles.notificationTextS}>{item.message}</Text>
-                        <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=qFpJLw42Vi78&format=png&color=000000' }}></Image>
-                    </View>
+        <View style={[styles.messageRow, item.from === 'store' ? styles.leftAlign : styles.rightAlign]}>
+            {item.from === 'store' && <Image style={styles.avatar} source={{ uri: 'https://img.icons8.com/?size=100&id=77118&format=png&color=000000' }} />}
 
-                </View>
-            )}
-        </TouchableOpacity>
+            <View style={item.from === 'store' ? styles.bubbleLeft : styles.bubbleRight}>
+                <Text style={item.from === 'store' ? styles.messageText : styles.messageTextRight}>{item.message}</Text>
+                <Text style={item.from === 'store' ? styles.timestamp : styles.timestampright}>
+                    {/* 19/06/22   09:41 AM  */}
+                    {/* {item.date} */}
+                    {formatDateTime(item.date)}
+                </Text>
+            </View>
+
+            {item.from !== 'store' && <Image style={styles.avatar} source={{ uri: 'https://img.icons8.com/?size=100&id=qFpJLw42Vi78&format=png&color=000000' }} />}
+        </View>
     );
 
 
@@ -92,22 +112,24 @@ const ChatPage = ({ navigation }) => {
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.conatiner}
-            keyboardVerticalOffset={90}
-        >
+            keyboardVerticalOffset={90}>
+
+            <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', width: '90%', marginLeft: '5%' }}>
+                <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 40, height: 40, borderRadius: 50, display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                        <View><AntDesign name="arrowleft" size={24} color="white" /></View>
+                    </TouchableOpacity>
+                    <View>
+                        <Text style={{ fontSize: 20, color: 'white' }}>{storename}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ width: 40, height: 40, borderRadius: 50, display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                        <View><AntDesign name="close" size={24} color="white" /></View>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={{ flex: 1 }}>
-                    <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 40, height: 40, borderRadius: 50, display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-                            <View><AntDesign name="arrowleft" size={24} color="white" /></View>
-                        </TouchableOpacity>
-                        <View>
-                            <Text style={{ fontSize: 20, color: 'white' }}>{storename}</Text>
-                        </View>
-                        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ width: 40, height: 40, borderRadius: 50, display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-                            <View><AntDesign name="close" size={24} color="white" /></View>
-                        </TouchableOpacity>
-                    </View>
-                    {/* <View style={{ flex: 1 }}> */}
                     {messages ? (
                         <View style={{ flex: 1, width: '100%' }}>
                             <View>
@@ -152,7 +174,9 @@ const styles = StyleSheet.create({
     conatiner: {
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        padding: 20,
+        // padding: 20,
+        paddingTop: 20,
+        paddingBottom: 20,
         marginTop: 20
     },
     tickets: {
@@ -160,64 +184,66 @@ const styles = StyleSheet.create({
         height: '90%',
         // backgroundColor:'yellow'
     },
-    message: {
-        // position: 'relative',
-    },
-    fromstore: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+    messageRow: {
         flexDirection: 'row',
+        alignItems: 'flex-end',
+        marginVertical: 8,
+        // paddingHorizontal: 10,
+        maxWidth: '90%',
     },
-    fromagent: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 0,
-        padding: 5
+    leftAlign: {
+        alignSelf: 'flex-start',
     },
-    notificationContainer: {
-        width: '100%',
-        height: 40,
+    rightAlign: {
+        alignSelf: 'flex-end',
     },
-    bellIcon: {
-        marginRight: 10,
+    avatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        marginHorizontal: 6,
     },
-    textContainerstore: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-        alignSelf: 'flex-start'
+    bubbleLeft: {
+        backgroundColor: '#ffffff',
+        padding: 10,
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 12,
+        borderBottomLeftRadius: 8,
+        borderBottomRightRadius: 12,
+        elevation: 2,
+        maxWidth: '80%',
     },
-    textContaineragent: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        flexDirection: 'row-reverse',
-        justifyContent: 'flex-start',
-        alignSelf: 'flex-end'
+    bubbleRight: {
+        backgroundColor: '#25d366',
+        padding: 10,
+        borderTopRightRadius: 0,
+        borderTopLeftRadius: 12,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 8,
+        elevation: 2,
+        maxWidth: '80%',
     },
-    notificationHeading: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+    messageText: {
+        color: '#000',
+        fontSize: 15,
+        lineHeight: 20,
     },
-    notificationTextA: {
-        borderWidth: 0.3,
-        padding: 4,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        borderBottomRightRadius: 10,
-        borderBottomLeftRadius: 0
+    messageTextRight: {
+        color: 'white',
+        fontSize: 15,
+        lineHeight: 20,
     },
-    notificationTextS: {
-        borderWidth: 0.3,
-        padding: 4,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        borderBottomRightRadius: 0,
-        borderBottomLeftRadius: 10
+    timestamp: {
+        fontSize: 11,
+        color: '#555',
+        marginTop: 4,
+        textAlign: 'right',
+    },
+    timestampright: {
+        fontSize: 11,
+        color: 'white',
+        marginTop: 4,
+        textAlign: 'right',
     },
     messcontainer: {
         display: 'flex',
@@ -260,10 +286,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 50
     },
-    image2: {
-        width: 30,
-        height: 30,
-    }
 }
 );
 

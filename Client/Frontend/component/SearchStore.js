@@ -23,7 +23,7 @@ const SearchStore = ({ navigation, route }) => {
                 if (resposne.data == 'Store not found' || resposne.data == 'Empty store name') {
                     setSearchedstore('');
                 } else {
-                    setSearchedstore(resposne.data);
+                    setSearchedstore(resposne.data.data);
                 }
                 // console.log(resposne.data);
             } catch (error) {
@@ -49,33 +49,36 @@ const SearchStore = ({ navigation, route }) => {
                 </TouchableOpacity>
             </View>
             {searchedstore ? (
-                <FlatList
-                    data={searchedstore}
-                    keyExtractor={item => (item.id)}
-                    renderItem={({ item }) => (
-                        <Pressable
-                            style={styles.card}
-                            onPress={() => navigation.navigate('StoreInfo', { item: item })}>
-                            <View style={styles.header}>
-                                <Image
-                                    style={styles.avatar}
-                                    source={{ uri: 'https://picsum.photos/100/100' }} />
-                                <View>
-                                    <Text style={styles.title}>{item.storeName}</Text>
-                                    <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                <View>
+                    <Text style={{fontSize:17}}>You Are Searched : <Text style={{fontWeight:'bold', fontSize:20, fontStyle: 'italic'}}>{text}</Text></Text>
+                    <FlatList
+                        data={searchedstore}
+                        keyExtractor={item => (item.id)}
+                        renderItem={({ item }) => (
+                            <Pressable
+                                style={styles.card}
+                                onPress={() => navigation.navigate('StoreInfo', { item: item.id })}>
+                                <View style={styles.header}>
+                                    <Image
+                                        style={styles.avatar}
+                                        source={{ uri: 'https://picsum.photos/100/100' }} />
+                                    <View>
+                                        <Text style={styles.title}>{item.storeName}</Text>
+                                        <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                            <Image
-                                style={styles.storeImage}
-                                source={{ uri: 'https://picsum.photos/500/300' }} />
-                        </Pressable>
-                    )}
-                />
+                                <Image
+                                    style={styles.storeImage}
+                                    source={{ uri: 'https://picsum.photos/500/300' }} />
+                            </Pressable>
+                        )}
+                    />
+                </View>
             ) : (
                 // https://img.icons8.com/?size=100&id=8rvKNd0gtsym&format=png&color=000000
-                <View style={{marginTop:'50%' ,display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
-                        style={{width:200, height:200}}
+                        style={{ width: 200, height: 200 }}
                         source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
                     <Text>{text} not Founded</Text>
                 </View>

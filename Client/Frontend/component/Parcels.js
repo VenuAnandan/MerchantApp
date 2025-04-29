@@ -9,9 +9,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 
-const Parcels = ({ navigation }) => {
+const Parcels = ({ navigation, route }) => {
 
     const [parcels, setParcels] = useState();
+    const {item} = route.params;
+    console.log(item);
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -22,11 +24,11 @@ const Parcels = ({ navigation }) => {
                 console.log('Token is empty');
             } else {
                 try {
-                    const response = await axios.post('http://192.168.1.48:5000/parcel/agentid', {
-                        "agentid": "id_1742404536258"
+                    const response = await axios.post('http://192.168.1.7:5000/parcel/agentid', {
+                        "agentid": item
                     });
                     setParcels(response.data.data);
-                    // console.log(response.data.data, "parcels");
+                    // console.log(response.data.data[0], "parcels");
                 } catch (error) {
                     console.log(`EError is : ${error}`);
                 }
@@ -38,12 +40,36 @@ const Parcels = ({ navigation }) => {
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate('ParcelInfo', { item: item.parcelNumber })}>
-            {/* <Feather name="bell" size={24} color="black" /> */}
-            <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>Parcel Number : {item.parcelNumber}</Text>
-                <Text style={styles.notificationText}>Sender : {item.supportname}({item.supportid})</Text>
+        <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={() => navigation.navigate('ParcelInfo', { item: item.parcelNumber })}
+            activeOpacity={0.85}
+        >
+            <View style={styles.iconContainer}>
+                <Image
+                    style={{ width: '100%', height: '100%' }}
+                    source={{ uri: 'https://th.bing.com/th/id/OIP.6n0gYZ_FOFWe3XZDGSutKQAAAA?w=178&h=170&c=7&r=0&o=5&pid=1.7' }} />
             </View>
+
+            <View style={styles.textContainer}>
+                <Text style={styles.notificationHeading}>
+                    Parcel Number : {item.parcelNumber}
+                </Text>
+                <Text style={styles.notificationText}>
+                    Sender : {item.supportname}
+                </Text>
+
+                {/* <View
+                    style={[
+                        styles.statusBadge,
+                        { backgroundColor: getStatusColor(item.status) },
+                    ]}
+                >
+                    <Text style={styles.statusText}>{item.status}</Text>
+                </View> */}
+            </View>
+
+            <Text style={styles.arrowIcon}>›</Text>
         </TouchableOpacity>
     );
 
@@ -63,13 +89,20 @@ const Parcels = ({ navigation }) => {
             </View>
             {parcels ? (
                 <View>
+                    <Text style={{ fontSize: 17, fontStyle: 'italic' }}>The following parcels have been assigned to the agent. Please review the details and ensure timely delivery and confirmation.
+                        {/* <Text style={{ fontWeight: 'bold', fontSize: 20, fontStyle: 'italic' }}> MyDevices</Text> */}
+                    </Text>
                     <FlatList
+                        style={styles.tickets}
                         data={parcels}
                         renderItem={renderItem} />
                 </View>
             ) : (
-                <View>
-                    <Text>No Parcels</Text>
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
+                    <Image
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Parcels assigned</Text>
                 </View>
             )}
 
@@ -85,28 +118,76 @@ const styles = StyleSheet.create({
     },
 
 
+    tickets: {
+        marginTop: 20,
+        paddingHorizontal: 16,
+    },
+
     notificationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#333',
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+        backgroundColor: '#f8f9fa',
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 16,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 6,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
     },
-    bellIcon: {
-        marginRight: 10,
+
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        backgroundColor: '#e0e0e0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
     },
+
     textContainer: {
         flex: 1,
     },
+
     notificationHeading: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        color: '#1c1c1e',
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 4,
     },
+
     notificationText: {
-        color: '#ddd',
+        color: '#6e6e73',
         fontSize: 14,
+    },
+
+    arrowIcon: {
+        marginLeft: 10,
+        fontSize: 20,
+        color: '#6e6e73',
+    },
+
+    statusBadge: {
+        alignSelf: 'flex-start',
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        marginTop: 6,
+    },
+
+    statusText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        textTransform: 'capitalize',
     },
 }
 );

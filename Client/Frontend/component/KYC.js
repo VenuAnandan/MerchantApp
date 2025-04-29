@@ -1,34 +1,58 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform, Image, TouchableOpacity, Pressable } from "react-native";
+import { View, Text, Button, Platform, Image, TouchableOpacity, Pressable, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FlatList } from "react-native";
-import Feather from '@expo/vector-icons/Feather';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { Picker } from "@react-native-picker/picker";
 
 
 const KYC = ({ navigation }) => {
 
 
+    const filter = ['All', 'Bank', 'Pan'];
     const [kycpending, setKycpending] = useState('');
+
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+    const [kycfilter, setKycfilter] = useState('All');
 
     useEffect(() => {
         const getmystore = async () => {
             const token = await AsyncStorage.getItem("token");
             try {
-                const response = await axios.get(apiUrl + '/pendingkyc', {
+                const response = await axios.post(apiUrl + '/pendingkyc', {
+                    data: kycfilter
+                }, {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
+                // console.log(response.data);
                 setKycpending(response.data);
             } catch (error) {
-                console.log(`EError is : ${error}`)
+                console.log(`EError is : ${error}`);
             }
         }
         getmystore();
     }, []);
+
+    const filterkyc = async (data) => {
+        const token = await AsyncStorage.getItem("token");
+        setKycfilter(data);
+        if (data) {
+            try {
+                const response = await axios.post(apiUrl + '/pendingkyc', {
+                    data: data
+                }, {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                });
+                setKycpending(response.data);
+            } catch (error) {
+                console.log(`EError is : ${error}`);
+            }
+        }
+    }
 
 
     return (
@@ -45,13 +69,32 @@ const KYC = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             {kycpending ? (
+                // <View>
                 <FlatList
                     data={kycpending}
-                    keyExtractor={item => (item.id)}
+                    keyExtractor={(item) => item.id}
+                    ListHeaderComponent={
+                        <>
+                            <Text style={{ fontSize: 17, fontStyle: 'italic' }}>
+                                The KYC process for this store is incomplete. Pending details include
+                                <Text style={{ fontWeight: 'bold', fontSize: 20 }}> {kycfilter}
+                                </Text> information. Kindly update the required documents to ensure smooth verification and avoid any processing delays.
+                            </Text>
+
+                            <Picker
+                                selectedValue={kycfilter}
+                                onValueChange={(value) => filterkyc(value)}>
+                                {filter.length > 0 &&
+                                    filter.map((item) => (
+                                        <Picker.Item key={item} label={item} value={item} />
+                                    ))}
+                            </Picker>
+                        </>
+                    }
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.card}
-                            onPress={() => navigation.navigate('EditStore', { item: item })}>
+                            onPress={() => navigation.navigate('EditStore', { item: item.id })}>
                             <View style={styles.header}>
                                 <Image
                                     style={styles.avatar}
@@ -66,19 +109,29 @@ const KYC = ({ navigation }) => {
                                 source={{ uri: 'https://picsum.photos/500/300' }} />
 
                             {item.Pending == 'No' ? (
-                                <View style={{ backgroundColor: '' }}>
-                                    <Text></Text>
-                                </View>
+                                <View />
                             ) : (
-                                <View style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
-                                    <View style={{ backgroundColor: 'red', width: '40%', padding: 5, marginTop: 7, display: 'flex', alignContent: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: 20, height: 40 }}>
+                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                    <View style={{
+                                        backgroundColor: 'red',
+                                        width: '40%',
+                                        padding: 5,
+                                        marginTop: 7,
+                                        borderRadius: 20,
+                                        height: 40,
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
                                         <Text style={{ color: 'white' }}>{item.Pending}</Text>
                                     </View>
                                 </View>
                             )}
                         </Pressable>
                     )}
+                    showsVerticalScrollIndicator={false}
                 />
+
+                // </View>
             ) : (
                 <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image

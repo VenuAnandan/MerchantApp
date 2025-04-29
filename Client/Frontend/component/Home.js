@@ -6,6 +6,7 @@ import { StyleSheet } from "react-native";
 import { FlatList } from "react-native";
 import { ScrollView } from "react-native";
 import Toast from "react-native-toast-message";
+// import LinearGradient from 'react-native-linear-gradient';
 
 const Home = ({ navigation }) => {
 
@@ -13,11 +14,14 @@ const Home = ({ navigation }) => {
     const data = "";
     const [agentname, setAgentname] = useState("Name");
     const [agentemail, setAgentemail] = useState("Email");
+    const [agentid, setAgentid] = useState();
     const [score, setScore] = useState(0);
     const [incomplete, setIncomplete] = useState(0);
     const [kycpending, setKYCpending] = useState(0);
     const [ticketrise, setTicketrise] = useState(0);
     const [sto, setSto] = useState(0);
+    const [damageparcel, setDamageparcel] = useState(0);
+    const [numdevice, setNumdevice] = useState(0);
     const [search, setSearch] = useState('');
 
     const [message, setMessage] = useState();
@@ -39,37 +43,37 @@ const Home = ({ navigation }) => {
     useEffect(() => {
 
         // const getparcels = async () => {
-            // try {
-            //     const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
-            //         "agentid": "id_1742404536258"
-            //     });
-            //     setParcelsinfo(response.data.data);
-            //     // console.log(response.data.data[4], "devicess");
-            // } catch (error) {
-            //     console.log(`EError is : ${error}`);
-            // }
+        // try {
+        //     const response = await axios.post('http://192.168.1.8:5000/parcel/agentid', {
+        //         "agentid": "id_1742404536258"
+        //     });
+        //     setParcelsinfo(response.data.data);
+        //     // console.log(response.data.data[4], "devicess");
+        // } catch (error) {
+        //     console.log(`EError is : ${error}`);
+        // }
         // }
         // getparcels();
 
 
-        const storeparcelsinfo = async () => {
-            const token = await AsyncStorage.getItem("token");
-            if (token) {
-                try {
-                    // console.log(parcelsinfo,'stores')
-                    const response = await axios.post(apiUrl + '/storeparcels', {
-                        data: parcelsinfo
-                    }, {
-                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                    });
-                    // console.log(response.data);
-                } catch (error) {
-                    console.log(`EError is : ${error}`);
-                }
-            }
-        }
+        // const storeparcelsinfo = async () => {
+        //     const token = await AsyncStorage.getItem("token");
+        //     if (token) {
+        //         try {
+        //             // console.log(parcelsinfo,'stores')
+        //             const response = await axios.post(apiUrl + '/storeparcels', {
+        //                 data: parcelsinfo
+        //             }, {
+        //                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        //             });
+        //             // console.log(response.data);
+        //         } catch (error) {
+        //             console.log(`EError is : ${error}`);
+        //         }
+        //     }
+        // }
 
-        storeparcelsinfo();
+        // storeparcelsinfo();
 
 
         const getimcomplet = async () => {
@@ -85,6 +89,9 @@ const Home = ({ navigation }) => {
                 setKYCpending(response.data.pending);
                 setSto(response.data.sto);
                 setTicketrise(response.data.ticket);
+                setNumdevice(response.data.device);
+                setDamageparcel(response.data.damage);
+                setAgentid(response.data.id);
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
@@ -107,125 +114,154 @@ const Home = ({ navigation }) => {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#F9F7F5' }}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <Toast ref={(ref) => Toast.setRef(ref)} />
-                <View style={styles.conatiner}>
-                    <View style={styles.top1}>
-                        <View style={styles.head1}>
-                            <View style={styles.head12}>
-                                <TouchableOpacity style={{ backgroundColor: 'white', borderRadius: '45%' }} onPress={()=>navigation.navigate('UserInfo')}>
-                                    <Image style={styles.image} source={{ uri: 'https://img.icons8.com/?size=100&id=13042&format=png&color=000000' }} />
+        // <LinearGradient
+        //     colors={['#ffffff', '#e2d8f7', '#cbb2f0', '#b18bd3', '#8a5fd2']} // Light to dark
+        //     start={{ x: 0.5, y: 0 }} // Top center
+        //     end={{ x: 0.5, y: 1 }}   // Bottom center
+        //     style={{flex:1}}
+        // >
+            <View style={{ flex: 1, backgroundColor: '#F9F7F5' }}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <Toast ref={(ref) => Toast.setRef(ref)} />
+                    <View style={styles.conatiner}>
+                        <View style={styles.top1}>
+                            <View style={styles.head1}>
+                                <View style={styles.head12}>
+                                    <TouchableOpacity style={{ backgroundColor: 'white', borderRadius: '45%' }} onPress={() => navigation.navigate('UserInfo')}>
+                                        <Image style={styles.image} source={{ uri: 'https://img.icons8.com/?size=100&id=13042&format=png&color=000000' }} />
+                                    </TouchableOpacity>
+                                    <View>
+                                        <Text style={{ fontSize: 25, color: 'white' }}>{agentname}</Text>
+                                        <Text style={{ color: 'white' }}>{agentemail}</Text>
+                                    </View>
+                                </View>
+                                <TouchableOpacity onPress={() => navigation.navigate('AlertMess')}>
+                                    <Image style={styles.icon} source={{ uri: 'https://img.icons8.com/?size=100&id=17317&format=png&color=000000' }} />
                                 </TouchableOpacity>
-                                <View>
-                                    <Text style={{ fontSize: 25, color: 'white' }}>{agentname}</Text>
-                                    <Text style={{ color: 'white' }}>{agentemail}</Text>
-                                </View>
                             </View>
-                            <TouchableOpacity onPress={() => navigation.navigate('AlertMess')}>
-                                <Image style={styles.icon} source={{ uri: 'https://img.icons8.com/?size=100&id=17317&format=png&color=000000' }} />
+                            {/* <Text style={{fontSize:30, paddingTop:10}}>Welcome Budy</Text> */}
+                            <View>
+                                <TextInput style={styles.searchbar} value={search} onChangeText={setSearch} placeholder="Search Store Name"></TextInput>
+                                {/* {!isvalid && <Text style={{ color: 'red' }}>Invalid input. Only alphabetic characters are allowed.</Text>} */}
+                            </View>
+                            <TouchableOpacity style={styles.edit} onPress={gosearch}>
+                                <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Search</Text>
                             </TouchableOpacity>
+                            {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
                         </View>
-                        {/* <Text style={{fontSize:30, paddingTop:10}}>Welcome Budy</Text> */}
-                        <View>
-                            <TextInput style={styles.searchbar} value={search} onChangeText={setSearch} placeholder="Search Store Name"></TextInput>
-                            {/* {!isvalid && <Text style={{ color: 'red' }}>Invalid input. Only alphabetic characters are allowed.</Text>} */}
+                        <View style={{ padding: 10, marginTop: 10 }}>
+                            <Text style={{ fontSize: 22, fontStyle: 'italic' }}>Welcome! Unlock opportunities, connect, grow, and <Text style={{ color: '#309264' }}>achieve success</Text></Text>
                         </View>
-                        <TouchableOpacity style={styles.edit} onPress={gosearch}>
-                            <Text style={{ color: 'white', marginTop: 7, marginBottom: 7, marginRight: 9, marginLeft: 9 }} >Search</Text>
-                        </TouchableOpacity>
-                        {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
-                    </View>
-                    <View style={{ padding: 10, marginTop: 10 }}>
-                        <Text style={{ fontSize: 22, fontStyle: 'italic' }}>Welcome! Unlock opportunities, connect, grow, and <Text style={{ color: '#309264' }}>achieve success</Text></Text>
-                    </View>
-                    <View style={styles.head3}>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('KYC')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=TqsKL58VfNRg&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>KYC Pending</Text>
-                                <View style={styles.num}>
-                                    <Text>{kycpending}</Text>
+                        <View style={styles.head3}>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('KYC')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=TqsKL58VfNRg&format=png&color=000000' }}></Image>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('MyStore')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=3itKcgt8xjuf&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>My Stores</Text>
-                                <View style={styles.num}>
-                                    <Text>{sto}</Text>
+                                <View>
+                                    <Text style={{ color: 'white' }}>KYC Pending</Text>
+                                    <View style={styles.num}>
+                                        <Text>{kycpending}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('AddStore')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=jiu762ukkS7J&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>Add Merchant</Text>
-                                {/* <View style={styles.num}>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('MyStore')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=3itKcgt8xjuf&format=png&color=000000' }}></Image>
+                                </View>
+                                <View>
+                                    <Text style={{ color: 'white' }}>My Stores</Text>
+                                    <View style={styles.num}>
+                                        <Text>{sto}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('AddStore')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=jiu762ukkS7J&format=png&color=000000' }}></Image>
+                                </View>
+                                <View>
+                                    <Text style={{ color: 'white' }}>Add Merchant</Text>
+                                    {/* <View style={styles.num}>
                                     <Text>{incomplete}</Text>
                                 </View> */}
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Credit')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>Credite Score</Text>
-                                <View style={styles.num}>
-                                    <Text>{score}</Text>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('TicketRise')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=x18yLpNPidhp&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>Ticket Rise</Text>
-                                <View style={styles.num}>
-                                    <Text>{ticketrise}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Credit')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=KNxaH6cx0qhT&format=png&color=000000' }}></Image>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Device')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=63961&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>Device</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Parcels')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=j8Gul5fFFyJA&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>Parcels</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('DamageParcels')}>
-                            <View>
-                                <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=T34j6RY0HsPA&format=png&color=000000' }}></Image>
-                            </View>
-                            <View>
-                                <Text style={{ color: 'white' }}>Delivery</Text>
-                            </View>
-                        </TouchableOpacity>
+                                <View>
+                                    <Text style={{ color: 'white' }}>Credite Score</Text>
+                                    <View style={styles.num}>
+                                        <Text>{score}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('TicketRise')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=x18yLpNPidhp&format=png&color=000000' }}></Image>
+                                </View>
+                                <View>
+                                    <Text style={{ color: 'white' }}>Ticket Rise</Text>
+                                    <View style={styles.num}>
+                                        <Text>{ticketrise}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Device')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=63961&format=png&color=000000' }}></Image>
+                                </View>
+                                <View>
+                                    <Text style={{ color: 'white' }}>Device</Text>
+                                    <View style={styles.num}>
+                                        <Text>{numdevice}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Parcels', { item: agentid })}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=j8Gul5fFFyJA&format=png&color=000000' }}></Image>
+                                </View>
+                                <View>
+                                    <Text style={{ color: 'white' }}>Parcels</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('DamageParcels')}>
+                                <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=T34j6RY0HsPA&format=png&color=000000' }}></Image>
+                                </View>
+                                <View>
+                                    <Text style={{ color: 'white' }}>Delivery</Text>
+                                    <View style={styles.num}>
+                                        <Text>{damageparcel}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('Taskpage')}>
+                                {/* <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=T34j6RY0HsPA&format=png&color=000000' }}></Image>
+                                </View> */}
+                                <View>
+                                    <Text style={{ color: 'white' }}>translatedTextText</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.head32} onPress={() => navigation.navigate('translateText')}>
+                                {/* <View>
+                                    <Image style={styles.image2} source={{ uri: 'https://img.icons8.com/?size=100&id=T34j6RY0HsPA&format=png&color=000000' }}></Image>
+                                </View> */}
+                                <View>
+                                    <Text style={{ color: 'white' }}>Tamil Text</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.toastWrapper}>
+                            <Toast />
+                        </View>
                     </View>
-                    <View style={styles.toastWrapper}>
-                        <Toast />
-                    </View>
-                </View>
-            </ScrollView>
-        </View>
+                </ScrollView>
+            </View>
+        // </LinearGradient>
     );
 }
 

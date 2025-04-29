@@ -1,22 +1,45 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, Platform, Pressable, TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import { ScrollView, Image } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 
 const EditStore = ({ navigation, route }) => {
 
     const { item } = route.params;
     const [qrImage, setQrImage] = useState(item.qrCodeImage);
+    const [storedetail, setStoredetail] = useState();
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+    useEffect(() => {
+        const getmystore = async () => {
+            const token = await AsyncStorage.getItem("token");
+            try {
+                const response = await axios.post(apiUrl + '/getstoredetail', {
+                    id: item
+                }, {
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                });
+                // console.log(response.data.message);
+                setStoredetail(response.data.storeinfo);
+                setQrImage(response.data.storeinfo.qrCodeImage);
+            } catch (error) {
+                console.log(`EError is : ${error}`);
+            }
+        }
+        getmystore();
+    }, []);
 
     // console.log(item);
 
     return (
         <View style={styles.conatiner} >
 
-            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 30, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                 <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View>
                         <AntDesign name="arrowleft" size={24} color="white" />
@@ -31,49 +54,59 @@ const EditStore = ({ navigation, route }) => {
                     </View>
                 </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
-                    <Pressable style={styles.sign} onPress={() => navigation.navigate('EditOrigin', { item: item })}>
-                        <Text style={{ color: 'white', fontSize: 17 }}>Edit</Text>
-                    </Pressable>
-                </View>
-                <View style={styles.header}>
-                    <Text style={styles.storeName}>{item.storeName} Store</Text>
+            {storedetail ? (
+                <ScrollView showsVerticalScrollIndicator={false} >
+                    <View style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+                        <Pressable style={styles.sign} onPress={() => navigation.navigate('EditOrigin', { item: item })}>
+                            <Text style={{ color: 'white', fontSize: 17 }}>Edit</Text>
+                        </Pressable>
+                    </View>
+                    <View style={styles.header}>
+                        <Text style={styles.storeName}>{storedetail.storeName} Store</Text>
+                        <Image
+                            style={styles.storeImage}
+                            source={{ uri: 'https://picsum.photos/500/300' }}
+                        />
+                    </View>
+                    <View style={styles.card}>
+                        <Text style={styles.cardTitle}>Store Information</Text>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Owner:</Text>
+                            <Text style={styles.value}>{storedetail.ownerName}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Contact:</Text>
+                            <Text style={styles.value}>+91 {storedetail.phone}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Email:</Text>
+                            <Text style={styles.value}>{storedetail.email}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>City:</Text>
+                            <Text style={styles.value}>{storedetail.city}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Address:</Text>
+                            <Text style={styles.value}>{storedetail.address}</Text>
+                        </View>
+                    </View>
+                    {qrImage && (
+                        <View style={styles.qrContainer}>
+                            <Text style={styles.qrText}>Scan QR Code:</Text>
+                            <Image source={{ uri: qrImage }} style={styles.qrImage} />
+                        </View>
+                    )}
+                </ScrollView>
+            ) : (
+                <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
-                        style={styles.storeImage}
-                        source={{ uri: 'https://picsum.photos/500/300' }}
-                    />
+                        style={{ width: 200, height: 200 }}
+                        source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
+                    <Text>No Stores</Text>
                 </View>
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Store Information</Text>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Owner:</Text>
-                        <Text style={styles.value}>{item.ownerName}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Contact:</Text>
-                        <Text style={styles.value}>+91 {item.phone}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Email:</Text>
-                        <Text style={styles.value}>{item.email}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>City:</Text>
-                        <Text style={styles.value}>{item.city}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Address:</Text>
-                        <Text style={styles.value}>{item.address}</Text>
-                    </View>
-                </View>
-                {qrImage && (
-                    <View style={styles.qrContainer}>
-                        <Text style={styles.qrText}>Scan QR Code:</Text>
-                        <Image source={{ uri: qrImage }} style={styles.qrImage} />
-                    </View>
-                )}
-            </ScrollView>
+            )}
+
             {/* <Text>StoreInfo Screen </Text> */}
         </View>
     );
@@ -83,7 +116,7 @@ const styles = StyleSheet.create({
     conatiner: {
         flex: 1,
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        paddingTop: 20,
+        padding: 20,
         backgroundColor: '#F9F7F5'
     },
     sign: {
@@ -99,7 +132,7 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         marginBottom: 20,
-        padding: 20
+        // padding: 20
     },
     storeName: {
         fontSize: 26,
@@ -114,8 +147,8 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
     card: {
-        marginLeft: 20,
-        marginRight: 20,
+        // marginLeft: 5,
+        // marginRight: 5,
         backgroundColor: '#fff',
         padding: 15,
         borderRadius: 10,
@@ -147,10 +180,10 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     qrContainer: {
-        marginLeft: 20,
-        marginRight: 20,
+        // marginLeft: 20,
+        // marginRight: 20,
         alignItems: 'center',
-        padding: 15,
+        // padding: 15,
         backgroundColor: '#fff',
         borderRadius: 10,
         elevation: 3,

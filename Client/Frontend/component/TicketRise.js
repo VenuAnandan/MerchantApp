@@ -29,7 +29,12 @@ const TicketRise = ({ navigation }) => {
                 const response = await axios.get(apiUrl + '/getticketrise', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                setMessages(response.data.data);
+                if (response.data.message == "Ticket Rise Stores") {
+                    // console.log(response.data.data[0].id);
+                    setMessages(response.data.data);
+                } else {
+                    setMessages();
+                }
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
@@ -39,12 +44,24 @@ const TicketRise = ({ navigation }) => {
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={()=> navigation.navigate('ChatPage')}>
-            <Feather name="bell" size={24} color="black" />
+        <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={() => navigation.navigate('ChatPage', { item: item.id })}>
+            <View style={styles.iconContainer}>
+                <Image
+                    style={{ width: '100%', height: '100%' }}
+                    source={{ uri: 'https://img.icons8.com/?size=100&id=J9HI0E0FAXG5&format=png&color=000000' }} />
+            </View>
+
             <View style={styles.textContainer}>
                 <Text style={styles.notificationHeading}>{item.storeName}</Text>
                 <Text style={styles.notificationText}>{item.message}</Text>
             </View>
+
+            <Text style={styles.arrowIcon}>›</Text>
+            {/* <Image
+                style={styles.arrowIcon}
+                source={{ uri: 'https://img.icons8.com/?size=100&id=61&format=png&color=000000' }} /> */}
         </TouchableOpacity>
     );
 
@@ -63,16 +80,21 @@ const TicketRise = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             {messages ? (
-                <FlatList
-                    style={styles.tickets}
-                    data={messages}
-                    renderItem={renderItem} />
+                <View>
+                    <Text style={{ fontSize: 17, fontStyle: 'italic' }}>Below is the list of tickets you have raised. Track the status or follow up on any issue from here.
+                        {/* <Text style={{ fontWeight: 'bold', fontSize: 20, fontStyle: 'italic' }}> MyDevices</Text> */}
+                    </Text>
+                    <FlatList
+                        style={styles.tickets}
+                        data={messages}
+                        renderItem={renderItem} />
+                </View>
             ) : (
                 <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
                         style={{ width: 200, height: 200 }}
                         source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
-                    <Text>No Stores</Text>
+                    <Text>No Ticket Rises</Text>
                 </View>
             )}
 
@@ -88,31 +110,55 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     tickets: {
-        marginTop: 20
+        marginTop: 20,
+        paddingHorizontal: 16,
     },
 
     notificationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#333',
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+        backgroundColor: '#f8f9fa',
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
     },
-    bellIcon: {
-        marginRight: 10,
+
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        backgroundColor: '#e0e0e0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
     },
+
     textContainer: {
         flex: 1,
     },
+
     notificationHeading: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        color: '#1c1c1e',
+        fontSize: 17,
+        fontWeight: '600',
+        marginBottom: 4,
     },
+
     notificationText: {
-        color: '#ddd',
+        color: '#6e6e73',
         fontSize: 14,
+    },
+
+    arrowIcon: {
+        marginLeft: 10,
+        color: '#6e6e73',
+        // width: '10%',
+        // height: '60%'
     },
 }
 );

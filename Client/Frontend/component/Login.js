@@ -82,12 +82,12 @@ const Login = ({ navigation, setIsLoggedIn }) => {
         try {
             const response = await axios.post(apiUrl + '/agentregistration',
                 {
-                    refname, relname, reemail, hashrepass, reemployee, rephone
+                    refname, relname, reemail, reemployee, rephone, repassword
                 }
             );
-            // console.log(response.data);
+            console.log(response.data);
             if (response.data == "Agent Info Added" || response.data == "Enter to all feild!.") {
-                console.log("Flase");
+                console.log("False");
             } else {
                 console.log("True");
             }

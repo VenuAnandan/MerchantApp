@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform, Image, Pressable, TouchableOpacity } from "react-native";
+import { View, Text, Button, Platform, Image, Pressable, TouchableOpacity, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
 import { FlatList } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -17,12 +17,16 @@ const MyStore = ({ navigation }) => {
     useEffect(() => {
         const getmystore = async () => {
             const token = await AsyncStorage.getItem("token");
-            // console.log(token, "-----");
             try {
                 const response = await axios.get(apiUrl + '/mystores', {
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 });
-                setMystores(response.data);
+                // console.log(response.data);
+                if(response.data.message == "Store Not founded"){
+                    setMystores();
+                }else{
+                    setMystores(response.data.data);
+                }
             } catch (error) {
                 console.log(`EError is : ${error}`);
             }
@@ -33,7 +37,7 @@ const MyStore = ({ navigation }) => {
 
     return (
         <View style={styles.conatiner} >
-            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 30, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+            <View style={{ width: '100%', backgroundColor: '#309264', paddingTop: 10, paddingBottom: 10, borderRadius: 20, display: 'flex', marginTop: 30, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                 <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', flexWrap: 'wrap', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                     <View>
                         <AntDesign name="arrowleft" size={24} color="white" />
@@ -49,34 +53,38 @@ const MyStore = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             {mystores ? (
-                <FlatList
-                    data={mystores}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <Pressable
-                            style={styles.card}
-                            onPress={() => navigation.navigate('StoreInfo', { item: item })}>
-                            <View style={styles.header}>
-                                <Image
-                                    style={styles.avatar}
-                                    source={{ uri: 'https://picsum.photos/100/100' }} />
-                                <View>
-                                    <Text style={styles.title}>{item.storeName}</Text>
-                                    <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                <ScrollView >
+                    <Text style={{ fontSize: 17, fontStyle: 'italic' }}>You have successfully added the following stores with merchant details. Review or edit the information anytime from the list below.</Text>
+                    <FlatList
+                        data={mystores}
+                        style={{width:'100%', height:'84%'}}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <Pressable
+                                style={styles.card}
+                                onPress={() => navigation.navigate('StoreInfo', { item: item.id })}>
+                                <View style={styles.header}>
+                                    <Image
+                                        style={styles.avatar}
+                                        source={{ uri: 'https://picsum.photos/100/100' }} />
+                                    <View>
+                                        <Text style={styles.title}>{item.storeName}</Text>
+                                        <Text style={styles.subtitle}>Owner: {item.ownerName}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                            <Image
-                                style={styles.storeImage}
-                                source={{ uri: 'https://picsum.photos/500/300' }} />
-                        </Pressable>
-                    )}
-                />
+                                <Image
+                                    style={styles.storeImage}
+                                    source={{ uri: 'https://picsum.photos/500/300' }} />
+                            </Pressable>
+                        )}
+                    />
+                </ScrollView>
             ) : (
                 <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
                         style={{ width: 200, height: 200 }}
                         source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
-                    <Text>No Stores</Text>
+                    <Text>No Informations</Text>
                 </View>
             )}
         </View>
@@ -93,7 +101,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 15,
         padding: 15,
-        margin: 10,
+        marginBottom: 5,
+        marginTop:5,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },

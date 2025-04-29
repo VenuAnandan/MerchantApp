@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform, Image, TouchableOpacity } from "react-native";
+import { View, Text, Button, Platform, Image, TouchableOpacity, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FlatList } from "react-native";
@@ -42,7 +42,7 @@ const GetParcel = ({ navigation, route }) => {
         if (token) {
             try {
                 // console.log(parcelsinfo,'stores')
-                const response = await axios.post('http://192.168.1.48:5000/parcel/returnParcel', {
+                const response = await axios.post('http://192.168.1.7:5000/parcel/returnParcel', {
                     data: parcelinformation
                 });
                 console.log(response.data);
@@ -65,6 +65,15 @@ const GetParcel = ({ navigation, route }) => {
         });
     };
 
+    const renderAccessory = (title, info) => (
+        <View style={styles.accessoryCard}>
+            <Text style={styles.accessoryTitle}>{title}</Text>
+            <Text>ID: {info.id}</Text>
+            <Text>Quantity: {info.quantity}</Text>
+            <Text>Status: <Text style={{ color: info.status === 'damaged' ? 'red' : 'green' }}>{info.status}</Text></Text>
+        </View>
+    );
+
 
     return (
         <View style={styles.conatiner} >
@@ -85,20 +94,69 @@ const GetParcel = ({ navigation, route }) => {
             </View>
 
             {parcelinformation ? (
-                <View>
-                    <Text style={{ marginTop: 10, fontSize: 40, margintBottom: 20 }}>{parcelinformation.parcel_id}</Text>
-                    <View style={{ width: '70%', height: 270, borderRadius: 20 }}>
-                        <Image style={{ height: '100%', width: '100%', borderRadius: 50 }} source={{ uri: 'https://th.bing.com/th/id/OIP.6-g1cpn6T7uZJsfG_-TcRwHaHa?w=176&h=180&c=7&r=0&o=5&pid=1.7' }} />
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <Text style={styles.parcelIdText}>{parcelinformation.parcel_id}</Text>
+
+                    <View style={styles.statusBadge}>
+                        <Text style={styles.statusText}>{parcelinformation.status}</Text>
                     </View>
-                    <View style={{ display: 'flex', width: '100%', padding: 5, marginTop: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', flexDirection: 'row', gap: 10 }}>
-                        <TouchableOpacity style={styles.Button} onPress={() => navigation.navigate('ParcelUpdate', { parcel_id: parcelinformation.parcel_id })}>
-                            <Text style={{ color: 'white' }}>Edit</Text>
+
+                    <View style={styles.parcelImageWrapper}>
+                        <Image
+                            style={styles.parcelImage}
+                            source={{
+                                uri: 'https://th.bing.com/th/id/OIP.6n0gYZ_FOFWe3XZDGSutKQAAAA?w=178&h=170&c=7&r=0&o=5&pid=1.7',
+                            }}
+                        />
+                    </View>
+
+                    <View style={styles.infoBlock}>
+                        <Text style={styles.label}>Supporter:</Text>
+                        <Text style={styles.value}>{parcelinformation.suppname}</Text>
+
+                        <Text style={styles.label}>Pickup Location:</Text>
+                        <Text style={styles.value}>{parcelinformation.pickloc}</Text>
+
+                        <Text style={styles.label}>Destination Location:</Text>
+                        <Text style={styles.value}>{parcelinformation.desloc}</Text>
+                    </View>
+
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Devices</Text>
+                    </View>
+                    {parcelinformation.devices.map((device, index) => (
+                        <View key={index} style={styles.deviceCard}>
+                            <Text>Device ID: {device.deviceid}</Text>
+                            <Text>Status: <Text style={{ color: device.status === 'damaged' ? 'red' : 'green' }}>{device.status}</Text></Text>
+                            <Text>Message: {device.DamageMsg}</Text>
+                        </View>
+                    ))}
+
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Accessories</Text>
+                    </View>
+
+                    {renderAccessory('Battery', parcelinformation.batteryinfo)}
+                    {renderAccessory('Audio Cable', parcelinformation.audioinfo)}
+                    {renderAccessory('Charger', parcelinformation.chargerinfo)}
+
+                    <View style={styles.actionRow}>
+                        <TouchableOpacity
+                            style={styles.Button}
+                            onPress={() =>
+                                navigation.navigate('ParcelUpdate', {
+                                    parcel_id: parcelinformation.parcel_id,
+                                })
+                            }
+                        >
+                            <Text style={styles.buttonText}>Edit</Text>
                         </TouchableOpacity>
+
                         <TouchableOpacity style={styles.Button} onPress={DeliveryDamage}>
-                            <Text style={{ color: 'white' }}>Deliver</Text>
+                            <Text style={styles.buttonText}>Deliver</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </ScrollView>
             ) : (
                 <View style={{ marginTop: '50%', display: 'flex', alignItems: "center", justifyContent: 'center', alignContent: 'center' }}>
                     <Image
@@ -123,28 +181,119 @@ const styles = StyleSheet.create({
     },
 
 
-    notificationContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#333',
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+    parcelIdText: {
+        marginTop: 10,
+        fontSize: 28,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#1c1c1e',
     },
-    bellIcon: {
-        marginRight: 10,
+
+    statusBadge: {
+        alignSelf: 'center',
+        backgroundColor: '#ffa500',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+        marginTop: 8,
     },
-    textContainer: {
-        flex: 1,
-    },
-    notificationHeading: {
+
+    statusText: {
         color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 14,
+        textTransform: 'uppercase',
+    },
+
+    parcelImageWrapper: {
+        width: '100%',
+        height: 220,
+        borderRadius: 20,
+        overflow: 'hidden',
+        marginVertical: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+
+    parcelImage: {
+        height: '100%',
+        width: '100%',
+    },
+
+    infoBlock: {
+        marginBottom: 20,
+    },
+
+    label: {
+        fontSize: 14,
+        color: '#888',
+        fontWeight: '600',
+    },
+
+    value: {
+        fontSize: 16,
+        marginBottom: 10,
+        color: '#333',
+    },
+
+    sectionHeader: {
+        marginVertical: 10,
+    },
+
+    sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#333',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        paddingBottom: 5,
     },
-    notificationText: {
-        color: '#ddd',
-        fontSize: 14,
+
+    deviceCard: {
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 10,
+        elevation: 2,
+    },
+
+    accessoryCard: {
+        backgroundColor: '#f0f0f0',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+
+    accessoryTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 6,
+    },
+
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+        gap: 12,
+    },
+
+    Button: {
+        backgroundColor: '#007bff',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 10,
+        flex: 1,
+        alignItems: 'center',
+        elevation: 3,
+    },
+
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
     Button: {
         backgroundColor: '#309264',

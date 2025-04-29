@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Platform, Image, TouchableOpacity } from "react-native";
+import { View, Text, Button, Platform, Image, TouchableOpacity, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FlatList } from "react-native";
@@ -21,18 +21,19 @@ const ParcelInfo = ({ navigation, route }) => {
     useEffect(() => {
         const getparcels = async () => {
             const token = await AsyncStorage.getItem("token");
+            // console.log(item);
             if (!token) {
                 console.log('Token is empty');
             } else {
                 // console.log("heee");
                 try {
-                    const response = await axios.post('http://192.168.1.48:5000/parcel/parcelNumber', {
+                    const response = await axios.post('http://192.168.1.7:5000/parcel/parcelNumber', {
                         "parcelNumber": item
                     });
                     setParcelinfo(response.data.data);
                     setParceldevices(response.data.data.devices);
                     setParecelAccess(response.data.data.accessories);
-                    console.log(response.data.data);
+                    // console.log(response.data.data,'parcels');
                     // console.log(response.data.data.accessories[0], "parcel Info");
                 } catch (error) {
                     console.log(`EError is : ${error}`);
@@ -49,9 +50,9 @@ const ParcelInfo = ({ navigation, route }) => {
         if (data) {
             if (token) {
                 try {
-                    const response = await axios.post('http://192.168.1.48:5000/parcel/updatestatus', {
+                    const response = await axios.post('http://192.168.1.7:5000/parcel/updatestatus', {
                         "parcelNumber": data,
-                        "status":"received"
+                        "status": "received"
                     });
                     // console.log(response.data,"recive");
                 } catch (error) {
@@ -71,9 +72,9 @@ const ParcelInfo = ({ navigation, route }) => {
         storedevice();
 
         const storeaccess = async () => {
-            const response = await axios.post(apiUrl + '/addagentstoreaccess',{
-                access : parcelAccess
-            },{
+            const response = await axios.post(apiUrl + '/addagentstoreaccess', {
+                access: parcelAccess
+            }, {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             });
             // console.log(response.data.message);
@@ -85,23 +86,17 @@ const ParcelInfo = ({ navigation, route }) => {
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer}>
-            <Feather name="bell" size={24} color="black" />
-            <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>{item}</Text>
-            </View>
-        </TouchableOpacity>
+        <View style={styles.deviceCard}>
+            <Text>Device ID: {item}</Text>
+        </View>
     );
 
 
     const renderAccessItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer}>
-            <Feather name="bell" size={24} color="black" />
-            <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>{item.id}</Text>
-                <Text style={styles.notificationText}>Quantity : {item.quantity}</Text>
-            </View>
-        </TouchableOpacity>
+        <View style={styles.deviceCard}>
+            <Text>Device ID: {item.id}</Text>
+            <Text>Quantity : {item.quantity}</Text>
+        </View>
     );
 
 
@@ -118,43 +113,72 @@ const ParcelInfo = ({ navigation, route }) => {
                     <View><AntDesign name="close" size={24} color="white" /></View>
                 </TouchableOpacity>
             </View>
-            <View>
+            <View style={{ flex: 1 }}>
                 {parcelinfo ? (
-                    <View>
-                        <Text>Parcel Number : {parcelinfo.parcelNumber}</Text>
+                    <View style={{ width: '100%', height: '98%', marginBottom: 20 }}>
+                        <ScrollView showsVerticalScrollIndicator={false}>
 
-                        <View>
-                            <Text>Devices</Text>
-                            {parceldevices ? (
-                                <View>
-                                    <FlatList
-                                        data={parceldevices}
-                                        renderItem={renderItem} />
-                                </View>
-                            ) : (
-                                <View>
-                                    <Text>No</Text>
-                                </View>
-                            )}
-                        </View>
+                            <Text style={styles.parcelIdText}>{parcelinfo.parcelNumber}</Text>
 
-                        <View>
-                            <Text>Accessories</Text>
-                            {parcelAccess ? (
-                                <View>
-                                    <FlatList
-                                        data={parcelAccess}
-                                        renderItem={renderAccessItem} />
+                            {/* <Text>Parcel Number : {parcelinfo.parcelNumber}</Text> */}
+
+                            <View style={styles.parcelImageWrapper}>
+                                <Image
+                                    style={styles.parcelImage}
+                                    source={{
+                                        uri: 'https://th.bing.com/th/id/OIP.6n0gYZ_FOFWe3XZDGSutKQAAAA?w=178&h=170&c=7&r=0&o=5&pid=1.7',
+                                    }}
+                                />
+                            </View>
+
+                            <View style={styles.infoBlock}>
+                                <Text style={styles.label}>Supporter:</Text>
+                                <Text style={styles.value}>{parcelinfo.supportname}</Text>
+
+                                <Text style={styles.label}>From</Text>
+                                <Text style={styles.value}>{parcelinfo.pickupLocation}</Text>
+
+                                <Text style={styles.label}>Destination Location:</Text>
+                                <Text style={styles.value}>{parcelinfo.destination}</Text>
+                            </View>
+
+                            <View>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.sectionTitle}>Devices</Text>
                                 </View>
-                            ) : (
-                                <View>
-                                    <Text>No</Text>
+                                {parceldevices ? (
+                                    <View>
+                                        <FlatList
+                                            data={parceldevices}
+                                            renderItem={renderItem} />
+                                    </View>
+                                ) : (
+                                    <View>
+                                        <Text>No</Text>
+                                    </View>
+                                )}
+                            </View>
+
+                            <View>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.sectionTitle}>Accessories</Text>
                                 </View>
-                            )}
-                        </View>
-                        <TouchableOpacity style={{ borderWidth: 1, width: 90, padding: 5 }} onPress={() => sendrevice(parcelinfo.parcelNumber)}>
-                            <Text>Received</Text>
-                        </TouchableOpacity>
+                                {parcelAccess ? (
+                                    <View>
+                                        <FlatList
+                                            data={parcelAccess}
+                                            renderItem={renderAccessItem} />
+                                    </View>
+                                ) : (
+                                    <View>
+                                        <Text>No</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <TouchableOpacity style={styles.Button} onPress={() => sendrevice(parcelinfo.parcelNumber)}>
+                                <Text style={styles.buttonText}>Get All</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
                     </View>
                 ) : (
                     <View>
@@ -176,29 +200,119 @@ const styles = StyleSheet.create({
         padding: 20,
     },
 
+    parcelIdText: {
+        marginTop: 10,
+        fontSize: 28,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#1c1c1e',
+    },
 
-    notificationContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#333',
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+    statusBadge: {
+        alignSelf: 'center',
+        backgroundColor: '#ffa500',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+        marginTop: 8,
     },
-    bellIcon: {
-        marginRight: 10,
-    },
-    textContainer: {
-        flex: 1,
-    },
-    notificationHeading: {
+
+    statusText: {
         color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 14,
+        textTransform: 'uppercase',
+    },
+
+    parcelImageWrapper: {
+        width: '100%',
+        height: 220,
+        borderRadius: 20,
+        overflow: 'hidden',
+        marginVertical: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+
+    parcelImage: {
+        height: '100%',
+        width: '100%',
+    },
+
+    infoBlock: {
+        marginBottom: 20,
+    },
+
+    label: {
+        fontSize: 14,
+        color: '#888',
+        fontWeight: '600',
+    },
+
+    value: {
+        fontSize: 16,
+        marginBottom: 10,
+        color: '#333',
+    },
+
+    sectionHeader: {
+        marginVertical: 10,
+    },
+
+    sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#333',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        paddingBottom: 5,
     },
-    notificationText: {
-        color: '#ddd',
-        fontSize: 14,
+
+    deviceCard: {
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 10,
+        elevation: 2,
+    },
+
+    accessoryCard: {
+        backgroundColor: '#f0f0f0',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+
+    accessoryTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 6,
+    },
+
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+        gap: 12,
+    },
+
+    Button: {
+        backgroundColor: '#309264',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 10,
+        flex: 1,
+        alignItems: 'center',
+        elevation: 3,
+    },
+
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
 }
 );

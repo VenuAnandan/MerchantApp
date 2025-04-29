@@ -10,6 +10,19 @@ import axios from "axios";
 
 const DamageParcels = ({ navigation }) => {
 
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'shipped':
+                return '#1890ff';
+            case 'delivered':
+                return '#52c41a';
+            case 'pending':
+                return '#faad14';
+            default:
+                return '#bfbfbf';
+        }
+    };
+
     const [damageparcel, setDamageparcel] = useState();
 
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -33,11 +46,36 @@ const DamageParcels = ({ navigation }) => {
 
 
     const renderAccessItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={() => navigation.navigate('GetParcel', { item: item.parcel_id })}>
-            <View style={styles.textContainer}>
-                <Text style={styles.notificationHeading}>Supporter Name : {item.suppname}</Text>
-                <Text style={styles.notificationText}>Parcel Number : {item.parcel_id} - {item.status}</Text>
+        <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={() => navigation.navigate('GetParcel', { item: item.parcel_id })}
+            activeOpacity={0.85}
+        >
+            <View style={styles.iconContainer}>
+                <Image
+                    style={{ width: '100%', height: '100%' }}
+                    source={{ uri: 'https://th.bing.com/th/id/OIP.6n0gYZ_FOFWe3XZDGSutKQAAAA?w=178&h=170&c=7&r=0&o=5&pid=1.7' }} />
             </View>
+
+            <View style={styles.textContainer}>
+                <Text style={styles.notificationHeading}>
+                    Supporter Name: {item.suppname}
+                </Text>
+                <Text style={styles.notificationText}>
+                    Parcel Number: {item.parcel_id}
+                </Text>
+
+                <View
+                    style={[
+                        styles.statusBadge,
+                        { backgroundColor: getStatusColor(item.status) },
+                    ]}
+                >
+                    <Text style={styles.statusText}>{item.status}</Text>
+                </View>
+            </View>
+
+            <Text style={styles.arrowIcon}>›</Text>
         </TouchableOpacity>
     );
 
@@ -65,8 +103,13 @@ const DamageParcels = ({ navigation }) => {
             </View>
 
             {damageparcel ? (
-                <View style={{ marginTop: 10 }}>
+                <View style={{ marginTop: 10, fontStyle: 'italic' }}>
+                    {/* <Text>Created Damaged Parcels</Text> */}
+                    <Text style={{ fontSize: 17 }}>The following parcels have been marked as damaged. Please review their status and take the necessary action for resolution.
+                        {/* <Text style={{ fontWeight: 'bold', fontSize: 20, fontStyle: 'italic' }}> MyDevices</Text> */}
+                    </Text>
                     <FlatList
+                        style={styles.tickets}
                         data={damageparcel}
                         renderItem={renderAccessItem} />
                 </View>
@@ -91,28 +134,76 @@ const styles = StyleSheet.create({
     },
 
 
+    tickets: {
+        marginTop: 20,
+        paddingHorizontal: 16,
+    },
+
     notificationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#333',
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+        backgroundColor: '#f8f9fa',
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 16,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 6,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
     },
-    bellIcon: {
-        marginRight: 10,
+
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        backgroundColor: '#e0e0e0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
     },
+
     textContainer: {
         flex: 1,
     },
+
     notificationHeading: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        color: '#1c1c1e',
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 4,
     },
+
     notificationText: {
-        color: '#ddd',
+        color: '#6e6e73',
         fontSize: 14,
+    },
+
+    arrowIcon: {
+        marginLeft: 10,
+        fontSize: 20,
+        color: '#6e6e73',
+    },
+
+    statusBadge: {
+        alignSelf: 'flex-start',
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        marginTop: 6,
+    },
+
+    statusText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        textTransform: 'capitalize',
     },
 }
 );

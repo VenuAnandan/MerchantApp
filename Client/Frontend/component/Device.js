@@ -39,26 +39,33 @@ const Device = ({ navigation }) => {
 
     }, []);
 
-    
+
 
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.notificationContainer} onPress={() => { navigation.navigate('DeviceInfo', { item: item.devicesid }) }}>
-            <Feather name="bell" size={24} color="black" />
-            <View style={styles.textContainer}>
-                {/* {console.log(item)} */}
-                <Text style={styles.notificationHeading}>{item.devicesid}</Text>
-                {item.status == 'damaged' ? (
-                    <View style={{padding:5, backgroundColor:'red'}}>
-                        <Text style={styles.notificationText}>{item.status}</Text>
-                    </View>
-                ):(
-                    <View style={{padding:5, backgroundColor:'green'}}>
-                        <Text style={styles.notificationText}>{item.status}</Text>
-                    </View>
-                )}
+        <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={() => navigation.navigate('DeviceInfo', { item: item.devicesid })}>
+            <View style={styles.iconContainer}>
+                <Image
+                    style={{ width: '100%', height: '100%' }}
+                    source={{ uri: 'https://th.bing.com/th/id/OIP.vscrkFtcXqYulbLGZUyh1wHaHa?pid=ImgDet&w=191&h=191&c=7' }} />
             </View>
+
+            <View style={styles.textContainer}>
+                <Text style={styles.notificationHeading}>{item.devicesid}</Text>
+
+                <View style={[
+                    styles.statusBadge,
+                    { backgroundColor: item.status === 'damaged' ? '#ff4d4f' : '#52c41a' }
+                ]}>
+                    <Text style={styles.statusText}>{item.status}</Text>
+                </View>
+            </View>
+
+            <Text style={styles.arrowIcon}>›</Text>
         </TouchableOpacity>
+
     );
 
 
@@ -76,9 +83,12 @@ const Device = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             {devices ? (
-                <View style={{width:'100%', height:'86%'}}>
+                <View style={{ width: '100%', height: '86%', marginBottom:10 }}>
+                    <Text style={{ fontSize: 17, fontStyle: 'italic' }}>The following agents have received QR code devices. Please proceed with assigning them to the respective merchants as required.
+                        {/* <Text style={{ fontWeight: 'bold', fontSize: 20, fontStyle: 'italic' }}> MyDevices</Text> */}
+                    </Text>
                     <FlatList
-                        style={{padding:10}}
+                        style={{ padding: 10 }}
                         data={devices}
                         renderItem={renderItem} />
                 </View>
@@ -87,7 +97,7 @@ const Device = ({ navigation }) => {
                     <Image
                         style={{ width: 200, height: 200 }}
                         source={{ uri: 'https://img.icons8.com/?size=100&id=lj7F2FvSJWce&format=png&color=000000' }} />
-                    <Text>No Stores</Text>
+                    <Text>No Devices</Text>
                 </View>
             )}
 
@@ -102,28 +112,70 @@ const styles = StyleSheet.create({
         padding: 20,
     },
 
+    tickets: {
+        marginTop: 20,
+        paddingHorizontal: 16,
+    },
+
     notificationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#333',
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+        backgroundColor: '#f8f9fa',
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
     },
-    bellIcon: {
-        marginRight: 10,
+
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        backgroundColor: '#e0e0e0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
     },
+
     textContainer: {
         flex: 1,
     },
+
     notificationHeading: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        color: '#1c1c1e',
+        fontSize: 17,
+        fontWeight: '600',
+        marginBottom: 4,
     },
+
     notificationText: {
-        color: '#ddd',
+        color: '#6e6e73',
         fontSize: 14,
+    },
+
+    arrowIcon: {
+        marginLeft: 10,
+        fontSize: 20,
+        color: '#6e6e73',
+    },
+
+    statusBadge: {
+        alignSelf: 'flex-start',
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        marginTop: 6,
+    },
+
+    statusText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        textTransform: 'capitalize',
     },
 }
 );
